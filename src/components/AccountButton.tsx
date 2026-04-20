@@ -8,7 +8,6 @@ type Props = {
 const AccountButton = ({ user }: Props) => {
   return (
     <>
-      <pre>{JSON.stringify(user)}</pre>
       <button className="flex size-10 items-center justify-center overflow-hidden rounded-full">
         {user.image ? (
           <Image
@@ -19,8 +18,10 @@ const AccountButton = ({ user }: Props) => {
             height={64}
           />
         ) : (
-          <div className="bg-accent-200 size-15">
-            <span>{user.name}</span>
+          <div className="bg-secondary-200 flex size-15 items-center justify-center">
+            <span className="text-secondary-600 font-bold">
+              {user.name?.charAt(0)!}
+            </span>
           </div>
         )}
       </button>

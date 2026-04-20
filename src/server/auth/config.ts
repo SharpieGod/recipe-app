@@ -49,6 +49,7 @@ export const authConfig = {
         url: "https://auth.hackclub.com/oauth/authorize",
         params: { scope: "openid name", response_type: "code" },
       },
+      checks: ["none"],
       token: {
         url: "https://auth.hackclub.com/oauth/token",
         conform: async (response: Response) => {
@@ -57,13 +58,14 @@ export const authConfig = {
           return Response.json(json, response);
         },
       },
-      userinfo: "https://auth.hackclub.com/oauth/userinfo",
+      userinfo: {
+        url: "https://auth.hackclub.com/api/v1/me",
+      },
       profile(profile) {
-        console.log(profile);
         return {
-          id: String(profile.sub ?? profile.id),
-          name: profile.name ?? profile.username,
-          image: profile.avatar ?? profile.picture,
+          id: String(profile.identity.id),
+          name: `${profile.identity.first_name} ${profile.identity.last_name}`,
+          image: null,
         };
       },
     },
