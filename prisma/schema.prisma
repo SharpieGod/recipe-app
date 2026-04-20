@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+    // Further reading:
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
+}
+
+enum Unit {
+    // Volume - Imperial
+    TEASPOON
+    TABLESPOON
+    FLUID_OUNCE
+    CUP
+    PINT
+    QUART
+    GALLON
+
+    // Volume - Metric
+    MILLILITER
+    LITER
+    DECILITER
+    CENTILITER
+
+    // Weight - Imperial
+    OUNCE
+    POUND
+
+    // Weight - Metric
+    MILLIGRAM
+    GRAM
+    KILOGRAM
+
+    // Small/Pinch
+    PINCH
+    DASH
+    SMIDGE
+    DROP
+    SPLASH
+    KNOB // e.g. "a knob of butter"
+    NUB
+
+    // Countable
+    PIECE
+    WHOLE
+    HALF
+    QUARTER
+    SLICE
+    STRIP
+    CHUNK
+    WEDGE
+    SPRIG
+    STALK
+    STEM
+    LEAF
+    FROND
+    CLOVE
+    HEAD
+    BUNCH
+    BUNDLE
+    HANDFUL
+    FISTFUL
+    FLORET // e.g. broccoli/cauliflower
+    SEGMENT // e.g. orange segments
+    FILLET
+    RASHER // e.g. rasher of bacon
+    LOIN
+    RACK // e.g. rack of ribs
+    LINK // e.g. sausage link
+    KNUCKLE
+    SPEAR // e.g. asparagus spear
+
+    // Cookware-based
+    CAN
+    JAR
+    BOTTLE
+    PACKET
+    SACHET
+    BAG
+    BOX
+    STICK
+    BLOCK
+    SHEET
+    SCOOP
+    LADLE
+    SKEWER
+
+    // Restaurant / Prep
+    PORTION
+    SERVING
+    ROUND // e.g. a round of drinks/bread
+    LAYER
+    COAT // e.g. "a thin coat of oil"
+    DRIZZLE
+    DOLLOP
+    SMEAR
+    DUSTING // e.g. "a dusting of flour"
+    GRATING // e.g. "a grating of nutmeg"
+    ZEST // e.g. "the zest of 1 lemon"
+    SQUEEZE // e.g. "a squeeze of lemon"
+}
+
+model Ingredient {
+    id       String  @id @default(cuid())
+    value    Float
+    unit     Unit
+    recipe   Recipe? @relation(fields: [recipeId], references: [id])
+    recipeId String?
+}
+
+model Recipe {
+    id          String       @id @default(cuid())
+    userId      String
+    title       String
+    ingredients Ingredient[]
+    user        User         @relation(fields: [userId], references: [id])
+}
+
+// Necessary for Next auth
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String? // @db.Text
+    access_token             String? // @db.Text
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String? // @db.Text
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token_expires_in Int?
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+    recipes       Recipe[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
