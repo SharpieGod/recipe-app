@@ -21,7 +21,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`font-noto tracking-wide`}>
-      <body className="bg-background text-text min-h-screen">
+      <body className="bg-background-50 text-text-800 min-h-screen">
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
