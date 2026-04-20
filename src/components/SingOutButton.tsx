@@ -4,9 +4,9 @@ import Button from "./Button";
 
 const SignOutButton = ({}) => {
   return (
-    <button className="" onClick={() => signOut()}>
-      Sign Out
-    </button>
+    <Button variant="empty" className="" onClick={() => signOut()}>
+      Logout
+    </Button>
   );
 };
 

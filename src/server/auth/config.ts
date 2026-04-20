@@ -33,7 +33,12 @@ declare module "next-auth" {
  */
 export const authConfig = {
   providers: [
-    DiscordProvider,
+    DiscordProvider({
+      clientId: env.AUTH_DISCORD_ID,
+      clientSecret: env.AUTH_DISCORD_SECRET,
+      authorization:
+        "https://discord.com/oauth2/authorize?client_id=1495844014828814346&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback%2Fdiscord&scope=identify",
+    }),
     {
       id: "hackclub",
       name: "Hack Club",
@@ -54,6 +59,7 @@ export const authConfig = {
       },
       userinfo: "https://auth.hackclub.com/oauth/userinfo",
       profile(profile) {
+        console.log(profile);
         return {
           id: String(profile.sub ?? profile.id),
           name: profile.name ?? profile.username,
