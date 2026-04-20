@@ -7,24 +7,119 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
   // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Unit {
+  NONE
 
-  createdBy   User   @relation(fields: [createdById], references: [id])
-  createdById String
+  // Volume - Imperial
+  TEASPOON
+  TABLESPOON
+  FLUID_OUNCE
+  CUP
+  PINT
+  QUART
 
-  @@index([name])
+  // Volume - Metric
+  MILLILITER
+  LITER
+
+  // Weight
+  OUNCE
+  POUND
+  GRAM
+  KILOGRAM
+}
+
+model Step {
+  id          String     @id @default(cuid())
+  instruction String
+  order       Int
+  recipe      Recipe     @relation(fields: [recipeId], references: [id])
+  recipeId    String
+  stepGroup   StepGroup? @relation(fields: [stepGroupId], references: [id])
+  stepGroupId String?
+}
+
+model StepGroup {
+  id       String  @id @default(cuid())
+  label    String
+  order    Int
+  default  Boolean @default(false)
+  steps    Step[]
+  recipe   Recipe  @relation(fields: [recipeId], references: [id])
+  recipeId String
+}
+
+model Rating {
+  id       String @id @default(cuid())
+  value    Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, recipeId])
+}
+
+model Ingredient {
+  id       String @id @default(cuid())
+  value    Float
+  unit     Unit
+  label    String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String
+
+  ingredientGroup   IngredientGroup? @relation(fields: [ingredientGroupId], references: [id], onDelete: Cascade)
+  ingredientGroupId String?
+
+  order Int
+}
+
+model IngredientGroup {
+  id          String       @id @default(cuid())
+  label       String
+  ingredients Ingredient[]
+  default     Boolean      @default(false)
+  recipe      Recipe       @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId    String
+  order       Int
+}
+
+model Recipe {
+  id               String            @id @default(cuid())
+  userId           String
+  title            String
+  description      String
+  servings         Int?
+  prepTimeMinutes  Int?
+  cookTimeMinutes  Int?
+  ingredients      Ingredient[]
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredientGroups IngredientGroup[]
+  ratings          Rating[]
+  steps            Step[]
+  stepGroups       StepGroup[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  publishedAt      DateTime?
+  tags             Tag[]
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  label String @unique
+
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
 }
 
 // Necessary for Next auth
@@ -34,12 +129,12 @@ model Account {
   type                     String
   provider                 String
   providerAccountId        String
-  refresh_token            String? // @db.Text
-  access_token             String? // @db.Text
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String? // @db.Text
+  id_token                 String? @db.Text
   session_state            String?
   user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   refresh_token_expires_in Int?
@@ -63,7 +158,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  posts         Post[]
+  recipes       Recipe[]
+  ratings       Rating[]
 }
 
 model VerificationToken {
