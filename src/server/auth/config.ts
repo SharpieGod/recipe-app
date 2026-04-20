@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import { env } from "~/env";
 
 import { db } from "~/server/db";
 
@@ -33,6 +34,33 @@ declare module "next-auth" {
 export const authConfig = {
   providers: [
     DiscordProvider,
+    {
+      id: "hackclub",
+      name: "Hack Club",
+      type: "oauth",
+      clientId: env.AUTH_HACKCLUB_ID,
+      clientSecret: env.AUTH_HACKCLUB_SECRET,
+      authorization: {
+        url: "https://auth.hackclub.com/oauth/authorize",
+        params: { scope: "openid name", response_type: "code" },
+      },
+      token: {
+        url: "https://auth.hackclub.com/oauth/token",
+        conform: async (response: Response) => {
+          const json = (await response.json()) as Record<string, unknown>;
+          delete json.id_token; // drop the JWT so Auth.js doesn't try to validate it
+          return Response.json(json, response);
+        },
+      },
+      userinfo: "https://auth.hackclub.com/oauth/userinfo",
+      profile(profile) {
+        return {
+          id: String(profile.sub ?? profile.id),
+          name: profile.name ?? profile.username,
+          image: profile.avatar ?? profile.picture,
+        };
+      },
+    },
     /**
      * ...add more providers here.
      *
@@ -44,6 +72,9 @@ export const authConfig = {
      */
   ],
   adapter: PrismaAdapter(db),
+  pages: {
+    signIn: "/sign-in",
+  },
   callbacks: {
     session: ({ session, user }) => ({
       ...session,

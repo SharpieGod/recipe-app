@@ -112,6 +112,8 @@ model Recipe {
   updatedAt        DateTime          @updatedAt
   publishedAt      DateTime?
   tags             Tag[]
+
+  @@index([title, description])
 }
 
 model Tag {

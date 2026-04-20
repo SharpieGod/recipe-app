@@ -7,13 +7,13 @@ const NotFound = () => {
   return (
     <>
       <Navbar />
-      <Container>
+      <Container className="">
         <h1 className="text-3xl">Page not found</h1>
         <p className="text-text-800 mt-4 mb-2">
           The page you are looking for doesn't exist.
         </p>
         <Link href="/">
-          <Button>Return Home</Button>
+          <Button variant="secondary">Return Home</Button>
         </Link>
       </Container>
     </>
