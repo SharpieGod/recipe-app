@@ -1,6 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-noto: "Noto Sans", sans-serif;
+  --color-text: oklch(15.5% 0.011 53.75);
+  --color-background: oklch(97.57% 0.005 48.69);
+  --color-primary: oklch(64.63% 0.077 59.68);
+  --color-secondary: oklch(79.24% 0.043 223.49);
+  --color-accent: oklch(61.02% 0.106 291.32);
 }
