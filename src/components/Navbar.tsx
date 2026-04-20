@@ -17,18 +17,14 @@ const Navbar = async () => {
         Recipe Notebook
       </Link>
       <div className="flex items-center gap-16 *:cursor-pointer">
-        <Link href={"/about"}>About</Link>
-
         {session?.user ? (
           <>
-            <Link href={"/"}>Nowhere</Link>
             <AccountButton user={session.user} />
-            <SignOutButton />
           </>
         ) : (
           <>
             <Button variant="empty">
-              <Link href={"/sign-in"}>Login</Link>
+              <Link href={"/sign-in"}>Sign In</Link>
             </Button>
           </>
         )}
