@@ -35,9 +35,20 @@ const EditRecipe = ({ recipeId }: Props) => {
       },
     });
 
-  const inputsDisabled =
-    localRecipe === serverRecipe || syncStatus != "success";
+  const inputsDisabled = syncStatus === "pending";
 
+  const recipeIsSame = (serverRecipe &&
+    localRecipe &&
+    serverRecipe.title === localRecipe.title &&
+    serverRecipe.description === localRecipe.description &&
+    serverRecipe.servings === localRecipe.servings &&
+    serverRecipe.prepTimeMinutes === localRecipe.prepTimeMinutes &&
+    serverRecipe.cookTimeMinutes === localRecipe.cookTimeMinutes &&
+    JSON.stringify(serverRecipe.tags) === JSON.stringify(localRecipe.tags) &&
+    JSON.stringify(serverRecipe.ingredientGroups) ===
+      JSON.stringify(localRecipe.ingredientGroups) &&
+    JSON.stringify(serverRecipe.stepGroups) ===
+      JSON.stringify(localRecipe.stepGroups)) as boolean;
   return (
     <>
       <pre>{JSON.stringify(localRecipe, null, 2)}</pre>
@@ -63,7 +74,7 @@ const EditRecipe = ({ recipeId }: Props) => {
           });
         }}
         className="px-4"
-        disabled={inputsDisabled}
+        disabled={inputsDisabled || recipeIsSame}
       >
         Save
       </Button>

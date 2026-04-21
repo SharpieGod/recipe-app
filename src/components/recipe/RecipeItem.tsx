@@ -50,7 +50,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
                     <span className="animate-skeleton">?/5 (?)</span>
                   ) : (
                     <span>
-                      {ratings._avg.value ?? "?/5"} ({ratings._count})
+                      {ratings._avg.value ?? "?"}/5 ({ratings._count})
                     </span>
                   )
                 ) : null}
