@@ -15,6 +15,7 @@ export type RecipeIncluded = Prisma.RecipeGetPayload<{
     stepGroups: { include: { steps: true } };
   };
 }>;
+
 export type RecipeRating = RouterOutputs["recipe"]["getRecipeRating"];
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;

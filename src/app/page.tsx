@@ -1,5 +1,5 @@
-import Container from "~/components/Container";
-import Navbar from "~/components/Navbar";
+import Container from "~/components/generic/Container";
+import Navbar from "~/components/generic/Navbar";
 
 const HomePage = () => {
   return (

@@ -11,9 +11,8 @@ type Props = {
 };
 
 const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
-  const { data: recipe, isLoading } = api.recipe.getRecipe.useQuery(
+  const { data: recipe, isLoading } = api.recipe.getRecipePreview.useQuery(
     {
-      preview: true,
       id: initialRecipe.id, // id wont change
     },
     { initialData: initialRecipe },
@@ -74,9 +73,13 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
       <pre>{JSON.stringify(recipe, null, 2)}</pre>
       {canEdit ? (
         <>
-          <Popdown trigger={RecipeComponent} className="w-80">
-            <Link href={`/edit-recipe/${initialRecipe.id}`}>Edit</Link>
-            <Link href={`/preview-recipe/${initialRecipe.id}`}>Preview</Link>
+          <Popdown
+            trigger={RecipeComponent}
+            className="w-80"
+            openStyle="top-22"
+          >
+            <Link href={`/recipe/${initialRecipe.id}/edit`}>Edit</Link>
+            <Link href={`/recipe/${initialRecipe.id}/preview`}>Preview</Link>
             <div>Delete</div>
           </Popdown>
         </>

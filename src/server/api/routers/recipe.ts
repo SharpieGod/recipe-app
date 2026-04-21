@@ -34,7 +34,6 @@ export const reipceRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        preview: z.boolean(),
       }),
     )
     .query(async ({ ctx: { session, db }, input }) => {
@@ -45,7 +44,7 @@ export const reipceRouter = createTRPCRouter({
 
       const recipe = await db.recipe.findFirst({
         where: { id: input.id },
-        ...(!input.preview && { include }),
+        include,
       });
 
       if (
@@ -59,5 +58,50 @@ export const reipceRouter = createTRPCRouter({
       if (!recipe.publishedAt && !isOwner) return null;
 
       return recipe;
+    }),
+
+  getRecipePreview: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx: { session, db }, input }) => {
+      const recipe = await db.recipe.findFirst({
+        where: { id: input.id },
+      });
+
+      if (
+        !recipe ||
+        (!recipe.publishedAt && session?.user.id !== recipe.userId)
+      ) {
+        return null;
+      }
+
+      const isOwner = session?.user.id === recipe.userId;
+      if (!recipe.publishedAt && !isOwner) return null;
+
+      return recipe;
+    }),
+
+  updateRecipe: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        description: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx: { session, db }, input }) => {
+      return await db.recipe.update({
+        where: {
+          id: input.id,
+          userId: session.user.id,
+        },
+        data: {
+          title: input.title,
+          description: input.description,
+        },
+      });
     }),
 });

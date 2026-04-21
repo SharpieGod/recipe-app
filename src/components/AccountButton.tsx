@@ -37,7 +37,7 @@ const AccountButton = ({ user }: Props) => {
           </button>
         }
       >
-        <Link href="/myrecipes">Your Recipes</Link>
+        <Link href="/my-recipes">Your Recipes</Link>
         <button onClick={() => signOut()}>Sign Out</button>
       </Popdown>
     </div>

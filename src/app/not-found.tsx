@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Button from "~/components/Button";
-import Container from "~/components/Container";
-import Navbar from "~/components/Navbar";
+import Button from "~/components/generic/Button";
+import Container from "~/components/generic/Container";
+import Navbar from "~/components/generic/Navbar";
 
 const NotFound = () => {
   return (
