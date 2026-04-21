@@ -104,4 +104,36 @@ export const reipceRouter = createTRPCRouter({
         },
       });
     }),
+
+  newIngredientSection: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx: { db, session }, input }) => {
+      const recipe = await db.recipe.findFirst({
+        where: {
+          id: input.id,
+          userId: session.user.id,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!recipe) return;
+
+      return await db.ingredientGroup.create({
+        data: {
+          label: input.label,
+          order: 0,
+          recipeId: recipe.id,
+        },
+        include: {
+          ingredients: true,
+        },
+      });
+    }),
 });
