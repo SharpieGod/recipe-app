@@ -1,0 +1,63 @@
+import { z } from "zod";
+
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
+
+export const reipceRouter = createTRPCRouter({
+  getRecipeRating: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx: { session, db }, input }) => {
+      const recipe = await db.recipe.findFirst({ where: { id: input.id } });
+
+      if (
+        !recipe ||
+        (!recipe.publishedAt && session?.user.id !== recipe.userId)
+      ) {
+        return null;
+      }
+
+      return await db.rating.aggregate({
+        where: { recipeId: input.id },
+        _avg: { value: true },
+        _count: true,
+      });
+    }),
+
+  getRecipe: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        preview: z.boolean(),
+      }),
+    )
+    .query(async ({ ctx: { session, db }, input }) => {
+      const include = {
+        ingredientGroups: { include: { ingredients: true } },
+        stepGroups: { include: { steps: true } },
+      };
+
+      const recipe = await db.recipe.findFirst({
+        where: { id: input.id },
+        ...(!input.preview && { include }),
+      });
+
+      if (
+        !recipe ||
+        (!recipe.publishedAt && session?.user.id !== recipe.userId)
+      ) {
+        return null;
+      }
+
+      const isOwner = session?.user.id === recipe.userId;
+      if (!recipe.publishedAt && !isOwner) return null;
+
+      return recipe;
+    }),
+});

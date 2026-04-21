@@ -172,13 +172,8 @@ exports.Prisma.RecipeScalarFieldEnum = {
   cookTimeMinutes: 'cookTimeMinutes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  publishedAt: 'publishedAt'
-};
-
-exports.Prisma.TagScalarFieldEnum = {
-  id: 'id',
-  label: 'label',
-  recipeId: 'recipeId'
+  publishedAt: 'publishedAt',
+  tags: 'tags'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -255,7 +250,6 @@ exports.Prisma.ModelName = {
   Ingredient: 'Ingredient',
   IngredientGroup: 'IngredientGroup',
   Recipe: 'Recipe',
-  Tag: 'Tag',
   Account: 'Account',
   Session: 'Session',
   User: 'User',

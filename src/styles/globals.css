@@ -8,6 +8,21 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-noto: "Noto Sans", sans-serif;
   --font-nothing: "Nothing You Could Do";
+
+  --animate-skeleton: skeleton 1.5s ease-in-out infinite;
+
+  @keyframes skeleton {
+    0% {
+      opacity: 0.1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 0.1;
+    }
+  }
+
   --color-text-50: oklch(96.24% 0.003 48.72);
   --color-text-100: oklch(92.22% 0.006 43.33);
   --color-text-200: oklch(84.43% 0.011 48.6);

@@ -64,7 +64,7 @@ export const authConfig = {
       profile(profile) {
         return {
           id: String(profile.identity.id),
-          name: `${profile.identity.first_name} ${profile.identity.last_name}`,
+          name: `${profile.identity.first_name} ${profile.identity.last_name.charAt(0)}`,
           image: null,
         };
       },

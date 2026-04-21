@@ -111,17 +111,9 @@ model Recipe {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   publishedAt      DateTime?
-  tags             Tag[]
+  tags             String[]
 
   @@index([title, description])
-}
-
-model Tag {
-  id    String @id @default(cuid())
-  label String @unique
-
-  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  recipeId String
 }
 
 // Necessary for Next auth

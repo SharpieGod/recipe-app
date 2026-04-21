@@ -15,7 +15,7 @@ const Button: FC<ButtonProps> = ({
   return (
     <button
       className={cn(
-        "cursor-pointer rounded-lg border border-black/10 p-2 transition-colors hover:border-black/20",
+        "cursor-pointer rounded-lg border border-black/10 p-2 shadow-sm transition-colors hover:border-black/20",
         {
           "bg-primary-200 hover:border-primary-400": variant === "primary",
           "bg-secondary-200 hover:border-secondary-400":
