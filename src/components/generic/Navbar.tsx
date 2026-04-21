@@ -22,9 +22,7 @@ const Navbar = async () => {
           </>
         ) : (
           <>
-            <Button variant="empty">
-              <Link href={"/sign-in"}>Sign In</Link>
-            </Button>
+            <Link href={"/sign-in"}>Sign In</Link>
           </>
         )}
       </div>

@@ -15,32 +15,31 @@ type Props = {
 
 const AccountButton = ({ user }: Props) => {
   return (
-    <div className="relative">
-      <Popdown
-        trigger={
-          <button className="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full">
-            {user.image ? (
-              <Image
-                src={user.image}
-                alt="userimage"
-                className="size-10"
-                width={64}
-                height={64}
-              />
-            ) : (
-              <div className="bg-secondary-200 flex size-15 items-center justify-center">
-                <span className="text-secondary-600 font-bold">
-                  {user.name?.charAt(0)!}
-                </span>
-              </div>
-            )}
-          </button>
-        }
-      >
-        <Link href="/my-recipes">Your Recipes</Link>
-        <button onClick={() => signOut()}>Sign Out</button>
-      </Popdown>
-    </div>
+    <Popdown
+      className="text-base"
+      trigger={
+        <button className="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full">
+          {user.image ? (
+            <Image
+              src={user.image}
+              alt="userimage"
+              className="size-10"
+              width={64}
+              height={64}
+            />
+          ) : (
+            <div className="bg-secondary-200 flex size-15 items-center justify-center">
+              <span className="text-secondary-600 font-bold">
+                {user.name?.charAt(0)!}
+              </span>
+            </div>
+          )}
+        </button>
+      }
+    >
+      <Link href="/my-recipes">My Recipes</Link>
+      <button onClick={() => signOut()}>Sign Out</button>
+    </Popdown>
   );
 };
 
