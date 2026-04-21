@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Container from "~/components/Container";
 import Navbar from "~/components/Navbar";
-import RecipeList from "~/components/RecipeList";
+import RecipeList from "~/components/recipe/RecipeList";
 import { auth } from "~/server/auth";
 import { api } from "~/trpc/server";
 
