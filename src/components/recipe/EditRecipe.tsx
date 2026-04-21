@@ -5,6 +5,8 @@ import { api } from "~/trpc/react";
 import type { RecipeIncluded } from "~/types";
 import Input from "../generic/Input";
 import Button from "../generic/Button";
+import { useDebounce } from "~/hooks/useDebounce";
+import TextArea from "../generic/Textarea";
 
 type Props = {
   recipeId: string;
@@ -31,11 +33,25 @@ const EditRecipe = ({ recipeId }: Props) => {
       onMutate: (input) => {
         if (!localRecipe) return;
 
+        const prev_recipe = serverRecipe;
         utils.recipe.getRecipe.setData({ id: recipeId }, { ...localRecipe });
+        return prev_recipe;
+      },
+      onError(error, variables, prev_recipe, context) {
+        utils.recipe.getRecipe.setData({ id: recipeId }, prev_recipe);
+      },
+      onSuccess(data, variables, onMutateResult, context) {
+        // I never want the server to override client! optimism!
       },
     });
 
-  const inputsDisabled = syncStatus === "pending";
+  const debouncedValues = useDebounce(localRecipe, 1000);
+
+  useEffect(() => {
+    if (!debouncedValues) return;
+
+    updateRecipe(debouncedValues);
+  }, [debouncedValues]);
 
   const recipeIsSame = (serverRecipe &&
     localRecipe &&
@@ -49,37 +65,35 @@ const EditRecipe = ({ recipeId }: Props) => {
       JSON.stringify(localRecipe.ingredientGroups) &&
     JSON.stringify(serverRecipe.stepGroups) ===
       JSON.stringify(localRecipe.stepGroups)) as boolean;
+
   return (
     <>
       <pre>{JSON.stringify(localRecipe, null, 2)}</pre>
       <Input
-        disabled={inputsDisabled}
         onChange={(e) => {
           if (!localRecipe) return;
           setLocalRecipe({ ...localRecipe, title: e.target.value });
         }}
-        placeholder={serverRecipe?.title ?? ""}
+        placeholder="Name your recipe"
         label="Title"
         type="text"
         value={localRecipe?.title ?? ""}
       />
-      <Button
-        onClick={() => {
+      <TextArea
+        value={localRecipe?.description ?? ""}
+        cols={50}
+        className="resize-none"
+        label="Description"
+        placeholder="Talk about your recipe"
+        rows={10}
+        onChange={(e) => {
           if (!localRecipe) return;
-
-          updateRecipe({
-            id: recipeId,
-            title: localRecipe.title,
-            description: localRecipe.description,
-          });
+          setLocalRecipe({ ...localRecipe, description: e.target.value });
         }}
-        className="px-4"
-        disabled={inputsDisabled || recipeIsSame}
-      >
-        Save
-      </Button>
+      />
     </>
   );
+  1;
 };
 
 export default EditRecipe;

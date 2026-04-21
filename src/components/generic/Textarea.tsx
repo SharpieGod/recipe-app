@@ -16,7 +16,7 @@ const TextArea: FC<TextAreaProps> = ({
   return (
     <div className="flex flex-col items-start justify-start">
       {label ? (
-        <label className="" htmlFor={id}>
+        <label className="text-text-500" htmlFor={id}>
           {label}
         </label>
       ) : null}

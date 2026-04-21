@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { useClickOutside } from "~/hooks/click";
+import { useClickOutside } from "~/hooks/useClickOutside";
 import { cn } from "~/lib/utils";
 import Popdown from "./Popdown";
 
