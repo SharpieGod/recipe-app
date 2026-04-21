@@ -3,6 +3,7 @@
 import { api, type RouterOutputs } from "~/trpc/react";
 import Popdown from "../Popdown";
 import Link from "next/link";
+import { cn } from "~/lib/utils";
 
 type Props = {
   recipe: RouterOutputs["user"]["getUserRecipes"][number];
@@ -46,13 +47,14 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
                   </>
                 )}
                 {recipe.publishedAt ? (
-                  ratingsLoading || !ratings ? (
-                    <span className="animate-skeleton">?/5 (?)</span>
-                  ) : (
-                    <span>
-                      {ratings._avg.value ?? "?"}/5 ({ratings._count})
-                    </span>
-                  )
+                  <span
+                    aria-busy={ratingsLoading || !ratings}
+                    className="transition-opacity duration-300 not-aria-busy:opacity-100 aria-busy:opacity-50"
+                  >
+                    {ratingsLoading || !ratings
+                      ? "?/5 (?)"
+                      : `${ratings._avg.value ?? "?"}/5 (${ratings._count})`}
+                  </span>
                 ) : null}
               </div>
             </div>
