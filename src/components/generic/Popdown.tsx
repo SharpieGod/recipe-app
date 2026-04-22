@@ -8,6 +8,7 @@ type Props = {
   className?: string;
   openStyle?: string;
   closedStyle?: string;
+  enabled?: boolean;
 };
 
 const Popdown = ({
@@ -16,6 +17,7 @@ const Popdown = ({
   className,
   closedStyle,
   openStyle,
+  enabled = true,
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,7 +26,7 @@ const Popdown = ({
 
   return (
     <div ref={ref} className="relative">
-      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+      <div onClick={() => setIsOpen(!isOpen && enabled)}>{trigger}</div>
       <div
         onClick={() => setIsOpen(false)}
         className={cn(

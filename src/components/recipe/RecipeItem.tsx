@@ -4,6 +4,7 @@ import { api, type RouterOutputs } from "~/trpc/react";
 import Popdown from "../generic/Popdown";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
+import { useResolvedId } from "~/hooks/useResolvedId";
 
 type Props = {
   recipe: RouterOutputs["user"]["getUserRecipes"][number];
@@ -32,13 +33,28 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
 
       utils.user.getUserRecipes.setData(
         { id: userId },
-        (prevRecipes ?? []).filter((r) => r.id !== variables.id),
+        (prevRecipes ?? []).filter(
+          (r) => r.id !== variables.id && r.id !== initialRecipe.id,
+        ),
       );
     },
   });
 
+  const hasTempPrefix = initialRecipe.id.startsWith("_tempid_");
+  const resolvedId = useResolvedId(initialRecipe.id);
+  const isTemp = hasTempPrefix && !resolvedId;
+  const editableId = resolvedId ?? initialRecipe.id;
+
   const RecipeComponent = (
-    <div className="cursor-pointer overflow-hidden rounded-xl border border-black/10 shadow-sm">
+    <div
+      className={cn(
+        "cursor-pointer overflow-hidden rounded-xl border border-black/10 shadow-sm transition-opacity duration-300",
+        {
+          "cursor-not-allowed border-dotted border-black/50 opacity-30": isTemp,
+          "opacity-100": !isTemp,
+        },
+      )}
+    >
       {isLoading || !recipe ? (
         <>Loading</>
       ) : (
@@ -46,18 +62,11 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
           <div className="hover:bg-background-100 flex flex-col items-start gap-2 p-3 transition-colors">
             <div className="flex w-full flex-row flex-wrap items-center justify-between">
               <h1 className="min-w-fit text-xl">{recipe.title}</h1>
-
               <div className="text-text-500 flex flex-row items-center justify-end gap-8">
                 {!canEdit ? (
-                  <>
-                    <span className="">{recipe.servings ?? "?"} servings</span>
-                  </>
+                  <span>{recipe.servings ?? "?"} servings</span>
                 ) : (
-                  <>
-                    <span className="">
-                      {!recipe.publishedAt ? "private" : "public"}
-                    </span>
-                  </>
+                  <span>{!recipe.publishedAt ? "private" : "public"}</span>
                 )}
                 {recipe.publishedAt ? (
                   <span
@@ -71,8 +80,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
                 ) : null}
               </div>
             </div>
-
-            {recipe.description.length == 0 ? (
+            {recipe.description.length === 0 ? (
               <span className="text-text-500">Description is empty</span>
             ) : (
               <span className="text-text-500">{recipe.description}</span>
@@ -85,21 +93,20 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
 
   return (
     <div>
-      <pre>{JSON.stringify(recipe, null, 2)}</pre>
+      <pre className="text-xs">{JSON.stringify(recipe, null, 2)}</pre>
       {canEdit ? (
-        <>
-          <Popdown
-            trigger={RecipeComponent}
-            className="w-80"
-            openStyle="top-22"
-          >
-            <Link href={`/recipe/${initialRecipe.id}/edit`}>Edit</Link>
-            <Link href={`/recipe/${initialRecipe.id}/preview`}>Preview</Link>
-            <button onClick={() => deleteRecipe({ id: initialRecipe.id })}>
-              Delete
-            </button>
-          </Popdown>
-        </>
+        <Popdown
+          trigger={RecipeComponent}
+          className="w-80"
+          openStyle="top-22"
+          enabled={!isTemp}
+        >
+          <Link href={`/recipe/${editableId}/edit`}>Edit</Link>
+          <Link href={`/recipe/${editableId}/preview`}>Preview</Link>
+          <button onClick={() => deleteRecipe({ id: editableId })}>
+            Delete
+          </button>
+        </Popdown>
       ) : (
         RecipeComponent
       )}

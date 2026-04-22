@@ -7,6 +7,7 @@ import Input from "../generic/Input";
 import { cn } from "~/lib/utils";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { useSession } from "next-auth/react";
+import { useSetResolvedId } from "~/hooks/useResolvedId";
 
 const NreRecipeButton = () => {
   const [newRecipeTitle, setNewRecipeTitle] = useState("");
@@ -14,10 +15,11 @@ const NreRecipeButton = () => {
   const { data: session } = useSession();
   const utils = api.useUtils();
   const inputRef = useRef<HTMLInputElement>(null);
+  const setResolvedId = useSetResolvedId();
 
   const { mutate: createRecipe } = api.recipe.new.useMutation({
     onMutate(variables, context) {
-      const tempId = "_tempid_" + new Date();
+      const tempId = "_tempid_" + crypto.randomUUID();
 
       const tempRecipe: RouterOutputs["user"]["getUserRecipes"][number] = {
         id: tempId,
@@ -43,9 +45,13 @@ const NreRecipeButton = () => {
       ]);
 
       utils.recipe.getRecipePreview.setData({ id: tempId }, tempRecipe);
+
+      return { tempId };
     },
 
-    onSettled: () => utils.user.getUserRecipes.invalidate(),
+    onSuccess(realRecipe, variables, onMutateResult, context) {
+      setResolvedId(onMutateResult.tempId, realRecipe.id);
+    },
   });
 
   useEffect(() => {
@@ -70,37 +76,34 @@ const NreRecipeButton = () => {
             : "pointer-events-none opacity-0",
         )}
       >
-        <div
+        <form
           className={cn(
             "bg-background-100 z-101 mx-auto mt-40 w-100 rounded-xl border border-black/10 p-4 shadow-sm",
             "flex flex-col gap-2",
           )}
           onClick={(e) => e.stopPropagation()}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!newRecipeTitle.trim()) return;
+            createRecipe({ title: newRecipeTitle });
+            setNewRecipeTitle("");
+            setIsOpen(false);
+          }}
         >
           <Input
             value={newRecipeTitle}
-            onChange={(e) => {
-              setNewRecipeTitle(e.target.value);
-            }}
+            onChange={(e) => setNewRecipeTitle(e.target.value)}
             placeholder="Title your recipe!"
             label="Recipe Title"
             className="w-full"
-            required={true}
             ref={inputRef}
           />
           <div className="flex gap-2">
+            <Button type="submit">Create</Button>
             <Button
-              onClick={(e) => {
-                createRecipe({ title: newRecipeTitle });
-                setNewRecipeTitle("");
-                setIsOpen(false);
-              }}
-            >
-              Create
-            </Button>
-            <Button
+              type="button"
               variant="empty"
-              onClick={(e) => {
+              onClick={() => {
                 setNewRecipeTitle("");
                 setIsOpen(false);
               }}
@@ -108,7 +111,7 @@ const NreRecipeButton = () => {
               Cancel
             </Button>
           </div>
-        </div>
+        </form>
       </div>
     </>
   );

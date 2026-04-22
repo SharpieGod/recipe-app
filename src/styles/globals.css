@@ -23,6 +23,17 @@
     }
   }
 
+  --animate-in: fade-in 300ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   --color-text-50: oklch(96.24% 0.003 48.72);
   --color-text-100: oklch(92.22% 0.006 43.33);
   --color-text-200: oklch(84.43% 0.011 48.6);
