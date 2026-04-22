@@ -7,6 +7,21 @@ import {
 } from "~/server/api/trpc";
 
 export const reipceRouter = createTRPCRouter({
+  new: protectedProcedure
+    .input(
+      z.object({
+        title: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx: { db, session }, input }) => {
+      return await db.recipe.create({
+        data: {
+          title: input.title,
+          userId: session.user.id,
+          description: "",
+        },
+      });
+    }),
   getRecipeRating: publicProcedure
     .input(
       z.object({

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Container from "~/components/generic/Container";
 import Navbar from "~/components/generic/Navbar";
+import NewRecipeButton from "~/components/recipe/NewRecipeButton";
 import RecipeList from "~/components/recipe/RecipeList";
 import { auth } from "~/server/auth";
 import { api } from "~/trpc/server";
@@ -19,7 +20,7 @@ const MyRecipesPage = async () => {
       <Navbar />
       <Container>
         <h1 className="text-4xl">Your Recipes</h1>
-
+        <NewRecipeButton />
         <RecipeList recipes={userRecipes} canEdit={true} />
       </Container>
     </>

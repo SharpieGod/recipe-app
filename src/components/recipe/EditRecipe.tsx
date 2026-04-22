@@ -118,7 +118,7 @@ const EditRecipe = ({ recipeId }: Props) => {
 
   return (
     <div className="relative flex flex-col gap-4 p-16">
-      <pre className="absolute top-0 right-0">
+      <pre className="absolute top-0 right-0 text-[10px]">
         {JSON.stringify(localRecipe, null, 2)}
       </pre>
       <div className="flex flex-col gap-2">
