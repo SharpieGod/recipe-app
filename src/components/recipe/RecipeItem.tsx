@@ -1,17 +1,17 @@
 "use client";
 
 import { api, type RouterOutputs } from "~/trpc/react";
-import Popdown from "../Popdown";
+import Popdown from "../generic/Popdown";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 
 type Props = {
   recipe: RouterOutputs["user"]["getUserRecipes"][number];
-
   canEdit: boolean;
+  userId: string;
 };
 
-const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
+const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
   const { data: recipe, isLoading } = api.recipe.getRecipePreview.useQuery(
     {
       id: initialRecipe.id, // id wont change
@@ -23,6 +23,19 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
     api.recipe.getRecipeRating.useQuery({
       id: initialRecipe.id,
     });
+
+  const utils = api.useUtils();
+
+  const { mutate: deleteRecipe } = api.recipe.delete.useMutation({
+    onMutate(variables, context) {
+      const prevRecipes = utils.user.getUserRecipes.getData({ id: userId });
+
+      utils.user.getUserRecipes.setData(
+        { id: userId },
+        (prevRecipes ?? []).filter((r) => r.id !== variables.id),
+      );
+    },
+  });
 
   const RecipeComponent = (
     <div className="cursor-pointer overflow-hidden rounded-xl border border-black/10 shadow-sm">
@@ -82,7 +95,9 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit }: Props) => {
           >
             <Link href={`/recipe/${initialRecipe.id}/edit`}>Edit</Link>
             <Link href={`/recipe/${initialRecipe.id}/preview`}>Preview</Link>
-            <div>Delete</div>
+            <button onClick={() => deleteRecipe({ id: initialRecipe.id })}>
+              Delete
+            </button>
           </Popdown>
         </>
       ) : (

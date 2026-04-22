@@ -156,7 +156,7 @@ const EditRecipe = ({ recipeId }: Props) => {
           value={newSectionLabel}
           onChange={(e) => setNewSectionLabel(e.target.value)}
           label="New Ingredients Section"
-          className="border-dashed focus:outline-dashed"
+          className="border-accent-600 border-dashed focus:outline-dashed"
           placeholder="Label your section"
         />
       </form>

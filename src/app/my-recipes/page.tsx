@@ -1,3 +1,4 @@
+import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
 import Container from "~/components/generic/Container";
 import Navbar from "~/components/generic/Navbar";
@@ -20,8 +21,14 @@ const MyRecipesPage = async () => {
       <Navbar />
       <Container>
         <h1 className="text-4xl">Your Recipes</h1>
-        <NewRecipeButton />
-        <RecipeList recipes={userRecipes} canEdit={true} />
+        <SessionProvider>
+          <NewRecipeButton />
+          <RecipeList
+            recipes={userRecipes}
+            userId={session.user.id}
+            canEdit={true}
+          />
+        </SessionProvider>
       </Container>
     </>
   );
