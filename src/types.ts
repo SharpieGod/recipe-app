@@ -16,6 +16,6 @@ export type RecipeIncluded = Prisma.RecipeGetPayload<{
   };
 }>;
 
-export type RecipeRating = RouterOutputs["recipe"]["getRecipeRating"];
+export type RecipeRating = RouterOutputs["recipe"]["getRating"];
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;

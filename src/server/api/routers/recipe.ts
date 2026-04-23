@@ -35,18 +35,18 @@ export const recipeRouter = createTRPCRouter({
     }),
 
   delete: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      }),
-    )
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx: { db, session }, input }) => {
-      await db.recipe.delete({
-        where: {
-          id: input.id,
-          userId: session.user.id,
-        },
-      });
+      await db.$transaction([
+        db.ingredient.deleteMany({ where: { recipeId: input.id } }),
+        db.step.deleteMany({ where: { recipeId: input.id } }),
+        db.stepGroup.deleteMany({ where: { recipeId: input.id } }),
+        db.ingredientGroup.deleteMany({ where: { recipeId: input.id } }),
+        db.rating.deleteMany({ where: { recipeId: input.id } }),
+        db.recipe.delete({
+          where: { id: input.id, userId: session.user.id },
+        }),
+      ]);
     }),
 
   getRating: publicProcedure

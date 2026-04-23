@@ -8,7 +8,11 @@ import Button from "../generic/Button";
 import { useDebounce } from "~/hooks/useDebounce";
 import TextArea from "../generic/Textarea";
 import type { Ingredient, IngredientGroup } from "generated/prisma";
-import { useResolvedId, useSetResolvedId } from "~/hooks/useResolvedId";
+import {
+  useGetResolvedId,
+  useResolvedId,
+  useSetResolvedId,
+} from "~/hooks/useResolvedId";
 
 type Props = {
   recipeId: string;
@@ -17,9 +21,38 @@ type Props = {
 const EditRecipe = ({ recipeId }: Props) => {
   const utils = api.useUtils();
   const setResolvedId = useSetResolvedId();
-  const getResolvedId = useResolvedId;
+  const getResolvedId = useGetResolvedId();
 
-  const { data: serverRecipe, isLoading: isSyncing } = api.recipe.get.useQuery({
+  // -- Recipe --
+  const updateRecipeFull = () => {
+    if (!debouncedRecipeValues || !serverRecipe) return;
+    const values = debouncedRecipeValues;
+    updateRecipe(values);
+
+    values.ingredientGroups.forEach((g) => {
+      const realId = getResolvedId(g.id);
+      console.log(realId);
+      if (!realId) return;
+
+      const serverGroup = serverRecipe.ingredientGroups.find(
+        (gr) => gr.id == realId,
+      );
+      if (!serverGroup) return;
+
+      const hasChanged =
+        serverGroup.label !== g.label || serverGroup.order !== g.order;
+
+      if (hasChanged) {
+        updateIngredientSection({
+          id: realId,
+          label: g.label,
+          order: g.order,
+        });
+      }
+    });
+  };
+
+  const { data: serverRecipe } = api.recipe.get.useQuery({
     id: recipeId,
   });
 
@@ -56,13 +89,13 @@ const EditRecipe = ({ recipeId }: Props) => {
     },
   });
 
-  const debouncedValues = useDebounce(localRecipe, 1000);
+  const debouncedRecipeValues = useDebounce(localRecipe, 800);
 
   useEffect(() => {
-    if (!debouncedValues || recipeIsSame) return;
+    if (!debouncedRecipeValues || recipeIsSame) return;
 
-    updateRecipe(debouncedValues);
-  }, [debouncedValues]);
+    updateRecipeFull();
+  }, [debouncedRecipeValues]);
 
   // -- Ingredient Groups --
 
@@ -101,8 +134,10 @@ const EditRecipe = ({ recipeId }: Props) => {
     },
   });
 
-  const { mutate: updateIngredientSection } =
-    api.ingredientGroup.update.useMutation({});
+  const {
+    mutate: updateIngredientSection,
+    isPending: ingredientGroupIsPending,
+  } = api.ingredientGroup.update.useMutation({});
 
   const [newIngredientSectionLabel, setNewIngredientSectionLabel] =
     useState("");
@@ -146,18 +181,52 @@ const EditRecipe = ({ recipeId }: Props) => {
 
   const [newIngredientLabel, setNewIngredientLabel] = useState("");
 
-  const recipeIsSame = (serverRecipe &&
-    localRecipe &&
-    serverRecipe.title === localRecipe.title &&
-    serverRecipe.description === localRecipe.description &&
-    serverRecipe.servings === localRecipe.servings &&
-    serverRecipe.prepTimeMinutes === localRecipe.prepTimeMinutes &&
-    serverRecipe.cookTimeMinutes === localRecipe.cookTimeMinutes &&
-    JSON.stringify(serverRecipe.tags) === JSON.stringify(localRecipe.tags) &&
-    JSON.stringify(serverRecipe.ingredientGroups) ===
-      JSON.stringify(localRecipe.ingredientGroups) &&
-    JSON.stringify(serverRecipe.stepGroups) ===
-      JSON.stringify(localRecipe.stepGroups)) as boolean;
+  const stripIds = (recipe: RecipeIncluded) => ({
+    title: recipe.title,
+    description: recipe.description,
+    servings: recipe.servings,
+    prepTimeMinutes: recipe.prepTimeMinutes,
+    cookTimeMinutes: recipe.cookTimeMinutes,
+    tags: recipe.tags,
+    ingredientGroups: recipe.ingredientGroups
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map((g) => ({
+        label: g.label,
+        order: g.order,
+        default: g.default,
+        ingredients: g.ingredients
+          .slice()
+          .sort((a, b) => a.order - b.order)
+          .map((i) => ({
+            label: i.label,
+            value: i.value,
+            unit: i.unit,
+            order: i.order,
+          })),
+      })),
+    stepGroups: recipe.stepGroups
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map((sg) => ({
+        label: sg.label,
+        order: sg.order,
+        default: sg.default,
+        steps: sg.steps
+          .slice()
+          .sort((a, b) => a.order - b.order)
+          .map((s) => ({
+            instruction: s.instruction,
+            order: s.order,
+          })),
+      })),
+  });
+
+  const recipeIsSame =
+    !!serverRecipe &&
+    !!localRecipe &&
+    JSON.stringify(stripIds(serverRecipe)) ===
+      JSON.stringify(stripIds(localRecipe));
 
   const defaultIngredientGroup = localRecipe?.ingredientGroups.find(
     (g) => g.default,
@@ -174,7 +243,7 @@ const EditRecipe = ({ recipeId }: Props) => {
       <span className="text-text-500">
         {recipeIsSame && (isSuccess || syncStatus == "idle")
           ? "synced"
-          : isPending
+          : isPending || ingredientGroupIsPending
             ? "sycing..."
             : "not synced"}
       </span>
@@ -266,7 +335,7 @@ const EditRecipe = ({ recipeId }: Props) => {
                     {g.ingredients
                       .sort((a, b) => a.order - b.order)
                       .map((i) => (
-                        <IngredientEdit ingredient={i} />
+                        <IngredientEdit key={i.id} ingredient={i} />
                       ))}
                   </ul>
                 ) : null}
