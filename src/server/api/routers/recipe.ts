@@ -167,4 +167,25 @@ export const reipceRouter = createTRPCRouter({
         },
       });
     }),
+
+  newIngredient: protectedProcedure
+    .input(
+      z.object({
+        label: z.string(),
+        id: z.string(),
+        ingredientGroupId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx: { session, db }, input }) => {
+      return await db.ingredient.create({
+        data: {
+          label: input.label,
+          recipeId: input.id,
+          ingredientGroupId: input.ingredientGroupId,
+          order: 0,
+          unit: "NONE",
+          value: 1,
+        },
+      });
+    }),
 });

@@ -7,7 +7,7 @@ import Input from "../generic/Input";
 import Button from "../generic/Button";
 import { useDebounce } from "~/hooks/useDebounce";
 import TextArea from "../generic/Textarea";
-import type { IngredientGroup } from "generated/prisma";
+import type { Ingredient, IngredientGroup } from "generated/prisma";
 
 type Props = {
   recipeId: string;
@@ -29,22 +29,33 @@ const EditRecipe = ({ recipeId }: Props) => {
     }
   }, [serverRecipe]);
 
-  const { mutate: updateRecipe, status: syncStatus } =
-    api.recipe.updateRecipe.useMutation({
-      onMutate: (input) => {
-        if (!localRecipe) return;
+  const {
+    mutate: updateRecipe,
+    status: syncStatus,
+    isSuccess,
+    isError,
+    isPending,
+  } = api.recipe.updateRecipe.useMutation({
+    onMutate: (input) => {
+      if (!localRecipe) return;
 
-        const prev_recipe = serverRecipe;
-        utils.recipe.getRecipe.setData({ id: recipeId }, { ...localRecipe });
-        return prev_recipe;
-      },
-      onError(error, variables, prev_recipe, context) {
-        utils.recipe.getRecipe.setData({ id: recipeId }, prev_recipe);
-      },
-      onSuccess(data, variables, onMutateResult, context) {
-        // I never want the server to override client! optimism!
-      },
-    });
+      const prev_recipe = serverRecipe;
+      utils.recipe.getRecipe.setData({ id: recipeId }, { ...localRecipe });
+      utils.recipe.getRecipePreview.setData(
+        { id: recipeId },
+        { ...localRecipe },
+      );
+      return prev_recipe;
+    },
+
+    onError(error, variables, prev_recipe, context) {
+      utils.recipe.getRecipe.setData({ id: recipeId }, prev_recipe);
+    },
+
+    onSuccess(data, variables, onMutateResult, context) {
+      // I never want the server to override client! optimism!
+    },
+  });
 
   const debouncedValues = useDebounce(localRecipe, 1000);
 
@@ -60,7 +71,8 @@ const EditRecipe = ({ recipeId }: Props) => {
         if (!localRecipe) {
           return;
         }
-        const fakeId = "__fake__id__" + new Date();
+        const fakeId = "_tempid_" + crypto.randomUUID();
+
         const fakeIngredientGroup: RecipeIncluded["ingredientGroups"][number] =
           {
             recipeId: localRecipe.id,
@@ -113,14 +125,21 @@ const EditRecipe = ({ recipeId }: Props) => {
       JSON.stringify(localRecipe.stepGroups)) as boolean;
 
   if (!localRecipe) {
-    return <>loading</>;
+    return <div className="text-text-500 p-16">loading...</div>;
   }
 
   return (
     <div className="relative flex flex-col gap-4 p-16">
-      <pre className="absolute top-0 right-0 text-[10px]">
+      <pre className="absolute top-0 right-0 max-w-100 text-[10px]">
         {JSON.stringify(localRecipe, null, 2)}
       </pre>
+      <span className="text-text-500">
+        {recipeIsSame && (isSuccess || syncStatus == "idle")
+          ? "synced"
+          : isPending
+            ? "sycning..."
+            : "not synced"}
+      </span>
       <div className="flex flex-col gap-2">
         <Input
           onChange={(e) => {
@@ -155,21 +174,53 @@ const EditRecipe = ({ recipeId }: Props) => {
         <Input
           value={newSectionLabel}
           onChange={(e) => setNewSectionLabel(e.target.value)}
-          label="New Ingredients Section"
           className="border-accent-600 border-dashed focus:outline-dashed"
-          placeholder="Label your section"
+          placeholder="Create new ingredient section"
         />
       </form>
-      <ul className="flex flex-col gap-4">
+      <ul className="grid grid-cols-2 items-start justify-start gap-4">
         {localRecipe?.ingredientGroups
           .sort((a, b) => a.order - b.order)
           .map((g) => (
-            <li key={g.id}>{g.label}</li>
+            <li
+              key={g.id}
+              className="flex flex-col gap-4 rounded-lg border border-black/10 p-4"
+            >
+              <Input
+                value={g.label}
+                label="Section Label"
+                onChange={(e) => {}}
+              />
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <Input
+                  placeholder="Create a new ingredient"
+                  className="border-accent-600 border-dashed focus:outline-dashed"
+                />
+              </form>
+
+              {g.ingredients.length > 0 ? (
+                <ul className="flex flex-col gap-2">
+                  {g.ingredients
+                    .sort((a, b) => a.order - b.order)
+                    .map((i) => (
+                      <li>{i.label}</li>
+                    ))}
+                </ul>
+              ) : null}
+            </li>
           ))}
       </ul>
     </div>
   );
-  1;
 };
 
 export default EditRecipe;
+
+const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
+  return <li>{JSON.stringify(ingredient)}</li>;
+};
