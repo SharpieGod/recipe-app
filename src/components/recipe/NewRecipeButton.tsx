@@ -44,7 +44,7 @@ const NreRecipeButton = () => {
         ...(prevRecipes ?? []),
       ]);
 
-      utils.recipe.getRecipePreview.setData({ id: tempId }, tempRecipe);
+      utils.recipe.getPreview.setData({ id: tempId }, tempRecipe);
 
       return { tempId };
     },

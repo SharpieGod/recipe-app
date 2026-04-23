@@ -13,7 +13,7 @@ type Props = {
 };
 
 const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
-  const { data: recipe, isLoading } = api.recipe.getRecipePreview.useQuery(
+  const { data: recipe, isLoading } = api.recipe.getPreview.useQuery(
     {
       id: initialRecipe.id, // id wont change
     },
@@ -21,7 +21,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
   );
 
   const { data: ratings, isLoading: ratingsLoading } =
-    api.recipe.getRecipeRating.useQuery({
+    api.recipe.getRating.useQuery({
       id: initialRecipe.id,
     });
 

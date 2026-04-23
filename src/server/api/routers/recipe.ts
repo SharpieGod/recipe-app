@@ -6,7 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-export const reipceRouter = createTRPCRouter({
+export const recipeRouter = createTRPCRouter({
   new: protectedProcedure
     .input(
       z.object({
@@ -14,13 +14,24 @@ export const reipceRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx: { db, session }, input }) => {
-      return await db.recipe.create({
+      const recipe = await db.recipe.create({
         data: {
           title: input.title,
           userId: session.user.id,
           description: "",
         },
       });
+
+      await db.ingredientGroup.create({
+        data: {
+          label: "",
+          order: 0,
+          default: true,
+          recipeId: recipe.id,
+        },
+      });
+
+      return recipe;
     }),
 
   delete: protectedProcedure
@@ -38,7 +49,7 @@ export const reipceRouter = createTRPCRouter({
       });
     }),
 
-  getRecipeRating: publicProcedure
+  getRating: publicProcedure
     .input(
       z.object({
         id: z.string(),
@@ -61,7 +72,7 @@ export const reipceRouter = createTRPCRouter({
       });
     }),
 
-  getRecipe: publicProcedure
+  get: publicProcedure
     .input(
       z.object({
         id: z.string(),
@@ -91,7 +102,7 @@ export const reipceRouter = createTRPCRouter({
       return recipe;
     }),
 
-  getRecipePreview: publicProcedure
+  getPreview: publicProcedure
     .input(
       z.object({
         id: z.string(),
@@ -115,7 +126,7 @@ export const reipceRouter = createTRPCRouter({
       return recipe;
     }),
 
-  updateRecipe: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -132,59 +143,6 @@ export const reipceRouter = createTRPCRouter({
         data: {
           title: input.title,
           description: input.description,
-        },
-      });
-    }),
-
-  newIngredientSection: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        label: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx: { db, session }, input }) => {
-      const recipe = await db.recipe.findFirst({
-        where: {
-          id: input.id,
-          userId: session.user.id,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      if (!recipe) return;
-
-      return await db.ingredientGroup.create({
-        data: {
-          label: input.label,
-          order: 0,
-          recipeId: recipe.id,
-        },
-        include: {
-          ingredients: true,
-        },
-      });
-    }),
-
-  newIngredient: protectedProcedure
-    .input(
-      z.object({
-        label: z.string(),
-        id: z.string(),
-        ingredientGroupId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx: { session, db }, input }) => {
-      return await db.ingredient.create({
-        data: {
-          label: input.label,
-          recipeId: input.id,
-          ingredientGroupId: input.ingredientGroupId,
-          order: 0,
-          unit: "NONE",
-          value: 1,
         },
       });
     }),

@@ -8,6 +8,7 @@ import Button from "../generic/Button";
 import { useDebounce } from "~/hooks/useDebounce";
 import TextArea from "../generic/Textarea";
 import type { Ingredient, IngredientGroup } from "generated/prisma";
+import { useResolvedId, useSetResolvedId } from "~/hooks/useResolvedId";
 
 type Props = {
   recipeId: string;
@@ -15,11 +16,12 @@ type Props = {
 
 const EditRecipe = ({ recipeId }: Props) => {
   const utils = api.useUtils();
+  const setResolvedId = useSetResolvedId();
+  const getResolvedId = useResolvedId;
 
-  const { data: serverRecipe, isLoading: isSyncing } =
-    api.recipe.getRecipe.useQuery({
-      id: recipeId,
-    });
+  const { data: serverRecipe, isLoading: isSyncing } = api.recipe.get.useQuery({
+    id: recipeId,
+  });
 
   const [localRecipe, setLocalRecipe] = useState<RecipeIncluded | null>(null);
 
@@ -35,21 +37,18 @@ const EditRecipe = ({ recipeId }: Props) => {
     isSuccess,
     isError,
     isPending,
-  } = api.recipe.updateRecipe.useMutation({
+  } = api.recipe.update.useMutation({
     onMutate: (input) => {
       if (!localRecipe) return;
 
       const prev_recipe = serverRecipe;
-      utils.recipe.getRecipe.setData({ id: recipeId }, { ...localRecipe });
-      utils.recipe.getRecipePreview.setData(
-        { id: recipeId },
-        { ...localRecipe },
-      );
+      utils.recipe.get.setData({ id: recipeId }, { ...localRecipe });
+      utils.recipe.getPreview.setData({ id: recipeId }, { ...localRecipe });
       return prev_recipe;
     },
 
     onError(error, variables, prev_recipe, context) {
-      utils.recipe.getRecipe.setData({ id: recipeId }, prev_recipe);
+      utils.recipe.get.setData({ id: recipeId }, prev_recipe);
     },
 
     onSuccess(data, variables, onMutateResult, context) {
@@ -65,51 +64,87 @@ const EditRecipe = ({ recipeId }: Props) => {
     updateRecipe(debouncedValues);
   }, [debouncedValues]);
 
-  const { mutate: newIngredientSection } =
-    api.recipe.newIngredientSection.useMutation({
-      onMutate(variables, context) {
-        if (!localRecipe) {
-          return;
-        }
-        const fakeId = "_tempid_" + crypto.randomUUID();
+  // -- Ingredient Groups --
 
-        const fakeIngredientGroup: RecipeIncluded["ingredientGroups"][number] =
-          {
-            recipeId: localRecipe.id,
-            default: false,
-            id: fakeId,
-            label: variables.label,
-            order: 0,
-            ingredients: [],
-          };
+  const { mutate: newIngredientSection } = api.ingredientGroup.new.useMutation({
+    onMutate(variables, context) {
+      if (!localRecipe) {
+        return;
+      }
+      const fakeId = "_tempid_" + crypto.randomUUID();
 
-        setLocalRecipe({
-          ...localRecipe,
-          ingredientGroups: [
-            ...localRecipe.ingredientGroups,
-            fakeIngredientGroup,
-          ],
-        });
+      const fakeIngredientGroup: RecipeIncluded["ingredientGroups"][number] = {
+        recipeId: localRecipe.id,
+        default: false,
+        id: fakeId,
+        label: variables.label,
+        order: 0,
+        ingredients: [],
+      };
 
-        return { fakeId };
-      },
-      onSuccess(data, variables, onMutateResult, context) {
-        if (!localRecipe || !data) return;
+      setLocalRecipe({
+        ...localRecipe,
+        ingredientGroups: [
+          ...localRecipe.ingredientGroups,
+          fakeIngredientGroup,
+        ],
+      });
 
-        setLocalRecipe({
-          ...localRecipe,
-          ingredientGroups: localRecipe.ingredientGroups.map((g) => {
-            if (g.id === onMutateResult?.fakeId) {
-              return data;
-            }
-            return g;
-          }),
-        });
-        onMutateResult?.fakeId;
-      },
-    });
+      return { fakeId };
+    },
+    onSuccess(data, variables, onMutateResult, context) {
+      if (!onMutateResult?.fakeId || !data) {
+        return;
+      }
 
-  const [newSectionLabel, setNewSectionLabel] = useState("");
+      setResolvedId(onMutateResult.fakeId, data.id);
+    },
+  });
+
+  const { mutate: updateIngredientSection } =
+    api.ingredientGroup.update.useMutation({});
+
+  const [newIngredientSectionLabel, setNewIngredientSectionLabel] =
+    useState("");
+
+  const { mutate: newIngredient } = api.ingredient.new.useMutation({
+    onMutate(variables, context) {
+      if (!localRecipe) {
+        return;
+      }
+      const fakeId = "_tempid_" + crypto.randomUUID();
+
+      const fakeIngredient: RecipeIncluded["ingredientGroups"][number]["ingredients"][number] =
+        {
+          recipeId: localRecipe.id,
+          id: fakeId,
+          label: variables.label,
+          order: 0,
+          value: 1,
+          unit: "NONE",
+          ingredientGroupId: variables.ingredientGroupId,
+        };
+
+      setLocalRecipe({
+        ...localRecipe,
+        ingredientGroups: localRecipe.ingredientGroups.map((g) => {
+          if (g.id == variables.ingredientGroupId) {
+            return { ...g, ingredients: [...g.ingredients, fakeIngredient] };
+          }
+          return g;
+        }),
+      });
+
+      return { fakeId };
+    },
+    onSuccess(data, variables, onMutateResult, context) {
+      if (!onMutateResult?.fakeId || !data) return;
+
+      setResolvedId(onMutateResult.fakeId, data.id);
+    },
+  });
+
+  const [newIngredientLabel, setNewIngredientLabel] = useState("");
 
   const recipeIsSame = (serverRecipe &&
     localRecipe &&
@@ -124,7 +159,10 @@ const EditRecipe = ({ recipeId }: Props) => {
     JSON.stringify(serverRecipe.stepGroups) ===
       JSON.stringify(localRecipe.stepGroups)) as boolean;
 
-  if (!localRecipe) {
+  const defaultIngredientGroup = localRecipe?.ingredientGroups.find(
+    (g) => g.default,
+  );
+  if (!localRecipe || !defaultIngredientGroup) {
     return <div className="text-text-500 p-16">loading...</div>;
   }
 
@@ -137,7 +175,7 @@ const EditRecipe = ({ recipeId }: Props) => {
         {recipeIsSame && (isSuccess || syncStatus == "idle")
           ? "synced"
           : isPending
-            ? "sycning..."
+            ? "sycing..."
             : "not synced"}
       </span>
       <div className="flex flex-col gap-2">
@@ -164,57 +202,96 @@ const EditRecipe = ({ recipeId }: Props) => {
           }}
         />
       </div>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          newIngredientSection({ id: localRecipe.id, label: newSectionLabel });
-          setNewSectionLabel("");
+          newIngredient({
+            recipeId,
+            ingredientGroupId: defaultIngredientGroup.id,
+            label: newIngredientLabel,
+          });
+          setNewIngredientLabel("");
         }}
       >
         <Input
-          value={newSectionLabel}
-          onChange={(e) => setNewSectionLabel(e.target.value)}
+          placeholder="Create a new ingredient"
+          value={newIngredientLabel}
+          onChange={(e) => setNewIngredientLabel(e.target.value)}
           className="border-accent-600 border-dashed focus:outline-dashed"
+        />
+      </form>
+
+      {defaultIngredientGroup.ingredients.length > 0 ? (
+        <ul className="flex flex-col gap-2">
+          {defaultIngredientGroup.ingredients
+            .sort((a, b) => a.order - b.order)
+            .map((i) => (
+              <IngredientEdit key={i.id} ingredient={i} />
+            ))}
+        </ul>
+      ) : null}
+
+      {localRecipe.ingredientGroups.filter((g) => !g.default).length > 0 ? (
+        <ul className="grid grid-cols-2 items-start justify-start gap-4">
+          {localRecipe.ingredientGroups
+            .filter((g) => !g.default)
+            .sort((a, b) => a.order - b.order)
+            .map((g) => (
+              <li
+                key={g.id}
+                className="flex flex-col gap-4 rounded-lg border border-black/10 p-4"
+              >
+                <Input
+                  value={g.label}
+                  label="Section Label"
+                  onChange={(e) => {
+                    setLocalRecipe({
+                      ...localRecipe,
+                      ingredientGroups: localRecipe.ingredientGroups.map(
+                        (gr) => {
+                          if (gr.id == g.id) {
+                            return { ...gr, label: e.target.value };
+                          }
+
+                          return gr;
+                        },
+                      ),
+                    });
+                  }}
+                />
+
+                {g.ingredients.length > 0 ? (
+                  <ul className="flex flex-col gap-2">
+                    {g.ingredients
+                      .sort((a, b) => a.order - b.order)
+                      .map((i) => (
+                        <IngredientEdit ingredient={i} />
+                      ))}
+                  </ul>
+                ) : null}
+              </li>
+            ))}
+        </ul>
+      ) : null}
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          newIngredientSection({
+            recipeId,
+            label: newIngredientSectionLabel,
+          });
+          setNewIngredientSectionLabel("");
+        }}
+      >
+        <Input
+          value={newIngredientSectionLabel}
+          onChange={(e) => setNewIngredientSectionLabel(e.target.value)}
+          className="border-accent-600 w-70 border-dashed focus:outline-dashed"
           placeholder="Create new ingredient section"
         />
       </form>
-      <ul className="grid grid-cols-2 items-start justify-start gap-4">
-        {localRecipe?.ingredientGroups
-          .sort((a, b) => a.order - b.order)
-          .map((g) => (
-            <li
-              key={g.id}
-              className="flex flex-col gap-4 rounded-lg border border-black/10 p-4"
-            >
-              <Input
-                value={g.label}
-                label="Section Label"
-                onChange={(e) => {}}
-              />
-
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <Input
-                  placeholder="Create a new ingredient"
-                  className="border-accent-600 border-dashed focus:outline-dashed"
-                />
-              </form>
-
-              {g.ingredients.length > 0 ? (
-                <ul className="flex flex-col gap-2">
-                  {g.ingredients
-                    .sort((a, b) => a.order - b.order)
-                    .map((i) => (
-                      <li>{i.label}</li>
-                    ))}
-                </ul>
-              ) : null}
-            </li>
-          ))}
-      </ul>
     </div>
   );
 };
@@ -222,5 +299,5 @@ const EditRecipe = ({ recipeId }: Props) => {
 export default EditRecipe;
 
 const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
-  return <li>{JSON.stringify(ingredient)}</li>;
+  return <li>{ingredient.label}</li>;
 };
