@@ -60,6 +60,15 @@ const NreRecipeButton = () => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [isOpen]);
+
   return (
     <>
       <div onClick={() => setIsOpen(!isOpen)} className="h-fit w-fit">

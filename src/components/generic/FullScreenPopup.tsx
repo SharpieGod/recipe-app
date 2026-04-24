@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 
 type Props = {
@@ -10,6 +10,15 @@ type Props = {
 const FullScreenPopup = ({ trigger, children, className }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [isOpen]);
+
   return (
     <>
       <div onClick={() => setIsOpen(!isOpen)} className="h-fit w-fit">
@@ -19,7 +28,7 @@ const FullScreenPopup = ({ trigger, children, className }: Props) => {
       <div
         onClick={() => setIsOpen(false)}
         className={cn(
-          "fixed inset-0 z-100 bg-black/50 backdrop-blur-xs",
+          "fixed inset-0 z-1000 bg-black/50 backdrop-blur-xs",
           "transition-opacity duration-200",
           isOpen
             ? "pointer-events-auto opacity-100"
@@ -28,7 +37,7 @@ const FullScreenPopup = ({ trigger, children, className }: Props) => {
       >
         <div
           className={cn(
-            "bg-background-100 z-101 mx-auto mt-40 w-100 rounded-xl border border-black/10 p-4 shadow-sm",
+            "bg-background-100 z-1001 mx-auto mt-40 w-100 rounded-xl border border-black/10 p-4 shadow-sm",
             className,
           )}
           onClick={(e) => e.stopPropagation()}

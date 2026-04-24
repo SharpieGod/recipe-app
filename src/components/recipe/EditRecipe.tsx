@@ -496,7 +496,7 @@ const IngredientSection = ({
   } = useSortable({ id: group.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
     zIndex: isDragging ? 50 : undefined,
   };
