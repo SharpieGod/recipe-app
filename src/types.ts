@@ -6,7 +6,14 @@ import type {
   Recipe,
   Step,
   StepGroup,
+  Unit,
 } from "generated/prisma";
+
+export const unitLabel = (unit: Unit): string =>
+  unit
+    .split("_")
+    .map((w) => w[0]!.toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
 import type { AppRouter } from "./server/api/root";
 
 export type RecipeIncluded = Prisma.RecipeGetPayload<{
