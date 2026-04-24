@@ -16,7 +16,7 @@ const Input: FC<Input> = ({
 }) => {
   const id = useId();
   return (
-    <div className="flex w-full flex-col items-start justify-start">
+    <div className="flex w-fit flex-col items-start justify-start">
       {label ? (
         <label className="text-text-500" htmlFor={id}>
           {label}

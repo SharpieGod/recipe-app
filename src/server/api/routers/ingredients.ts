@@ -39,11 +39,11 @@ export const ingredientsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        label: z.string().optional(),
-        unit: z.nativeEnum(Unit).optional(),
-        value: z.number().optional(),
-        order: z.number().optional(),
-        ingredientGroupId: z.string().optional(),
+        label: z.string(),
+        unit: z.nativeEnum(Unit),
+        value: z.number(),
+        order: z.number(),
+        ingredientGroupId: z.string(),
       }),
     )
     .mutation(async ({ ctx: { session, db }, input }) => {

@@ -65,14 +65,14 @@ const EditRecipe = ({ recipeId }: Props) => {
     updateRecipe(values);
 
     const serverIngMap = new Map<
-      string,
+      string | null,
       Ingredient & { ingredientGroupId: string }
     >(
       serverRecipe.ingredientGroups.flatMap((g) =>
         g.ingredients.map(
           (i) =>
-            [i.id, { ...i, ingredientGroupId: g.id }] as [
-              string,
+            [getResolvedId(i.id), { ...i, ingredientGroupId: g.id }] as [
+              string | null,
               Ingredient & { ingredientGroupId: string },
             ],
         ),
@@ -86,10 +86,11 @@ const EditRecipe = ({ recipeId }: Props) => {
       const serverGroup = serverRecipe.ingredientGroups.find(
         (gr) => gr.id == realGroupId,
       );
-      if (!serverGroup) return;
 
       const hasChanged =
-        serverGroup.label !== g.label || serverGroup.order !== g.order;
+        !serverGroup || // Was created
+        serverGroup.label !== g.label ||
+        serverGroup.order !== g.order;
 
       if (hasChanged) {
         updateIngredientSection({
@@ -104,9 +105,9 @@ const EditRecipe = ({ recipeId }: Props) => {
         if (!realIngredientId) return;
 
         const serverIngredient = serverIngMap.get(realIngredientId);
-        if (!serverIngredient) return;
 
         const ingredientChanged =
+          !serverIngredient ||
           serverIngredient.label !== i.label ||
           serverIngredient.unit !== i.unit ||
           serverIngredient.value !== i.value ||
@@ -147,9 +148,8 @@ const EditRecipe = ({ recipeId }: Props) => {
     isPending,
   } = api.recipe.update.useMutation({
     onMutate: (input) => {
-      if (!localRecipe) return;
-
       const prev_recipe = serverRecipe;
+      if (!localRecipe || !prev_recipe) return;
       utils.recipe.get.setData({ id: recipeId }, { ...localRecipe });
 
       const { ingredientGroups, stepGroups, ...preview } = localRecipe;
@@ -217,7 +217,23 @@ const EditRecipe = ({ recipeId }: Props) => {
   const {
     mutate: updateIngredientSection,
     isPending: ingredientGroupIsPending,
-  } = api.ingredientGroup.update.useMutation({});
+  } = api.ingredientGroup.update.useMutation({
+    onMutate(variables, context) {
+      if (!localRecipe) return;
+
+      utils.recipe.get.setData(
+        { id: recipeId },
+        {
+          ...localRecipe,
+          ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
+            ...g,
+            label: variables.label,
+            order: variables.order,
+          })),
+        },
+      );
+    },
+  });
 
   const [newIngredientSectionLabel, setNewIngredientSectionLabel] =
     useState("");
@@ -262,7 +278,27 @@ const EditRecipe = ({ recipeId }: Props) => {
     },
   });
 
-  const { mutate: updateIngredient } = api.ingredient.update.useMutation({});
+  const { mutate: updateIngredient } = api.ingredient.update.useMutation({
+    onMutate(variables, context) {
+      if (!localRecipe) return;
+
+      utils.recipe.get.setData({ id: recipeId }, (prev) => {
+        if (!prev) return;
+
+        return {
+          ...prev,
+          ingredientGroups: prev.ingredientGroups.map((g) => {
+            return {
+              ...g,
+              ingredients: g.ingredients.map((i) =>
+                i.id == variables.id ? { ...i, ...variables } : { ...i },
+              ),
+            };
+          }),
+        };
+      });
+    },
+  });
 
   const [newIngredientLabel, setNewIngredientLabel] = useState("");
 
@@ -515,7 +551,7 @@ const IngredientSection = ({
           {...listeners}
           aria-label="Drag to reorder section"
         >
-          <GripVertical className="size-5" />
+          <GripVertical className="size-6" />
         </button>
         <Input
           value={group.label}
@@ -584,11 +620,12 @@ const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
     <li className="bg-background-100 flex w-120 items-center gap-2 rounded-lg p-2">
       <GripVertical className="text-background-300 size-5 shrink-0" />
       <Input
-        className="w-full"
+        className="w-14"
         value={valueStr}
         onChange={(e) => handleValueChange(e.target.value)}
       />
       <SelectPopdown
+        className="w-full flex-1"
         entries={Object.values(Unit)
           .filter((u) => u != "NONE")
           .map((s) => {

@@ -20,7 +20,7 @@ const SelectPopdown = ({
     <div className="w-full">
       <Popdown
         trigger={
-          <Button className="w-full" variant="empty">
+          <Button className="w-full min-w-full text-nowrap" variant="empty">
             {selectedEntryKey && selectedEntryKey != "NONE"
               ? entries.find((e) => e.key == selectedEntryKey)?.label
               : (emptySelectText ?? "Select an item")}
