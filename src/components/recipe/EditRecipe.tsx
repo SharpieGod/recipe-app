@@ -221,17 +221,22 @@ const EditRecipe = ({ recipeId }: Props) => {
     onMutate(variables, context) {
       if (!localRecipe) return;
 
-      utils.recipe.get.setData(
-        { id: recipeId },
-        {
-          ...localRecipe,
-          ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
-            ...g,
-            label: variables.label,
-            order: variables.order,
-          })),
-        },
-      );
+      utils.recipe.get.setData({ id: recipeId }, (prev) => {
+        if (!prev) return;
+
+        return {
+          ...prev,
+          ingredientGroups: prev.ingredientGroups.map((g) =>
+            g.id == variables.id
+              ? {
+                  ...g,
+                  label: variables.label,
+                  order: variables.order,
+                }
+              : g,
+          ),
+        };
+      });
     },
   });
 
@@ -348,6 +353,17 @@ const EditRecipe = ({ recipeId }: Props) => {
     !!localRecipe &&
     JSON.stringify(stripIds(serverRecipe)) ===
       JSON.stringify(stripIds(localRecipe));
+
+  if (!!serverRecipe && !!localRecipe) {
+    console.log(
+      JSON.stringify(stripIds(serverRecipe)) ===
+        JSON.stringify(stripIds(localRecipe)),
+      "\n SERVER: \n",
+      JSON.stringify(stripIds(serverRecipe)),
+      "\n LOCAL: \n",
+      JSON.stringify(stripIds(localRecipe)),
+    );
+  }
 
   const defaultIngredientGroup = localRecipe?.ingredientGroups.find(
     (g) => g.default,

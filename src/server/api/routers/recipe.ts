@@ -80,8 +80,14 @@ export const recipeRouter = createTRPCRouter({
     )
     .query(async ({ ctx: { session, db }, input }) => {
       const include = {
-        ingredientGroups: { include: { ingredients: true } },
-        stepGroups: { include: { steps: true } },
+        ingredientGroups: {
+          orderBy: { order: "asc" as const },
+          include: { ingredients: { orderBy: { order: "asc" as const } } },
+        },
+        stepGroups: {
+          orderBy: { order: "asc" as const },
+          include: { steps: { orderBy: { order: "asc" as const } } },
+        },
       };
 
       const recipe = await db.recipe.findFirst({
