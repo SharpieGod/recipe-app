@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { unitLabel, type RecipeIncluded } from "~/types";
 import Input from "../generic/Input";
@@ -14,11 +14,29 @@ import {
   useSetResolvedId,
 } from "~/hooks/useResolvedId";
 import SelectPopdown from "../generic/SelectPopdown";
+import { GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type RecipeEditContextType = {
   localRecipe: RecipeIncluded;
   setLocalRecipe: React.Dispatch<React.SetStateAction<RecipeIncluded | null>>;
   recipeId: string;
+  focusedInputId: string | null;
+  setFocusedInputId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 const RecipeEditContext = createContext<RecipeEditContextType | null>(null);
@@ -46,13 +64,27 @@ const EditRecipe = ({ recipeId }: Props) => {
     const values = debouncedRecipeValues;
     updateRecipe(values);
 
+    const serverIngMap = new Map<
+      string,
+      Ingredient & { ingredientGroupId: string }
+    >(
+      serverRecipe.ingredientGroups.flatMap((g) =>
+        g.ingredients.map(
+          (i) =>
+            [i.id, { ...i, ingredientGroupId: g.id }] as [
+              string,
+              Ingredient & { ingredientGroupId: string },
+            ],
+        ),
+      ),
+    );
+
     values.ingredientGroups.forEach((g) => {
-      const realId = getResolvedId(g.id);
-      console.log(realId);
-      if (!realId) return;
+      const realGroupId = getResolvedId(g.id);
+      if (!realGroupId) return;
 
       const serverGroup = serverRecipe.ingredientGroups.find(
-        (gr) => gr.id == realId,
+        (gr) => gr.id == realGroupId,
       );
       if (!serverGroup) return;
 
@@ -61,11 +93,37 @@ const EditRecipe = ({ recipeId }: Props) => {
 
       if (hasChanged) {
         updateIngredientSection({
-          id: realId,
+          id: realGroupId,
           label: g.label,
           order: g.order,
         });
       }
+
+      g.ingredients.forEach((i) => {
+        const realIngredientId = getResolvedId(i.id);
+        if (!realIngredientId) return;
+
+        const serverIngredient = serverIngMap.get(realIngredientId);
+        if (!serverIngredient) return;
+
+        const ingredientChanged =
+          serverIngredient.label !== i.label ||
+          serverIngredient.unit !== i.unit ||
+          serverIngredient.value !== i.value ||
+          serverIngredient.order !== i.order ||
+          serverIngredient.ingredientGroupId !== realGroupId;
+
+        if (ingredientChanged) {
+          updateIngredient({
+            id: realIngredientId,
+            label: i.label,
+            unit: i.unit,
+            value: i.value,
+            order: i.order,
+            ingredientGroupId: realGroupId,
+          });
+        }
+      });
     });
   };
 
@@ -143,7 +201,7 @@ const EditRecipe = ({ recipeId }: Props) => {
         ],
       });
 
-      setInputFocusId(fakeId);
+      setInputFocusId("_is_" + fakeId);
 
       return { fakeId };
     },
@@ -164,6 +222,7 @@ const EditRecipe = ({ recipeId }: Props) => {
   const [newIngredientSectionLabel, setNewIngredientSectionLabel] =
     useState("");
 
+  // -- Ingredients --
   const { mutate: newIngredient } = api.ingredient.new.useMutation({
     onMutate(variables, context) {
       if (!localRecipe) {
@@ -192,6 +251,8 @@ const EditRecipe = ({ recipeId }: Props) => {
         }),
       });
 
+      setInputFocusId("_in_" + fakeId);
+
       return { fakeId };
     },
     onSuccess(data, variables, onMutateResult, context) {
@@ -200,6 +261,8 @@ const EditRecipe = ({ recipeId }: Props) => {
       setResolvedId(onMutateResult.fakeId, data.id);
     },
   });
+
+  const { mutate: updateIngredient } = api.ingredient.update.useMutation({});
 
   const [newIngredientLabel, setNewIngredientLabel] = useState("");
 
@@ -253,13 +316,52 @@ const EditRecipe = ({ recipeId }: Props) => {
   const defaultIngredientGroup = localRecipe?.ingredientGroups.find(
     (g) => g.default,
   );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 1 }, // small drag before activating, so clicks still work
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (!localRecipe) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const sortedNonDefault = localRecipe.ingredientGroups
+      .filter((g) => !g.default)
+      .sort((a, b) => a.order - b.order);
+
+    const oldIndex = sortedNonDefault.findIndex((g) => g.id === active.id);
+    const newIndex = sortedNonDefault.findIndex((g) => g.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(sortedNonDefault, oldIndex, newIndex).map(
+      (g, idx) => ({ ...g, order: idx }),
+    );
+
+    const reorderedById = new Map(reordered.map((g) => [g.id, g]));
+    setLocalRecipe({
+      ...localRecipe,
+      ingredientGroups: localRecipe.ingredientGroups.map(
+        (g) => reorderedById.get(g.id) ?? g,
+      ),
+    });
+  };
+
   if (!localRecipe || !defaultIngredientGroup) {
     return <div className="text-text-500 p-16">loading...</div>;
   }
 
   return (
     <RecipeEditContext.Provider
-      value={{ localRecipe, setLocalRecipe, recipeId }}
+      value={{
+        localRecipe,
+        setLocalRecipe,
+        recipeId,
+        focusedInputId: inputFocusId,
+        setFocusedInputId: setInputFocusId,
+      }}
     >
       <div className="relative flex flex-col gap-4 p-16">
         <pre className="absolute top-0 right-0 max-w-100 text-[10px]">
@@ -326,56 +428,32 @@ const EditRecipe = ({ recipeId }: Props) => {
           </ul>
         ) : null}
 
-        {localRecipe.ingredientGroups.filter((g) => !g.default).length > 0 ? (
-          <ul className="grid grid-cols-2 items-start justify-start gap-4">
-            {localRecipe.ingredientGroups
-              .filter((g) => !g.default)
-              .sort((a, b) => a.order - b.order)
-              .map((g) => (
-                <li
-                  key={g.id}
-                  className="flex flex-col gap-4 rounded-lg border border-black/10 p-4"
-                >
-                  <Input
-                    value={g.label}
-                    label="Section Label"
-                    ref={(el: HTMLInputElement | null) => {
-                      if (el && inputFocusId === g.id) {
-                        el.focus();
+        {(() => {
+          const sortedNonDefault = localRecipe.ingredientGroups
+            .filter((g) => !g.default)
+            .sort((a, b) => a.order - b.order);
 
-                        setInputFocusId(null);
-                      }
-                    }}
-                    onChange={(e) => {
-                      setLocalRecipe({
-                        ...localRecipe,
-                        ingredientGroups: localRecipe.ingredientGroups.map(
-                          (gr) => {
-                            if (gr.id == g.id) {
-                              return { ...gr, label: e.target.value };
-                            }
+          if (sortedNonDefault.length === 0) return null;
 
-                            return gr;
-                          },
-                        ),
-                      });
-                    }}
-                  />
-
-                  {g.ingredients.length > 0 ? (
-                    <ul className="flex flex-col gap-2">
-                      {g.ingredients
-                        .sort((a, b) => a.order - b.order)
-                        .map((i) => (
-                          <IngredientEdit key={i.id} ingredient={i} />
-                        ))}
-                    </ul>
-                  ) : null}
-                </li>
-              ))}
-          </ul>
-        ) : null}
-
+          return (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={sortedNonDefault.map((g) => g.id)}
+                strategy={rectSortingStrategy}
+              >
+                <ul className="grid grid-cols-2 items-start justify-start gap-4">
+                  {sortedNonDefault.map((g) => (
+                    <IngredientSection key={g.id} group={g} />
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
+          );
+        })()}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -400,14 +478,146 @@ const EditRecipe = ({ recipeId }: Props) => {
 
 export default EditRecipe;
 
-const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
-  const { localRecipe, setLocalRecipe } = useRecipeEdit();
+const IngredientSection = ({
+  group,
+}: {
+  group: RecipeIncluded["ingredientGroups"][number];
+}) => {
+  const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } =
+    useRecipeEdit();
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: group.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
   return (
-    <li className="bg-background-100 grid w-fit grid-cols-[1fr_auto_auto] gap-2 rounded-lg p-2">
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="bg-background-50 flex flex-col gap-4 rounded-lg border border-black/10 p-4"
+    >
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          className="text-background-300 cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+          aria-label="Drag to reorder section"
+        >
+          <GripVertical className="size-5" />
+        </button>
+        <Input
+          value={group.label}
+          label="Section Label"
+          ref={(el: HTMLInputElement | null) => {
+            if (el && focusedInputId === "_is_" + group.id) {
+              el.focus();
+              setFocusedInputId(null);
+            }
+          }}
+          onChange={(e) => {
+            setLocalRecipe({
+              ...localRecipe,
+              ingredientGroups: localRecipe.ingredientGroups.map((gr) =>
+                gr.id === group.id ? { ...gr, label: e.target.value } : gr,
+              ),
+            });
+          }}
+        />
+      </div>
+
+      {group.ingredients.length > 0 ? (
+        <ul className="flex flex-col gap-2">
+          {group.ingredients
+            .sort((a, b) => a.order - b.order)
+            .map((i) => (
+              <IngredientEdit key={i.id} ingredient={i} />
+            ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+};
+
+const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
+  const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } =
+    useRecipeEdit();
+  const [valueStr, setValueStr] = React.useState(String(ingredient.value));
+
+  const handleValueChange = (str: string) => {
+    if (!/^\d*\.?\d*(\/\d*\.?\d*)?$/.test(str)) return;
+    setValueStr(str);
+    let parsed: number;
+    if (str === "") {
+      parsed = 0;
+    } else if (str.includes("/")) {
+      const [num, den] = str.split("/").map(parseFloat);
+      parsed = !isNaN(num!) && !isNaN(den!) && den !== 0 ? num! / den! : NaN;
+    } else {
+      parsed = parseFloat(str);
+    }
+    if (!isNaN(parsed)) {
+      setLocalRecipe({
+        ...localRecipe,
+        ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
+          ...g,
+          ingredients: g.ingredients.map((i) =>
+            i.id === ingredient.id ? { ...i, value: parsed } : i,
+          ),
+        })),
+      });
+    }
+  };
+
+  return (
+    <li className="bg-background-100 flex w-120 items-center gap-2 rounded-lg p-2">
+      <GripVertical className="text-background-300 size-5 shrink-0" />
       <Input
+        className="w-full"
+        value={valueStr}
+        onChange={(e) => handleValueChange(e.target.value)}
+      />
+      <SelectPopdown
+        entries={Object.values(Unit)
+          .filter((u) => u != "NONE")
+          .map((s) => {
+            return { label: unitLabel(s), key: s };
+          })}
+        onSelected={(key) => {
+          setLocalRecipe({
+            ...localRecipe,
+            ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
+              ...g,
+              ingredients: g.ingredients.map((i) =>
+                i.id === ingredient.id ? { ...i, unit: key as Unit } : i,
+              ),
+            })),
+          });
+        }}
+        selectedEntryKey={ingredient.unit}
+        emptySelectText="Pick a unit"
+      />
+      <Input
+        ref={(el: HTMLInputElement | null) => {
+          if (el && focusedInputId === "_in_" + ingredient.id) {
+            el.focus();
+            setFocusedInputId(null);
+          }
+        }}
         value={ingredient.label}
         placeholder="Ingredient label"
-        className=""
+        className="flex-1"
         onChange={(e) =>
           setLocalRecipe({
             ...localRecipe,
@@ -419,16 +629,6 @@ const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
             })),
           })
         }
-      />
-      <SelectPopdown
-        entries={Object.values(Unit)
-          .filter((u) => u != "NONE")
-          .map((s) => {
-            return { label: unitLabel(s), key: s };
-          })}
-        onSelected={(key) => {}}
-        selectedEntryKey="NONE"
-        emptySelectText="Pick a unit"
       />
     </li>
   );

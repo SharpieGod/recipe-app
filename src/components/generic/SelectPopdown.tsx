@@ -7,6 +7,7 @@ type Props = {
   onSelected: (key: string) => void;
   selectedEntryKey?: string;
   emptySelectText?: string;
+  className?: string;
 };
 
 const SelectPopdown = ({
@@ -16,10 +17,10 @@ const SelectPopdown = ({
   emptySelectText,
 }: Props) => {
   return (
-    <div className="w-fit">
+    <div className="w-full">
       <Popdown
         trigger={
-          <Button className="w-fit" variant="empty">
+          <Button className="w-full" variant="empty">
             {selectedEntryKey && selectedEntryKey != "NONE"
               ? entries.find((e) => e.key == selectedEntryKey)?.label
               : (emptySelectText ?? "Select an item")}
@@ -28,7 +29,9 @@ const SelectPopdown = ({
         className="max-h-40 overflow-y-auto"
       >
         {entries.map((e) => (
-          <button key={e.key}>{e.label}</button>
+          <button key={e.key} onClick={() => onSelected(e.key)}>
+            {e.label}
+          </button>
         ))}
       </Popdown>
     </div>

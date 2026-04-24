@@ -44,26 +44,10 @@ export const ingredientGroupsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx: { session, db }, input }) => {
-      const section = await db.ingredientGroup.findFirst({
-        where: {
-          id: input.id,
-        },
-      });
-
-      if (!section) return null;
-
-      const recipe = await db.recipe.findFirst({
-        where: {
-          id: section.recipeId,
-          userId: session.user.id,
-        },
-      });
-
-      if (!recipe) return null;
-
       return await db.ingredientGroup.update({
         where: {
           id: input.id,
+          recipe: { userId: session.user.id },
         },
         data: {
           label: input.label,
