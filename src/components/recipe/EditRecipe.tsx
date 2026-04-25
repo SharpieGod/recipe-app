@@ -189,7 +189,7 @@ const EditRecipe = ({ recipeId }: Props) => {
         default: false,
         id: fakeId,
         label: variables.label,
-        order: 0,
+        order: localRecipe.ingredientGroups.length,
         ingredients: [],
       };
 
@@ -256,7 +256,10 @@ const EditRecipe = ({ recipeId }: Props) => {
           recipeId: localRecipe.id,
           id: fakeId,
           label: variables.label,
-          order: 0,
+          order:
+            localRecipe.ingredientGroups.find(
+              (g) => g.id == variables.ingredientGroupId,
+            )?.ingredients.length ?? 0,
           value: 1,
           unit: "NONE",
           ingredientGroupId: variables.ingredientGroupId,

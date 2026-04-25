@@ -18,6 +18,9 @@ export const ingredientGroupsRouter = createTRPCRouter({
         },
         select: {
           id: true,
+          _count: {
+            select: { ingredientGroups: true },
+          },
         },
       });
 
@@ -26,7 +29,7 @@ export const ingredientGroupsRouter = createTRPCRouter({
       return await db.ingredientGroup.create({
         data: {
           label: input.label,
-          order: 0,
+          order: recipe._count.ingredientGroups, // its 0-indexed
           recipeId: recipe.id,
         },
         include: {

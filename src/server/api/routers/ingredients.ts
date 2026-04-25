@@ -18,7 +18,17 @@ export const ingredientsRouter = createTRPCRouter({
           id: input.recipeId,
           userId: session.user.id,
         },
-        select: { id: true },
+        select: {
+          id: true,
+          ingredientGroups: {
+            where: {
+              id: input.ingredientGroupId,
+            },
+            select: {
+              _count: { select: { ingredients: true } },
+            },
+          },
+        },
       });
 
       if (!recipe) return null;
@@ -28,7 +38,7 @@ export const ingredientsRouter = createTRPCRouter({
           label: input.label,
           recipeId: recipe.id,
           ingredientGroupId: input.ingredientGroupId,
-          order: 0,
+          order: recipe.ingredientGroups[0]?._count.ingredients ?? 0,
           unit: "NONE",
           value: 1,
         },
