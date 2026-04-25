@@ -20,14 +20,16 @@ const MyRecipesPage = async () => {
     <>
       <Navbar />
       <Container>
-        <h1 className="text-4xl">Your Recipes</h1>
+        <h1 className="mb-8 text-4xl">Your Recipes</h1>
         <SessionProvider>
-          <NewRecipeButton />
-          <RecipeList
-            recipes={userRecipes}
-            userId={session.user.id}
-            canEdit={true}
-          />
+          <div className="flex flex-col gap-4">
+            <NewRecipeButton />
+            <RecipeList
+              recipes={userRecipes}
+              userId={session.user.id}
+              canEdit={true}
+            />
+          </div>
         </SessionProvider>
       </Container>
     </>

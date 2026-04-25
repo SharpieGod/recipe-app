@@ -1,3 +1,6 @@
+import Container from "~/components/generic/Container";
+import Navbar from "~/components/generic/Navbar";
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -5,7 +8,12 @@ type Props = {
 const PreviewRecipePage = async ({ params }: Props) => {
   const { id } = await params;
 
-  return <div>{id}</div>;
+  return (
+    <>
+      <Navbar />
+      <Container>{id}</Container>
+    </>
+  );
 };
 
 export default PreviewRecipePage;

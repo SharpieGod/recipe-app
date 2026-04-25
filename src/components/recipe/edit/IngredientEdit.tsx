@@ -3,18 +3,26 @@
 import React from "react";
 import { type Ingredient, Unit } from "generated/prisma";
 import { unitLabel } from "~/types";
-import Input from "../generic/Input";
-import SelectPopdown from "../generic/SelectPopdown";
+import Input from "../../generic/Input";
+import SelectPopdown from "../../generic/SelectPopdown";
 import { GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecipeEdit } from "./RecipeEditContext";
 
-export const IngredientDragPreview = ({ ingredient }: { ingredient: Ingredient }) => {
+export const IngredientDragPreview = ({
+  ingredient,
+}: {
+  ingredient: Ingredient;
+}) => {
   return (
     <li className="bg-background-100 flex w-120 items-center gap-2 rounded-lg p-2 shadow-md">
       <GripVertical className="text-background-300 size-5 shrink-0" />
-      <span className="w-14 shrink-0 text-sm">{ingredient.value}</span>
+      <span className="w-14 shrink-0 text-sm">
+        {isImperial(ingredient.unit as Unit)
+          ? toMixedFraction(ingredient.value)
+          : String(ingredient.value)}
+      </span>
       <span className="text-text-500 shrink-0 text-sm">
         {unitLabel(ingredient.unit as Unit)}
       </span>
@@ -23,11 +31,67 @@ export const IngredientDragPreview = ({ ingredient }: { ingredient: Ingredient }
   );
 };
 
-export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
-  const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } = useRecipeEdit();
-  const [valueStr, setValueStr] = React.useState(String(ingredient.value));
+const IMPERIAL_UNITS = new Set<Unit>([
+  "TEASPOON",
+  "TABLESPOON",
+  "FLUID_OUNCE",
+  "CUP",
+  "PINT",
+  "QUART",
+  "OUNCE",
+  "POUND",
+]);
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+const isImperial = (unit: Unit) => IMPERIAL_UNITS.has(unit);
+
+function toMixedFraction(x: number): string {
+  if (x === 0) return "0";
+  const whole = Math.floor(x);
+  const frac = x - whole;
+  if (frac < 0.005) return String(whole);
+  const fracStr = simpleFraction(frac);
+  return whole > 0 ? `${whole} ${fracStr}` : fracStr;
+}
+
+function simpleFraction(x: number, maxDen: number = 9): string {
+  let bestNum = 0;
+  let bestDen = 1;
+  let bestErr = Infinity;
+
+  for (let d = 1; d <= maxDen; d++) {
+    const n = Math.round(x * d);
+    const err = Math.abs(x - n / d);
+    if (err < bestErr) {
+      bestErr = err;
+      bestNum = n;
+      bestDen = d;
+    }
+  }
+
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+
+  const g = gcd(Math.abs(bestNum), bestDen);
+
+  return `${bestNum / g}/${bestDen / g}`;
+}
+
+export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
+  const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } =
+    useRecipeEdit();
+  const [valueStr, setValueStr] = React.useState(
+    isImperial(ingredient.unit as Unit)
+      ? toMixedFraction(ingredient.value)
+      : String(ingredient.value),
+  );
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: ingredient.id,
     data: { type: "ingredient" },
   });
@@ -39,11 +103,24 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
   };
 
   const handleValueChange = (str: string) => {
-    if (!/^\d*\.?\d*(\/\d*\.?\d*)?$/.test(str)) return;
+    if (!/^\d*\.?\d*(\s\d*\.?\d*(\/\d*\.?\d*)?|\/\d*\.?\d*)?$/.test(str))
+      return;
     setValueStr(str);
     let parsed: number;
     if (str === "") {
       parsed = 0;
+    } else if (str.includes(" ")) {
+      const [wholeStr, fracStr] = str.split(" ");
+      const whole = parseFloat(wholeStr!);
+      if (fracStr!.includes("/")) {
+        const [num, den] = fracStr!.split("/").map(parseFloat);
+        parsed =
+          !isNaN(whole) && !isNaN(num!) && !isNaN(den!) && den !== 0
+            ? whole + num! / den!
+            : NaN;
+      } else {
+        parsed = NaN;
+      }
     } else if (str.includes("/")) {
       const [num, den] = str.split("/").map(parseFloat);
       parsed = !isNaN(num!) && !isNaN(den!) && den !== 0 ? num! / den! : NaN;
@@ -51,6 +128,8 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
       parsed = parseFloat(str);
     }
     if (!isNaN(parsed)) {
+      parsed = +parsed.toFixed(2);
+
       setLocalRecipe({
         ...localRecipe,
         ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
@@ -89,12 +168,18 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
           .filter((u) => u != "NONE")
           .map((s) => ({ label: unitLabel(s), key: s }))}
         onSelected={(key) => {
+          const newUnit = key as Unit;
+          const cur = localRecipe.ingredientGroups
+            .flatMap((g) => g.ingredients)
+            .find((i) => i.id === ingredient.id);
+          const val = cur?.value ?? ingredient.value;
+          setValueStr(isImperial(newUnit) ? toMixedFraction(val) : String(val));
           setLocalRecipe({
             ...localRecipe,
             ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
               ...g,
               ingredients: g.ingredients.map((i) =>
-                i.id === ingredient.id ? { ...i, unit: key as Unit } : i,
+                i.id === ingredient.id ? { ...i, unit: newUnit } : i,
               ),
             })),
           });

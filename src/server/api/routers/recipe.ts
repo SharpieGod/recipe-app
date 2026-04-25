@@ -138,6 +138,10 @@ export const recipeRouter = createTRPCRouter({
         id: z.string(),
         title: z.string(),
         description: z.string(),
+        cookTimeMinutes: z.number().nullable(),
+        prepTimeMinutes: z.number().nullable(),
+        servings: z.number().nullable(),
+        tags: z.array(z.string()),
       }),
     )
     .mutation(async ({ ctx: { session, db }, input }) => {
@@ -149,6 +153,10 @@ export const recipeRouter = createTRPCRouter({
         data: {
           title: input.title,
           description: input.description,
+          cookTimeMinutes: input.cookTimeMinutes,
+          prepTimeMinutes: input.prepTimeMinutes,
+          servings: input.servings,
+          tags: input.tags,
         },
       });
     }),

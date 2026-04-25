@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { RecipeIncluded } from "~/types";
-import Input from "../generic/Input";
+import Input from "../../generic/Input";
 import { GripVertical } from "lucide-react";
 import {
   useSortable,

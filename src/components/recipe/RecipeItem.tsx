@@ -96,7 +96,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
 
   return (
     <div>
-      <pre className="text-xs">{JSON.stringify(recipe, null, 2)}</pre>
+      {/* <pre className="text-xs">{JSON.stringify(recipe, null, 2)}</pre> */}
       {canEdit ? (
         <Popdown
           trigger={RecipeComponent}

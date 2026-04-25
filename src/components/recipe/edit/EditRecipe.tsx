@@ -3,21 +3,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { type RecipeIncluded } from "~/types";
-import Input from "../generic/Input";
+import Input from "../../generic/Input";
 import { useDebounce } from "~/hooks/useDebounce";
-import TextArea from "../generic/Textarea";
+import TextArea from "../../generic/Textarea";
 import { type Ingredient } from "generated/prisma";
 import { useGetResolvedId, useSetResolvedId } from "~/hooks/useResolvedId";
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
   PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
   type DragOverEvent,
+  type CollisionDetection,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -31,7 +31,7 @@ import {
   IngredientSection,
   IngredientSectionDragPreview,
 } from "./IngredientSection";
-import Container from "../generic/Container";
+import Container from "../../generic/Container";
 
 type Props = {
   recipeId: string;
@@ -333,6 +333,24 @@ const EditRecipe = ({ recipeId }: Props) => {
 
   const dragStartRecipe = useRef<RecipeIncluded | null>(null);
 
+  const pointerMidpointCollision: CollisionDetection = ({
+    droppableRects,
+    droppableContainers,
+    pointerCoordinates,
+  }) => {
+    if (!pointerCoordinates) return [];
+    return [...droppableContainers]
+      .filter(({ id }) => droppableRects.has(id))
+      .sort((a, b) => {
+        const ra = droppableRects.get(a.id)!;
+        const rb = droppableRects.get(b.id)!;
+        const da = Math.abs(pointerCoordinates.y - (ra.top + ra.height / 2));
+        const db = Math.abs(pointerCoordinates.y - (rb.top + rb.height / 2));
+        return da - db;
+      })
+      .map(({ id }) => ({ id }));
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 1 },
@@ -371,7 +389,9 @@ const EditRecipe = ({ recipeId }: Props) => {
 
     if (!targetGroup || sourceGroup.id === targetGroup.id) return;
 
-    const sourceIngredients = [...sourceGroup.ingredients].sort((a, b) => a.order - b.order);
+    const sourceIngredients = [...sourceGroup.ingredients].sort(
+      (a, b) => a.order - b.order,
+    );
     const ingredient = sourceIngredients.find((i) => i.id === ingredientId);
     if (!ingredient) return;
 
@@ -379,7 +399,9 @@ const EditRecipe = ({ recipeId }: Props) => {
       .filter((i) => i.id !== ingredientId)
       .map((i, idx) => ({ ...i, order: idx }));
 
-    const targetIngredients = [...targetGroup.ingredients].sort((a, b) => a.order - b.order);
+    const targetIngredients = [...targetGroup.ingredients].sort(
+      (a, b) => a.order - b.order,
+    );
     let insertIndex = targetIngredients.length;
     if (overType === "ingredient") {
       const overIdx = targetIngredients.findIndex((i) => i.id === overId);
@@ -395,8 +417,10 @@ const EditRecipe = ({ recipeId }: Props) => {
     setLocalRecipe({
       ...localRecipe,
       ingredientGroups: localRecipe.ingredientGroups.map((g) => {
-        if (g.id === sourceGroup.id) return { ...g, ingredients: newSourceIngredients };
-        if (g.id === targetGroup!.id) return { ...g, ingredients: newTargetIngredients };
+        if (g.id === sourceGroup.id)
+          return { ...g, ingredients: newSourceIngredients };
+        if (g.id === targetGroup!.id)
+          return { ...g, ingredients: newTargetIngredients };
         return g;
       }),
     });
@@ -477,21 +501,31 @@ const EditRecipe = ({ recipeId }: Props) => {
 
     // Always derive source/target ingredient lists from snapshot — onDragOver may have
     // already moved the ingredient in localRecipe, which would corrupt the computation.
-    const snapshotSourceGroup = snapshot.ingredientGroups.find((g) => g.id === sourceGroup.id)!;
-    const snapshotTargetGroup = snapshot.ingredientGroups.find((g) => g.id === targetGroup.id)!;
+    const snapshotSourceGroup = snapshot.ingredientGroups.find(
+      (g) => g.id === sourceGroup.id,
+    )!;
+    const snapshotTargetGroup = snapshot.ingredientGroups.find(
+      (g) => g.id === targetGroup.id,
+    )!;
 
-    const sourceIngredients = [...snapshotSourceGroup.ingredients].sort((a, b) => a.order - b.order);
+    const sourceIngredients = [...snapshotSourceGroup.ingredients].sort(
+      (a, b) => a.order - b.order,
+    );
     const ingredient = sourceIngredients.find((i) => i.id === ingredientId)!;
 
     if (sourceGroup.id === targetGroup.id) {
-      const oldIndex = sourceIngredients.findIndex((i) => i.id === ingredientId);
+      const oldIndex = sourceIngredients.findIndex(
+        (i) => i.id === ingredientId,
+      );
       const newIndex = sourceIngredients.findIndex((i) => i.id === overId);
       if (oldIndex === -1 || newIndex === -1) return;
 
-      const reordered = arrayMove(sourceIngredients, oldIndex, newIndex).map((i, idx) => ({
-        ...i,
-        order: idx,
-      }));
+      const reordered = arrayMove(sourceIngredients, oldIndex, newIndex).map(
+        (i, idx) => ({
+          ...i,
+          order: idx,
+        }),
+      );
 
       setLocalRecipe({
         ...localRecipe,
@@ -504,7 +538,9 @@ const EditRecipe = ({ recipeId }: Props) => {
         .filter((i) => i.id !== ingredientId)
         .map((i, idx) => ({ ...i, order: idx }));
 
-      const targetIngredients = [...snapshotTargetGroup.ingredients].sort((a, b) => a.order - b.order);
+      const targetIngredients = [...snapshotTargetGroup.ingredients].sort(
+        (a, b) => a.order - b.order,
+      );
 
       let insertIndex = targetIngredients.length;
       if (overType === "ingredient") {
@@ -555,6 +591,19 @@ const EditRecipe = ({ recipeId }: Props) => {
           .find((i) => i.id === activeItem.id)
       : null;
 
+  const handleNumberChange = (
+    n: string,
+    setValue: (num: number | null) => void,
+  ) => {
+    if (!n) setValue(null);
+
+    const parsed = parseInt(n);
+
+    if (!isNaN(parsed)) {
+      setValue(parsed);
+    }
+  };
+
   return (
     <RecipeEditContext.Provider
       value={{
@@ -565,7 +614,7 @@ const EditRecipe = ({ recipeId }: Props) => {
         setFocusedInputId: setInputFocusId,
       }}
     >
-      <Container className="relative flex flex-col gap-4 p-16">
+      <Container className="relative flex flex-col gap-8 p-16">
         <span className="text-text-500">
           {recipeIsSame && (isSuccess || syncStatus == "idle")
             ? "synced"
@@ -573,34 +622,64 @@ const EditRecipe = ({ recipeId }: Props) => {
               ? "syncing..."
               : "not synced"}
         </span>
-        <div className="flex flex-col gap-2">
-          <Input
-            onChange={(e) => {
-              if (!localRecipe) return;
-              setLocalRecipe({ ...localRecipe, title: e.target.value });
-            }}
-            placeholder="Name your recipe"
-            label="Title"
-            type="text"
-            value={localRecipe?.title ?? ""}
-          />
-          <TextArea
-            value={localRecipe?.description ?? ""}
-            cols={50}
-            className="resize-none"
-            label="Description"
-            placeholder="Talk about your recipe"
-            rows={6}
-            onChange={(e) => {
-              if (!localRecipe) return;
-              setLocalRecipe({ ...localRecipe, description: e.target.value });
-            }}
-          />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Input
+              onChange={(e) => {
+                if (!localRecipe) return;
+                setLocalRecipe({ ...localRecipe, title: e.target.value });
+              }}
+              placeholder="Name your recipe"
+              label="Title"
+              type="text"
+              value={localRecipe?.title ?? ""}
+            />
+            <TextArea
+              value={localRecipe?.description ?? ""}
+              cols={50}
+              className="resize-none"
+              label="Description"
+              placeholder="Talk about your recipe"
+              rows={6}
+              onChange={(e) => {
+                if (!localRecipe) return;
+                setLocalRecipe({ ...localRecipe, description: e.target.value });
+              }}
+            />
+          </div>
+          <div className="flex gap-4">
+            <Input
+              label="Prep Time (minutes)"
+              placeholder="Time to prep"
+              value={localRecipe.prepTimeMinutes ?? ""}
+              onChange={(e) =>
+                handleNumberChange(e.target.value, (num) => {
+                  setLocalRecipe({
+                    ...localRecipe,
+                    prepTimeMinutes: num,
+                  });
+                })
+              }
+            />
+            <Input
+              label="Cook Time (minutes)"
+              placeholder="Time to cook"
+              value={localRecipe.cookTimeMinutes ?? ""}
+              onChange={(e) =>
+                handleNumberChange(e.target.value, (num) => {
+                  setLocalRecipe({
+                    ...localRecipe,
+                    cookTimeMinutes: num,
+                  });
+                })
+              }
+            />
+          </div>
         </div>
 
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={pointerMidpointCollision}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
@@ -641,7 +720,7 @@ const EditRecipe = ({ recipeId }: Props) => {
                     ))}
                 </ul>
               ) : (
-                <div className="text-text-500 py-2 text-center text-sm">
+                <div className="text-text-500 py-2 text-sm">
                   Drop ingredients here
                 </div>
               )}

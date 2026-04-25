@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Navbar from "~/components/generic/Navbar";
-import EditRecipe from "~/components/recipe/EditRecipe";
+import EditRecipe from "~/components/recipe/edit/EditRecipe";
 import { auth } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
