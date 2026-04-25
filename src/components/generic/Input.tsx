@@ -3,12 +3,14 @@ import { cn } from "~/lib/utils";
 
 interface Input extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
+  wrapperClassName?: string;
   label?: string;
   ref?: React.Ref<HTMLInputElement>;
 }
 
 const Input: FC<Input> = ({
   className = "",
+  wrapperClassName = "",
   label,
   ref,
   children,
@@ -16,7 +18,7 @@ const Input: FC<Input> = ({
 }) => {
   const id = useId();
   return (
-    <div className="flex w-fit flex-col items-start justify-start">
+    <div className={cn("flex w-fit max-w-full flex-col items-start justify-start", wrapperClassName)}>
       {label ? (
         <label className="text-text-500" htmlFor={id}>
           {label}

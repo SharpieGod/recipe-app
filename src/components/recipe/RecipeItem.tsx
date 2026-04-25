@@ -21,9 +21,12 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
   );
 
   const { data: ratings, isLoading: ratingsLoading } =
-    api.recipe.getRating.useQuery({
-      id: initialRecipe.id,
-    });
+    api.recipe.getRating.useQuery(
+      {
+        id: initialRecipe.id,
+      },
+      { enabled: recipe?.publishedAt != null },
+    );
 
   const utils = api.useUtils();
 
