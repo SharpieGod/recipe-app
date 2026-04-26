@@ -8,6 +8,7 @@ export type RecipeEditContextType = {
   recipeId: string;
   focusedInputId: string | null;
   setFocusedInputId: React.Dispatch<React.SetStateAction<string | null>>;
+  layoutAnimationsEnabled: boolean;
 };
 
 export const RecipeEditContext = createContext<RecipeEditContextType | null>(null);

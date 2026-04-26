@@ -18,6 +18,12 @@ import {
   type DragStartEvent,
   type DragOverEvent,
   type CollisionDetection,
+  rectIntersection,
+  getFirstCollision,
+  pointerWithin,
+  closestCenter,
+  defaultDropAnimationSideEffects,
+  MeasuringStrategy,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -32,6 +38,7 @@ import {
   IngredientSectionDragPreview,
 } from "./IngredientSection";
 import Container from "../../generic/Container";
+import { AnimatePresence } from "framer-motion";
 
 type Props = {
   recipeId: string;
@@ -229,15 +236,17 @@ const EditRecipe = ({ recipeId }: Props) => {
           ingredientGroupId: variables.ingredientGroupId,
         };
 
-      setLocalRecipe({
-        ...localRecipe,
-        ingredientGroups: localRecipe.ingredientGroups.map((g) => {
-          if (g.id == variables.ingredientGroupId) {
-            return { ...g, ingredients: [...g.ingredients, fakeIngredient] };
-          }
-          return g;
+      setLocalRecipe(
+        recomputeIngredientOrders({
+          ...localRecipe,
+          ingredientGroups: localRecipe.ingredientGroups.map((g) => {
+            if (g.id == variables.ingredientGroupId) {
+              return { ...g, ingredients: [...g.ingredients, fakeIngredient] };
+            }
+            return g;
+          }),
         }),
-      });
+      );
 
       setInputFocusId("_in_" + fakeId);
       return { fakeId };
@@ -314,46 +323,93 @@ const EditRecipe = ({ recipeId }: Props) => {
     JSON.stringify(stripIds(serverRecipe)) ===
       JSON.stringify(stripIds(localRecipe));
 
-  if (!!serverRecipe && !!localRecipe) {
-    console.log(
-      JSON.stringify(stripIds(serverRecipe)) ===
-        JSON.stringify(stripIds(localRecipe)),
-      "\n SERVER: \n",
-      JSON.stringify(stripIds(serverRecipe)),
-      "\n LOCAL: \n",
-      JSON.stringify(stripIds(localRecipe)),
-    );
-  }
+  const recomputeIngredientOrders = (
+    recipe: RecipeIncluded,
+  ): RecipeIncluded => {
+    const orderedGroups = [
+      ...recipe.ingredientGroups.filter((g) => g.default),
+      ...recipe.ingredientGroups
+        .filter((g) => !g.default)
+        .sort((a, b) => a.order - b.order),
+    ];
+    const newOrder = new Map<string, number>();
+    let counter = 0;
+    for (const group of orderedGroups) {
+      for (const ing of [...group.ingredients].sort(
+        (a, b) => a.order - b.order,
+      )) {
+        newOrder.set(ing.id, counter++);
+      }
+    }
+    return {
+      ...recipe,
+      ingredientGroups: recipe.ingredientGroups.map((g) => ({
+        ...g,
+        ingredients: g.ingredients.map((i) => ({
+          ...i,
+          order: newOrder.get(i.id) ?? i.order,
+        })),
+      })),
+    };
+  };
 
   // -- Drag and drop --
   const [activeItem, setActiveItem] = useState<{
     type: "section" | "ingredient";
     id: string;
   } | null>(null);
+  const [layoutAnimationsEnabled, setLayoutAnimationsEnabled] = useState(true);
 
   const dragStartRecipe = useRef<RecipeIncluded | null>(null);
+  const layeredCollisionDetection: CollisionDetection = (args) => {
+    const { active, droppableContainers } = args;
 
-  const pointerMidpointCollision: CollisionDetection = ({
-    droppableRects,
-    droppableContainers,
-    pointerCoordinates,
-  }) => {
-    if (!pointerCoordinates) return [];
-    return [...droppableContainers]
-      .filter(({ id }) => droppableRects.has(id))
-      .sort((a, b) => {
-        const ra = droppableRects.get(a.id)!;
-        const rb = droppableRects.get(b.id)!;
-        const da = Math.abs(pointerCoordinates.y - (ra.top + ra.height / 2));
-        const db = Math.abs(pointerCoordinates.y - (rb.top + rb.height / 2));
-        return da - db;
-      })
-      .map(({ id }) => ({ id }));
+    const itemContainers = droppableContainers.filter(
+      (c) => c.data.current?.type === "ingredient",
+    );
+    const groupContainers = droppableContainers.filter(
+      (c) =>
+        c.data.current?.type === "section" || c.data.current?.type === "group",
+    );
+
+    if (active.data.current?.type === "section") {
+      return closestCenter({
+        ...args,
+        droppableContainers: groupContainers.filter(
+          (c) => c.data.current?.type === "section",
+        ),
+      });
+    }
+
+    // Try pointerWithin on items — uses cursor, not active rect
+    const itemPointerCollisions = pointerWithin({
+      ...args,
+      droppableContainers: itemContainers,
+    });
+
+    if (getFirstCollision(itemPointerCollisions)) {
+      return itemPointerCollisions;
+    }
+
+    // Fall back to group containers via pointerWithin
+    const groupPointerCollisions = pointerWithin({
+      ...args,
+      droppableContainers: groupContainers,
+    });
+
+    if (getFirstCollision(groupPointerCollisions)) {
+      return groupPointerCollisions;
+    }
+
+    // Final fallback
+    return rectIntersection({
+      ...args,
+      droppableContainers: groupContainers,
+    });
   };
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 1 },
+      activationConstraint: { distance: 5 },
     }),
   );
 
@@ -361,6 +417,7 @@ const EditRecipe = ({ recipeId }: Props) => {
     dragStartRecipe.current = localRecipe;
     const type = event.active.data.current?.type as "section" | "ingredient";
     setActiveItem({ type, id: String(event.active.id) });
+    setLayoutAnimationsEnabled(false);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -370,79 +427,89 @@ const EditRecipe = ({ recipeId }: Props) => {
 
     const ingredientId = String(active.id);
     const overId = String(over.id);
+    const overType = over.data.current?.type as string | undefined;
 
-    const sourceGroup = localRecipe.ingredientGroups.find((g) =>
+    const currentGroup = localRecipe.ingredientGroups.find((g) =>
       g.ingredients.some((i) => i.id === ingredientId),
     );
-    if (!sourceGroup) return;
+    if (!currentGroup) return;
 
-    const overType = over.data.current?.type as string | undefined;
-    let targetGroup: RecipeIncluded["ingredientGroups"][number] | undefined;
-
+    let targetGroupId: string | undefined;
     if (overType === "ingredient") {
-      targetGroup = localRecipe.ingredientGroups.find((g) =>
+      targetGroupId = localRecipe.ingredientGroups.find((g) =>
         g.ingredients.some((i) => i.id === overId),
-      );
-    } else {
-      targetGroup = localRecipe.ingredientGroups.find((g) => g.id === overId);
+      )?.id;
+    } else if (overType === "group" || overType === "section") {
+      targetGroupId = overId;
     }
 
-    if (!targetGroup || sourceGroup.id === targetGroup.id) return;
+    // Only act on group changes — precise positioning is handled in onDragEnd
+    if (!targetGroupId || currentGroup.id === targetGroupId) return;
 
-    const sourceIngredients = [...sourceGroup.ingredients].sort(
-      (a, b) => a.order - b.order,
+    const targetGroup = localRecipe.ingredientGroups.find(
+      (g) => g.id === targetGroupId,
     );
-    const ingredient = sourceIngredients.find((i) => i.id === ingredientId);
+    if (!targetGroup) return;
+
+    const ingredient = currentGroup.ingredients.find(
+      (i) => i.id === ingredientId,
+    );
     if (!ingredient) return;
 
-    const newSourceIngredients = sourceIngredients
+    const newCurrentIngredients = currentGroup.ingredients
       .filter((i) => i.id !== ingredientId)
+      .sort((a, b) => a.order - b.order)
       .map((i, idx) => ({ ...i, order: idx }));
 
-    const targetIngredients = [...targetGroup.ingredients].sort(
-      (a, b) => a.order - b.order,
-    );
-    let insertIndex = targetIngredients.length;
-    if (overType === "ingredient") {
-      const overIdx = targetIngredients.findIndex((i) => i.id === overId);
-      if (overIdx !== -1) insertIndex = overIdx;
-    }
-
     const newTargetIngredients = [
-      ...targetIngredients.slice(0, insertIndex),
-      { ...ingredient, ingredientGroupId: targetGroup.id },
-      ...targetIngredients.slice(insertIndex),
+      ...[...targetGroup.ingredients].sort((a, b) => a.order - b.order),
+      { ...ingredient, ingredientGroupId: targetGroupId },
     ].map((i, idx) => ({ ...i, order: idx }));
 
-    setLocalRecipe({
-      ...localRecipe,
-      ingredientGroups: localRecipe.ingredientGroups.map((g) => {
-        if (g.id === sourceGroup.id)
-          return { ...g, ingredients: newSourceIngredients };
-        if (g.id === targetGroup!.id)
-          return { ...g, ingredients: newTargetIngredients };
-        return g;
+    setLocalRecipe(
+      recomputeIngredientOrders({
+        ...localRecipe,
+        ingredientGroups: localRecipe.ingredientGroups.map((g) => {
+          if (g.id === currentGroup.id)
+            return { ...g, ingredients: newCurrentIngredients };
+          if (g.id === targetGroupId)
+            return { ...g, ingredients: newTargetIngredients };
+          return g;
+        }),
       }),
-    });
+    );
   };
-
   const handleDragEnd = (event: DragEndEvent) => {
     const type = event.active.data.current?.type;
     if (type === "section") handleSectionDragEnd(event);
     else if (type === "ingredient") handleIngredientDragEnd(event);
     dragStartRecipe.current = null;
     setActiveItem(null);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setLayoutAnimationsEnabled(true);
+      });
+    });
   };
 
   const handleDragCancel = () => {
     if (dragStartRecipe.current) setLocalRecipe(dragStartRecipe.current);
     dragStartRecipe.current = null;
     setActiveItem(null);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setLayoutAnimationsEnabled(true);
+      });
+    });
   };
 
   const handleSectionDragEnd = (event: DragEndEvent) => {
     if (!localRecipe) return;
     const { active, over } = event;
+    console.log("[sectionEnd]", {
+      activeId: String(active.id),
+      overId: over ? String(over.id) : null,
+    });
     if (!over || active.id === over.id) return;
 
     const sortedNonDefault = localRecipe.ingredientGroups
@@ -461,12 +528,14 @@ const EditRecipe = ({ recipeId }: Props) => {
     );
 
     const reorderedById = new Map(reordered.map((g) => [g.id, g]));
-    setLocalRecipe({
-      ...localRecipe,
-      ingredientGroups: localRecipe.ingredientGroups.map(
-        (g) => reorderedById.get(g.id) ?? g,
-      ),
-    });
+    setLocalRecipe(
+      recomputeIngredientOrders({
+        ...localRecipe,
+        ingredientGroups: localRecipe.ingredientGroups.map(
+          (g) => reorderedById.get(g.id) ?? g,
+        ),
+      }),
+    );
   };
 
   const handleIngredientDragEnd = (event: DragEndEvent) => {
@@ -476,44 +545,39 @@ const EditRecipe = ({ recipeId }: Props) => {
 
     const ingredientId = String(active.id);
     const overId = String(over.id);
-    if (ingredientId === overId) return;
+    const overType = over.data.current?.type as string | undefined;
 
-    // Use the drag-start snapshot so onDragOver cross-group moves don't confuse source lookup
-    const snapshot = dragStartRecipe.current ?? localRecipe;
-    const sourceGroup = snapshot.ingredientGroups.find((g) =>
+    const sourceGroup = localRecipe.ingredientGroups.find((g) =>
       g.ingredients.some((i) => i.id === ingredientId),
     );
     if (!sourceGroup) return;
 
-    const overType = over.data.current?.type as string | undefined;
-    let targetGroup: RecipeIncluded["ingredientGroups"][number] | undefined;
-
+    let targetGroupId: string | undefined;
     if (overType === "ingredient") {
-      targetGroup = localRecipe.ingredientGroups.find((g) =>
+      const grp = localRecipe.ingredientGroups.find((g) =>
         g.ingredients.some((i) => i.id === overId),
       );
-    } else {
-      // "section" or "group" — over.id is the group id in both cases
-      targetGroup = localRecipe.ingredientGroups.find((g) => g.id === overId);
+      targetGroupId = grp?.id;
+    } else if (overType === "group" || overType === "section") {
+      targetGroupId = overId;
     }
+    if (!targetGroupId) return;
 
+    const targetGroup = localRecipe.ingredientGroups.find(
+      (g) => g.id === targetGroupId,
+    );
     if (!targetGroup) return;
 
-    // Always derive source/target ingredient lists from snapshot — onDragOver may have
-    // already moved the ingredient in localRecipe, which would corrupt the computation.
-    const snapshotSourceGroup = snapshot.ingredientGroups.find(
-      (g) => g.id === sourceGroup.id,
-    )!;
-    const snapshotTargetGroup = snapshot.ingredientGroups.find(
-      (g) => g.id === targetGroup.id,
-    )!;
-
-    const sourceIngredients = [...snapshotSourceGroup.ingredients].sort(
+    const sourceIngredients = [...sourceGroup.ingredients].sort(
       (a, b) => a.order - b.order,
     );
-    const ingredient = sourceIngredients.find((i) => i.id === ingredientId)!;
+    const ingredient = sourceIngredients.find((i) => i.id === ingredientId);
+    if (!ingredient) return;
 
-    if (sourceGroup.id === targetGroup.id) {
+    // Same-group reorder
+    if (sourceGroup.id === targetGroupId) {
+      if (overType !== "ingredient" || ingredientId === overId) return;
+
       const oldIndex = sourceIngredients.findIndex(
         (i) => i.id === ingredientId,
       );
@@ -521,50 +585,53 @@ const EditRecipe = ({ recipeId }: Props) => {
       if (oldIndex === -1 || newIndex === -1) return;
 
       const reordered = arrayMove(sourceIngredients, oldIndex, newIndex).map(
-        (i, idx) => ({
-          ...i,
-          order: idx,
+        (i, idx) => ({ ...i, order: idx }),
+      );
+
+      setLocalRecipe(
+        recomputeIngredientOrders({
+          ...localRecipe,
+          ingredientGroups: localRecipe.ingredientGroups.map((g) =>
+            g.id === sourceGroup.id ? { ...g, ingredients: reordered } : g,
+          ),
         }),
       );
+      return;
+    }
 
-      setLocalRecipe({
-        ...localRecipe,
-        ingredientGroups: localRecipe.ingredientGroups.map((g) =>
-          g.id === sourceGroup.id ? { ...g, ingredients: reordered } : g,
-        ),
-      });
-    } else {
-      const newSourceIngredients = sourceIngredients
-        .filter((i) => i.id !== ingredientId)
-        .map((i, idx) => ({ ...i, order: idx }));
+    // Cross-group move
+    const newSourceIngredients = sourceIngredients
+      .filter((i) => i.id !== ingredientId)
+      .map((i, idx) => ({ ...i, order: idx }));
 
-      const targetIngredients = [...snapshotTargetGroup.ingredients].sort(
-        (a, b) => a.order - b.order,
-      );
+    const targetIngredients = [...targetGroup.ingredients].sort(
+      (a, b) => a.order - b.order,
+    );
 
-      let insertIndex = targetIngredients.length;
-      if (overType === "ingredient") {
-        const overIdx = targetIngredients.findIndex((i) => i.id === overId);
-        if (overIdx !== -1) insertIndex = overIdx;
-      }
+    let insertIndex = targetIngredients.length;
+    if (overType === "ingredient") {
+      const overIdx = targetIngredients.findIndex((i) => i.id === overId);
+      if (overIdx !== -1) insertIndex = overIdx;
+    }
 
-      const newTargetIngredients = [
-        ...targetIngredients.slice(0, insertIndex),
-        { ...ingredient, ingredientGroupId: targetGroup.id },
-        ...targetIngredients.slice(insertIndex),
-      ].map((i, idx) => ({ ...i, order: idx }));
+    const newTargetIngredients = [
+      ...targetIngredients.slice(0, insertIndex),
+      { ...ingredient, ingredientGroupId: targetGroupId },
+      ...targetIngredients.slice(insertIndex),
+    ].map((i, idx) => ({ ...i, order: idx }));
 
-      setLocalRecipe({
+    setLocalRecipe(
+      recomputeIngredientOrders({
         ...localRecipe,
         ingredientGroups: localRecipe.ingredientGroups.map((g) => {
           if (g.id === sourceGroup.id)
             return { ...g, ingredients: newSourceIngredients };
-          if (g.id === targetGroup!.id)
+          if (g.id === targetGroupId)
             return { ...g, ingredients: newTargetIngredients };
           return g;
         }),
-      });
-    }
+      }),
+    );
   };
 
   const defaultIngredientGroup = localRecipe?.ingredientGroups.find(
@@ -604,6 +671,11 @@ const EditRecipe = ({ recipeId }: Props) => {
     }
   };
 
+  const dropAnimation = {
+    duration: 250,
+    easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+  };
+
   return (
     <RecipeEditContext.Provider
       value={{
@@ -612,9 +684,10 @@ const EditRecipe = ({ recipeId }: Props) => {
         recipeId,
         focusedInputId: inputFocusId,
         setFocusedInputId: setInputFocusId,
+        layoutAnimationsEnabled,
       }}
     >
-      <Container className="relative flex flex-col gap-8 p-16">
+      <Container className="relative flex flex-col gap-8 p-16 pt-0">
         <span className="text-text-500">
           {recipeIsSame && (isSuccess || syncStatus == "idle")
             ? "synced"
@@ -679,11 +752,16 @@ const EditRecipe = ({ recipeId }: Props) => {
 
         <DndContext
           sensors={sensors}
-          collisionDetection={pointerMidpointCollision}
+          collisionDetection={layeredCollisionDetection}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
+          measuring={{
+            droppable: {
+              strategy: MeasuringStrategy.Always,
+            },
+          }}
         >
           <form
             onSubmit={(e) => {
@@ -704,28 +782,34 @@ const EditRecipe = ({ recipeId }: Props) => {
             />
           </form>
 
-          <SortableContext
-            items={defaultIngredientGroup.ingredients
-              .sort((a, b) => a.order - b.order)
-              .map((i) => i.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <DroppableIngredientList groupId={defaultIngredientGroup.id}>
-              {defaultIngredientGroup.ingredients.length > 0 ? (
-                <ul className="flex flex-col gap-2">
-                  {defaultIngredientGroup.ingredients
-                    .sort((a, b) => a.order - b.order)
-                    .map((i) => (
-                      <IngredientEdit key={i.id} ingredient={i} />
-                    ))}
-                </ul>
-              ) : (
-                <div className="text-text-500 py-2 text-sm">
-                  Drop ingredients here
-                </div>
-              )}
-            </DroppableIngredientList>
-          </SortableContext>
+          {localRecipe.ingredientGroups.flatMap((g) => g.ingredients).length >
+            0 && (
+            <SortableContext
+              items={defaultIngredientGroup.ingredients
+                .slice()
+                .sort((a, b) => a.order - b.order)
+                .map((i) => i.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <DroppableIngredientList groupId={defaultIngredientGroup.id}>
+                {defaultIngredientGroup.ingredients.length > 0 ? (
+                  <ul className="flex flex-col gap-2">
+                    <AnimatePresence initial={false}>
+                      {defaultIngredientGroup.ingredients
+                        .sort((a, b) => a.order - b.order)
+                        .map((i) => (
+                          <IngredientEdit key={i.id} ingredient={i} />
+                        ))}
+                    </AnimatePresence>
+                  </ul>
+                ) : (
+                  <div className="text-text-500 py-2 text-sm">
+                    Drop ingredients here
+                  </div>
+                )}
+              </DroppableIngredientList>
+            </SortableContext>
+          )}
 
           {sortedNonDefault.length > 0 && (
             <SortableContext
@@ -740,7 +824,7 @@ const EditRecipe = ({ recipeId }: Props) => {
             </SortableContext>
           )}
 
-          <DragOverlay>
+          <DragOverlay dropAnimation={null}>
             {activeSection ? (
               <IngredientSectionDragPreview group={activeSection} />
             ) : activeIngredient ? (

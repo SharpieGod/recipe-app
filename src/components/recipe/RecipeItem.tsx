@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import Popdown from "../generic/Popdown";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { useResolvedId } from "~/hooks/useResolvedId";
+import Button from "../generic/Button";
 
 type Props = {
   recipe: RouterOutputs["user"]["getUserRecipes"][number];
@@ -42,6 +44,17 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
       );
     },
   });
+
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isDeleteOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsDeleteOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [isDeleteOpen]);
 
   const hasTempPrefix = initialRecipe.id.startsWith("_tempid_");
   const resolvedId = useResolvedId(initialRecipe.id);
@@ -106,13 +119,42 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
         >
           <Link href={`/recipe/${editableId}/edit`}>Edit</Link>
           <Link href={`/recipe/${editableId}/preview`}>Preview</Link>
-          <button onClick={() => deleteRecipe({ id: editableId })}>
-            Delete
-          </button>
+          <button onClick={() => setIsDeleteOpen(true)}>Delete</button>
         </Popdown>
       ) : (
         RecipeComponent
       )}
+      <div
+        onClick={() => setIsDeleteOpen(false)}
+        className={cn(
+          "fixed inset-0 z-100 bg-black/50 backdrop-blur-xs",
+          "transition-opacity duration-200",
+          isDeleteOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
+        )}
+      >
+        <div
+          className="bg-background-100 z-101 mx-auto mt-40 flex w-100 flex-col gap-2 rounded-xl border border-black/10 p-4 shadow-sm"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h1 className="text-xl">Delete "{recipe?.title}"?</h1>
+          <span className="text-text-500">This can't be undone</span>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                deleteRecipe({ id: editableId });
+                setIsDeleteOpen(false);
+              }}
+            >
+              Delete
+            </Button>
+            <Button variant="empty" onClick={() => setIsDeleteOpen(false)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -26,6 +26,9 @@ const UNIT_LABELS: Record<Unit, string> = {
 };
 
 export const unitLabel = (unit: Unit): string => {
+  if (unit == "NONE") {
+    return "No unit";
+  }
   return (
     unit
       .split("_")

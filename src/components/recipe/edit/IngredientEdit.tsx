@@ -9,7 +9,6 @@ import { GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecipeEdit } from "./RecipeEditContext";
-
 export const IngredientDragPreview = ({
   ingredient,
 }: {
@@ -93,7 +92,7 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
     isDragging,
   } = useSortable({
     id: ingredient.id,
-    data: { type: "ingredient" },
+    data: { type: "ingredient", groupId: ingredient.ingredientGroupId },
   });
 
   const style = {

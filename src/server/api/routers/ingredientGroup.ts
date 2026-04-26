@@ -58,4 +58,53 @@ export const ingredientGroupsRouter = createTRPCRouter({
         },
       });
     }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx: { db, session }, input }) => {
+      const defaultIngredientGroup = await db.ingredientGroup.findFirst({
+        where: {
+          default: true,
+          recipe: {
+            userId: session.user.id,
+            ingredientGroups: {
+              some: {
+                id: input.id,
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!defaultIngredientGroup) return null;
+      if (defaultIngredientGroup.id === input.id) return null;
+
+      await db.ingredient.updateMany({
+        where: {
+          ingredientGroupId: input.id,
+          recipe: {
+            userId: session.user.id,
+          },
+        },
+        data: {
+          ingredientGroupId: defaultIngredientGroup.id,
+        },
+      });
+
+      await db.ingredientGroup.delete({
+        where: {
+          id: input.id,
+          recipe: {
+            userId: session.user.id,
+          },
+        },
+      });
+    }),
 });

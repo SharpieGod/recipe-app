@@ -13,6 +13,8 @@ import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecipeEdit } from "./RecipeEditContext";
 import { IngredientEdit } from "./IngredientEdit";
+import { AnimatePresence, motion } from "framer-motion";
+import { api } from "~/trpc/react";
 
 export const DroppableIngredientList = ({
   groupId,
@@ -56,8 +58,13 @@ export const IngredientSection = ({
 }: {
   group: RecipeIncluded["ingredientGroups"][number];
 }) => {
-  const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } =
-    useRecipeEdit();
+  const {
+    localRecipe,
+    setLocalRecipe,
+    focusedInputId,
+    setFocusedInputId,
+    layoutAnimationsEnabled,
+  } = useRecipeEdit();
 
   const {
     attributes,
@@ -72,23 +79,81 @@ export const IngredientSection = ({
 
   const style = {
     transform: CSS.Translate.toString(transform),
-    transition: [transition, "opacity 200ms ease"].filter(Boolean).join(", "),
-    zIndex: isDragging ? 50 : undefined,
-    opacity: isDragging ? 0.3 : 1,
+    transition,
   };
 
   const ingredientIsOver =
     isOver && active?.data.current?.type === "ingredient";
 
+  const utils = api.useUtils();
+
+  const { mutate: del } = api.ingredientGroup.delete.useMutation({
+    onMutate(variables, context) {
+      const defaultSectionId = localRecipe.ingredientGroups.find(
+        (g) => g.default,
+      )!.id;
+
+      const ingredients = localRecipe.ingredientGroups.find(
+        (g) => g.id === variables.id,
+      )!.ingredients;
+
+      setLocalRecipe((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          ingredientGroups: prev.ingredientGroups
+            .map((g) => {
+              if (g.id === defaultSectionId) {
+                return {
+                  ...g,
+                  ingredients: [...g.ingredients, ...ingredients],
+                };
+              }
+
+              return g;
+            })
+            .filter((g) => g.id !== variables.id),
+        };
+      });
+
+      utils.recipe.get.setData({ id: group.recipeId }, (prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          ingredientGroups: prev.ingredientGroups
+            .map((g) => {
+              if (g.id === defaultSectionId) {
+                return {
+                  ...g,
+                  ingredients: [...g.ingredients, ...ingredients],
+                };
+              }
+
+              return g;
+            })
+            .filter((g) => g.id !== variables.id),
+        };
+      });
+    },
+  });
+
   return (
-    <li
+    <motion.li
+      initial={{ opacity: 1, height: "auto" }}
+      animate={{ opacity: isDragging ? 0.3 : 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ opacity: { duration: 0.5 } }}
       ref={setNodeRef}
+      layout={layoutAnimationsEnabled}
       style={style}
-      className={`bg-background-50 flex w-fit flex-col gap-4 rounded-lg border p-4 ${
+      className={`bg-background-50 flex w-fit min-w-90 flex-col gap-4 rounded-lg border p-4 ${
         ingredientIsOver ? "border-accent-500/50" : "border-black/10"
       }`}
     >
       <div className="flex min-w-0 items-center gap-4">
+        <button onClick={() => del({ id: group.id })}>Delete</button>
         <button
           type="button"
           className="text-background-300 cursor-grab active:cursor-grabbing"
@@ -129,12 +194,14 @@ export const IngredientSection = ({
       >
         {group.ingredients.length > 0 ? (
           <ul className="flex flex-col gap-2">
-            {group.ingredients
-              .slice()
-              .sort((a, b) => a.order - b.order)
-              .map((i) => (
-                <IngredientEdit key={i.id} ingredient={i} />
-              ))}
+            <AnimatePresence initial={false}>
+              {group.ingredients
+                .slice()
+                .sort((a, b) => a.order - b.order)
+                .map((i) => (
+                  <IngredientEdit key={i.id} ingredient={i} />
+                ))}
+            </AnimatePresence>
           </ul>
         ) : (
           <div className="text-text-500 py-2 text-center text-sm">
@@ -142,6 +209,6 @@ export const IngredientSection = ({
           </div>
         )}
       </SortableContext>
-    </li>
+    </motion.li>
   );
 };
