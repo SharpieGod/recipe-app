@@ -31,6 +31,7 @@ const NreRecipeButton = () => {
         publishedAt: null,
         servings: null,
         tags: [],
+        imageUrl: null,
         updatedAt: new Date(),
         userId: session!.user!.id,
       };

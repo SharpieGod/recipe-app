@@ -19,11 +19,6 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Step = $Result.DefaultSelection<Prisma.$StepPayload>
 /**
- * Model StepGroup
- * 
- */
-export type StepGroup = $Result.DefaultSelection<Prisma.$StepGroupPayload>
-/**
  * Model Rating
  * 
  */
@@ -219,16 +214,6 @@ export class PrismaClient<
     * ```
     */
   get step(): Prisma.StepDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.stepGroup`: Exposes CRUD operations for the **StepGroup** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more StepGroups
-    * const stepGroups = await prisma.stepGroup.findMany()
-    * ```
-    */
-  get stepGroup(): Prisma.StepGroupDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.rating`: Exposes CRUD operations for the **Rating** model.
@@ -751,7 +736,6 @@ export namespace Prisma {
 
   export const ModelName: {
     Step: 'Step',
-    StepGroup: 'StepGroup',
     Rating: 'Rating',
     Ingredient: 'Ingredient',
     IngredientGroup: 'IngredientGroup',
@@ -778,7 +762,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "step" | "stepGroup" | "rating" | "ingredient" | "ingredientGroup" | "recipe" | "account" | "session" | "user" | "verificationToken"
+      modelProps: "step" | "rating" | "ingredient" | "ingredientGroup" | "recipe" | "account" | "session" | "user" | "verificationToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -853,80 +837,6 @@ export namespace Prisma {
           count: {
             args: Prisma.StepCountArgs<ExtArgs>
             result: $Utils.Optional<StepCountAggregateOutputType> | number
-          }
-        }
-      }
-      StepGroup: {
-        payload: Prisma.$StepGroupPayload<ExtArgs>
-        fields: Prisma.StepGroupFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.StepGroupFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.StepGroupFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>
-          }
-          findFirst: {
-            args: Prisma.StepGroupFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.StepGroupFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>
-          }
-          findMany: {
-            args: Prisma.StepGroupFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>[]
-          }
-          create: {
-            args: Prisma.StepGroupCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>
-          }
-          createMany: {
-            args: Prisma.StepGroupCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.StepGroupCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>[]
-          }
-          delete: {
-            args: Prisma.StepGroupDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>
-          }
-          update: {
-            args: Prisma.StepGroupUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>
-          }
-          deleteMany: {
-            args: Prisma.StepGroupDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.StepGroupUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.StepGroupUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>[]
-          }
-          upsert: {
-            args: Prisma.StepGroupUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StepGroupPayload>
-          }
-          aggregate: {
-            args: Prisma.StepGroupAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateStepGroup>
-          }
-          groupBy: {
-            args: Prisma.StepGroupGroupByArgs<ExtArgs>
-            result: $Utils.Optional<StepGroupGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.StepGroupCountArgs<ExtArgs>
-            result: $Utils.Optional<StepGroupCountAggregateOutputType> | number
           }
         }
       }
@@ -1619,7 +1529,6 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     step?: StepOmit
-    stepGroup?: StepGroupOmit
     rating?: RatingOmit
     ingredient?: IngredientOmit
     ingredientGroup?: IngredientGroupOmit
@@ -1704,37 +1613,6 @@ export namespace Prisma {
 
 
   /**
-   * Count Type StepGroupCountOutputType
-   */
-
-  export type StepGroupCountOutputType = {
-    steps: number
-  }
-
-  export type StepGroupCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    steps?: boolean | StepGroupCountOutputTypeCountStepsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * StepGroupCountOutputType without action
-   */
-  export type StepGroupCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroupCountOutputType
-     */
-    select?: StepGroupCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * StepGroupCountOutputType without action
-   */
-  export type StepGroupCountOutputTypeCountStepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: StepWhereInput
-  }
-
-
-  /**
    * Count Type IngredientGroupCountOutputType
    */
 
@@ -1774,7 +1652,6 @@ export namespace Prisma {
     ingredientGroups: number
     ratings: number
     steps: number
-    stepGroups: number
   }
 
   export type RecipeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1782,7 +1659,6 @@ export namespace Prisma {
     ingredientGroups?: boolean | RecipeCountOutputTypeCountIngredientGroupsArgs
     ratings?: boolean | RecipeCountOutputTypeCountRatingsArgs
     steps?: boolean | RecipeCountOutputTypeCountStepsArgs
-    stepGroups?: boolean | RecipeCountOutputTypeCountStepGroupsArgs
   }
 
   // Custom InputTypes
@@ -1822,13 +1698,6 @@ export namespace Prisma {
    */
   export type RecipeCountOutputTypeCountStepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StepWhereInput
-  }
-
-  /**
-   * RecipeCountOutputType without action
-   */
-  export type RecipeCountOutputTypeCountStepGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: StepGroupWhereInput
   }
 
 
@@ -1919,7 +1788,6 @@ export namespace Prisma {
     instruction: string | null
     order: number | null
     recipeId: string | null
-    stepGroupId: string | null
   }
 
   export type StepMaxAggregateOutputType = {
@@ -1927,7 +1795,6 @@ export namespace Prisma {
     instruction: string | null
     order: number | null
     recipeId: string | null
-    stepGroupId: string | null
   }
 
   export type StepCountAggregateOutputType = {
@@ -1935,7 +1802,6 @@ export namespace Prisma {
     instruction: number
     order: number
     recipeId: number
-    stepGroupId: number
     _all: number
   }
 
@@ -1953,7 +1819,6 @@ export namespace Prisma {
     instruction?: true
     order?: true
     recipeId?: true
-    stepGroupId?: true
   }
 
   export type StepMaxAggregateInputType = {
@@ -1961,7 +1826,6 @@ export namespace Prisma {
     instruction?: true
     order?: true
     recipeId?: true
-    stepGroupId?: true
   }
 
   export type StepCountAggregateInputType = {
@@ -1969,7 +1833,6 @@ export namespace Prisma {
     instruction?: true
     order?: true
     recipeId?: true
-    stepGroupId?: true
     _all?: true
   }
 
@@ -2064,7 +1927,6 @@ export namespace Prisma {
     instruction: string
     order: number
     recipeId: string
-    stepGroupId: string | null
     _count: StepCountAggregateOutputType | null
     _avg: StepAvgAggregateOutputType | null
     _sum: StepSumAggregateOutputType | null
@@ -2091,9 +1953,7 @@ export namespace Prisma {
     instruction?: boolean
     order?: boolean
     recipeId?: boolean
-    stepGroupId?: boolean
     recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    stepGroup?: boolean | Step$stepGroupArgs<ExtArgs>
   }, ExtArgs["result"]["step"]>
 
   export type StepSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2101,9 +1961,7 @@ export namespace Prisma {
     instruction?: boolean
     order?: boolean
     recipeId?: boolean
-    stepGroupId?: boolean
     recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    stepGroup?: boolean | Step$stepGroupArgs<ExtArgs>
   }, ExtArgs["result"]["step"]>
 
   export type StepSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2111,9 +1969,7 @@ export namespace Prisma {
     instruction?: boolean
     order?: boolean
     recipeId?: boolean
-    stepGroupId?: boolean
     recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    stepGroup?: boolean | Step$stepGroupArgs<ExtArgs>
   }, ExtArgs["result"]["step"]>
 
   export type StepSelectScalar = {
@@ -2121,35 +1977,29 @@ export namespace Prisma {
     instruction?: boolean
     order?: boolean
     recipeId?: boolean
-    stepGroupId?: boolean
   }
 
-  export type StepOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "instruction" | "order" | "recipeId" | "stepGroupId", ExtArgs["result"]["step"]>
+  export type StepOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "instruction" | "order" | "recipeId", ExtArgs["result"]["step"]>
   export type StepInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    stepGroup?: boolean | Step$stepGroupArgs<ExtArgs>
   }
   export type StepIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    stepGroup?: boolean | Step$stepGroupArgs<ExtArgs>
   }
   export type StepIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    stepGroup?: boolean | Step$stepGroupArgs<ExtArgs>
   }
 
   export type $StepPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Step"
     objects: {
       recipe: Prisma.$RecipePayload<ExtArgs>
-      stepGroup: Prisma.$StepGroupPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       instruction: string
       order: number
       recipeId: string
-      stepGroupId: string | null
     }, ExtArgs["result"]["step"]>
     composites: {}
   }
@@ -2545,7 +2395,6 @@ export namespace Prisma {
   export interface Prisma__StepClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     recipe<T extends RecipeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RecipeDefaultArgs<ExtArgs>>): Prisma__RecipeClient<$Result.GetResult<Prisma.$RecipePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    stepGroup<T extends Step$stepGroupArgs<ExtArgs> = {}>(args?: Subset<T, Step$stepGroupArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2579,7 +2428,6 @@ export namespace Prisma {
     readonly instruction: FieldRef<"Step", 'String'>
     readonly order: FieldRef<"Step", 'Int'>
     readonly recipeId: FieldRef<"Step", 'String'>
-    readonly stepGroupId: FieldRef<"Step", 'String'>
   }
     
 
@@ -2976,25 +2824,6 @@ export namespace Prisma {
   }
 
   /**
-   * Step.stepGroup
-   */
-  export type Step$stepGroupArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    where?: StepGroupWhereInput
-  }
-
-  /**
    * Step without action
    */
   export type StepDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3010,1128 +2839,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: StepInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model StepGroup
-   */
-
-  export type AggregateStepGroup = {
-    _count: StepGroupCountAggregateOutputType | null
-    _avg: StepGroupAvgAggregateOutputType | null
-    _sum: StepGroupSumAggregateOutputType | null
-    _min: StepGroupMinAggregateOutputType | null
-    _max: StepGroupMaxAggregateOutputType | null
-  }
-
-  export type StepGroupAvgAggregateOutputType = {
-    order: number | null
-  }
-
-  export type StepGroupSumAggregateOutputType = {
-    order: number | null
-  }
-
-  export type StepGroupMinAggregateOutputType = {
-    id: string | null
-    label: string | null
-    order: number | null
-    default: boolean | null
-    recipeId: string | null
-  }
-
-  export type StepGroupMaxAggregateOutputType = {
-    id: string | null
-    label: string | null
-    order: number | null
-    default: boolean | null
-    recipeId: string | null
-  }
-
-  export type StepGroupCountAggregateOutputType = {
-    id: number
-    label: number
-    order: number
-    default: number
-    recipeId: number
-    _all: number
-  }
-
-
-  export type StepGroupAvgAggregateInputType = {
-    order?: true
-  }
-
-  export type StepGroupSumAggregateInputType = {
-    order?: true
-  }
-
-  export type StepGroupMinAggregateInputType = {
-    id?: true
-    label?: true
-    order?: true
-    default?: true
-    recipeId?: true
-  }
-
-  export type StepGroupMaxAggregateInputType = {
-    id?: true
-    label?: true
-    order?: true
-    default?: true
-    recipeId?: true
-  }
-
-  export type StepGroupCountAggregateInputType = {
-    id?: true
-    label?: true
-    order?: true
-    default?: true
-    recipeId?: true
-    _all?: true
-  }
-
-  export type StepGroupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which StepGroup to aggregate.
-     */
-    where?: StepGroupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of StepGroups to fetch.
-     */
-    orderBy?: StepGroupOrderByWithRelationInput | StepGroupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: StepGroupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` StepGroups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` StepGroups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned StepGroups
-    **/
-    _count?: true | StepGroupCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: StepGroupAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: StepGroupSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: StepGroupMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: StepGroupMaxAggregateInputType
-  }
-
-  export type GetStepGroupAggregateType<T extends StepGroupAggregateArgs> = {
-        [P in keyof T & keyof AggregateStepGroup]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateStepGroup[P]>
-      : GetScalarType<T[P], AggregateStepGroup[P]>
-  }
-
-
-
-
-  export type StepGroupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: StepGroupWhereInput
-    orderBy?: StepGroupOrderByWithAggregationInput | StepGroupOrderByWithAggregationInput[]
-    by: StepGroupScalarFieldEnum[] | StepGroupScalarFieldEnum
-    having?: StepGroupScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: StepGroupCountAggregateInputType | true
-    _avg?: StepGroupAvgAggregateInputType
-    _sum?: StepGroupSumAggregateInputType
-    _min?: StepGroupMinAggregateInputType
-    _max?: StepGroupMaxAggregateInputType
-  }
-
-  export type StepGroupGroupByOutputType = {
-    id: string
-    label: string
-    order: number
-    default: boolean
-    recipeId: string
-    _count: StepGroupCountAggregateOutputType | null
-    _avg: StepGroupAvgAggregateOutputType | null
-    _sum: StepGroupSumAggregateOutputType | null
-    _min: StepGroupMinAggregateOutputType | null
-    _max: StepGroupMaxAggregateOutputType | null
-  }
-
-  type GetStepGroupGroupByPayload<T extends StepGroupGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<StepGroupGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof StepGroupGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], StepGroupGroupByOutputType[P]>
-            : GetScalarType<T[P], StepGroupGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type StepGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    label?: boolean
-    order?: boolean
-    default?: boolean
-    recipeId?: boolean
-    steps?: boolean | StepGroup$stepsArgs<ExtArgs>
-    recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    _count?: boolean | StepGroupCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["stepGroup"]>
-
-  export type StepGroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    label?: boolean
-    order?: boolean
-    default?: boolean
-    recipeId?: boolean
-    recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["stepGroup"]>
-
-  export type StepGroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    label?: boolean
-    order?: boolean
-    default?: boolean
-    recipeId?: boolean
-    recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["stepGroup"]>
-
-  export type StepGroupSelectScalar = {
-    id?: boolean
-    label?: boolean
-    order?: boolean
-    default?: boolean
-    recipeId?: boolean
-  }
-
-  export type StepGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "label" | "order" | "default" | "recipeId", ExtArgs["result"]["stepGroup"]>
-  export type StepGroupInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    steps?: boolean | StepGroup$stepsArgs<ExtArgs>
-    recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-    _count?: boolean | StepGroupCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type StepGroupIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-  }
-  export type StepGroupIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    recipe?: boolean | RecipeDefaultArgs<ExtArgs>
-  }
-
-  export type $StepGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "StepGroup"
-    objects: {
-      steps: Prisma.$StepPayload<ExtArgs>[]
-      recipe: Prisma.$RecipePayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      label: string
-      order: number
-      default: boolean
-      recipeId: string
-    }, ExtArgs["result"]["stepGroup"]>
-    composites: {}
-  }
-
-  type StepGroupGetPayload<S extends boolean | null | undefined | StepGroupDefaultArgs> = $Result.GetResult<Prisma.$StepGroupPayload, S>
-
-  type StepGroupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<StepGroupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: StepGroupCountAggregateInputType | true
-    }
-
-  export interface StepGroupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StepGroup'], meta: { name: 'StepGroup' } }
-    /**
-     * Find zero or one StepGroup that matches the filter.
-     * @param {StepGroupFindUniqueArgs} args - Arguments to find a StepGroup
-     * @example
-     * // Get one StepGroup
-     * const stepGroup = await prisma.stepGroup.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends StepGroupFindUniqueArgs>(args: SelectSubset<T, StepGroupFindUniqueArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one StepGroup that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {StepGroupFindUniqueOrThrowArgs} args - Arguments to find a StepGroup
-     * @example
-     * // Get one StepGroup
-     * const stepGroup = await prisma.stepGroup.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends StepGroupFindUniqueOrThrowArgs>(args: SelectSubset<T, StepGroupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first StepGroup that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupFindFirstArgs} args - Arguments to find a StepGroup
-     * @example
-     * // Get one StepGroup
-     * const stepGroup = await prisma.stepGroup.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends StepGroupFindFirstArgs>(args?: SelectSubset<T, StepGroupFindFirstArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first StepGroup that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupFindFirstOrThrowArgs} args - Arguments to find a StepGroup
-     * @example
-     * // Get one StepGroup
-     * const stepGroup = await prisma.stepGroup.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends StepGroupFindFirstOrThrowArgs>(args?: SelectSubset<T, StepGroupFindFirstOrThrowArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more StepGroups that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all StepGroups
-     * const stepGroups = await prisma.stepGroup.findMany()
-     * 
-     * // Get first 10 StepGroups
-     * const stepGroups = await prisma.stepGroup.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const stepGroupWithIdOnly = await prisma.stepGroup.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends StepGroupFindManyArgs>(args?: SelectSubset<T, StepGroupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a StepGroup.
-     * @param {StepGroupCreateArgs} args - Arguments to create a StepGroup.
-     * @example
-     * // Create one StepGroup
-     * const StepGroup = await prisma.stepGroup.create({
-     *   data: {
-     *     // ... data to create a StepGroup
-     *   }
-     * })
-     * 
-     */
-    create<T extends StepGroupCreateArgs>(args: SelectSubset<T, StepGroupCreateArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many StepGroups.
-     * @param {StepGroupCreateManyArgs} args - Arguments to create many StepGroups.
-     * @example
-     * // Create many StepGroups
-     * const stepGroup = await prisma.stepGroup.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends StepGroupCreateManyArgs>(args?: SelectSubset<T, StepGroupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many StepGroups and returns the data saved in the database.
-     * @param {StepGroupCreateManyAndReturnArgs} args - Arguments to create many StepGroups.
-     * @example
-     * // Create many StepGroups
-     * const stepGroup = await prisma.stepGroup.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many StepGroups and only return the `id`
-     * const stepGroupWithIdOnly = await prisma.stepGroup.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends StepGroupCreateManyAndReturnArgs>(args?: SelectSubset<T, StepGroupCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a StepGroup.
-     * @param {StepGroupDeleteArgs} args - Arguments to delete one StepGroup.
-     * @example
-     * // Delete one StepGroup
-     * const StepGroup = await prisma.stepGroup.delete({
-     *   where: {
-     *     // ... filter to delete one StepGroup
-     *   }
-     * })
-     * 
-     */
-    delete<T extends StepGroupDeleteArgs>(args: SelectSubset<T, StepGroupDeleteArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one StepGroup.
-     * @param {StepGroupUpdateArgs} args - Arguments to update one StepGroup.
-     * @example
-     * // Update one StepGroup
-     * const stepGroup = await prisma.stepGroup.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends StepGroupUpdateArgs>(args: SelectSubset<T, StepGroupUpdateArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more StepGroups.
-     * @param {StepGroupDeleteManyArgs} args - Arguments to filter StepGroups to delete.
-     * @example
-     * // Delete a few StepGroups
-     * const { count } = await prisma.stepGroup.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends StepGroupDeleteManyArgs>(args?: SelectSubset<T, StepGroupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more StepGroups.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many StepGroups
-     * const stepGroup = await prisma.stepGroup.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends StepGroupUpdateManyArgs>(args: SelectSubset<T, StepGroupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more StepGroups and returns the data updated in the database.
-     * @param {StepGroupUpdateManyAndReturnArgs} args - Arguments to update many StepGroups.
-     * @example
-     * // Update many StepGroups
-     * const stepGroup = await prisma.stepGroup.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more StepGroups and only return the `id`
-     * const stepGroupWithIdOnly = await prisma.stepGroup.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends StepGroupUpdateManyAndReturnArgs>(args: SelectSubset<T, StepGroupUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one StepGroup.
-     * @param {StepGroupUpsertArgs} args - Arguments to update or create a StepGroup.
-     * @example
-     * // Update or create a StepGroup
-     * const stepGroup = await prisma.stepGroup.upsert({
-     *   create: {
-     *     // ... data to create a StepGroup
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the StepGroup we want to update
-     *   }
-     * })
-     */
-    upsert<T extends StepGroupUpsertArgs>(args: SelectSubset<T, StepGroupUpsertArgs<ExtArgs>>): Prisma__StepGroupClient<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of StepGroups.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupCountArgs} args - Arguments to filter StepGroups to count.
-     * @example
-     * // Count the number of StepGroups
-     * const count = await prisma.stepGroup.count({
-     *   where: {
-     *     // ... the filter for the StepGroups we want to count
-     *   }
-     * })
-    **/
-    count<T extends StepGroupCountArgs>(
-      args?: Subset<T, StepGroupCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], StepGroupCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a StepGroup.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends StepGroupAggregateArgs>(args: Subset<T, StepGroupAggregateArgs>): Prisma.PrismaPromise<GetStepGroupAggregateType<T>>
-
-    /**
-     * Group by StepGroup.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {StepGroupGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends StepGroupGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: StepGroupGroupByArgs['orderBy'] }
-        : { orderBy?: StepGroupGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, StepGroupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStepGroupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the StepGroup model
-   */
-  readonly fields: StepGroupFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for StepGroup.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__StepGroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    steps<T extends StepGroup$stepsArgs<ExtArgs> = {}>(args?: Subset<T, StepGroup$stepsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    recipe<T extends RecipeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RecipeDefaultArgs<ExtArgs>>): Prisma__RecipeClient<$Result.GetResult<Prisma.$RecipePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the StepGroup model
-   */
-  interface StepGroupFieldRefs {
-    readonly id: FieldRef<"StepGroup", 'String'>
-    readonly label: FieldRef<"StepGroup", 'String'>
-    readonly order: FieldRef<"StepGroup", 'Int'>
-    readonly default: FieldRef<"StepGroup", 'Boolean'>
-    readonly recipeId: FieldRef<"StepGroup", 'String'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * StepGroup findUnique
-   */
-  export type StepGroupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * Filter, which StepGroup to fetch.
-     */
-    where: StepGroupWhereUniqueInput
-  }
-
-  /**
-   * StepGroup findUniqueOrThrow
-   */
-  export type StepGroupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * Filter, which StepGroup to fetch.
-     */
-    where: StepGroupWhereUniqueInput
-  }
-
-  /**
-   * StepGroup findFirst
-   */
-  export type StepGroupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * Filter, which StepGroup to fetch.
-     */
-    where?: StepGroupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of StepGroups to fetch.
-     */
-    orderBy?: StepGroupOrderByWithRelationInput | StepGroupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for StepGroups.
-     */
-    cursor?: StepGroupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` StepGroups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` StepGroups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of StepGroups.
-     */
-    distinct?: StepGroupScalarFieldEnum | StepGroupScalarFieldEnum[]
-  }
-
-  /**
-   * StepGroup findFirstOrThrow
-   */
-  export type StepGroupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * Filter, which StepGroup to fetch.
-     */
-    where?: StepGroupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of StepGroups to fetch.
-     */
-    orderBy?: StepGroupOrderByWithRelationInput | StepGroupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for StepGroups.
-     */
-    cursor?: StepGroupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` StepGroups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` StepGroups.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of StepGroups.
-     */
-    distinct?: StepGroupScalarFieldEnum | StepGroupScalarFieldEnum[]
-  }
-
-  /**
-   * StepGroup findMany
-   */
-  export type StepGroupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * Filter, which StepGroups to fetch.
-     */
-    where?: StepGroupWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of StepGroups to fetch.
-     */
-    orderBy?: StepGroupOrderByWithRelationInput | StepGroupOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing StepGroups.
-     */
-    cursor?: StepGroupWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` StepGroups from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` StepGroups.
-     */
-    skip?: number
-    distinct?: StepGroupScalarFieldEnum | StepGroupScalarFieldEnum[]
-  }
-
-  /**
-   * StepGroup create
-   */
-  export type StepGroupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * The data needed to create a StepGroup.
-     */
-    data: XOR<StepGroupCreateInput, StepGroupUncheckedCreateInput>
-  }
-
-  /**
-   * StepGroup createMany
-   */
-  export type StepGroupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many StepGroups.
-     */
-    data: StepGroupCreateManyInput | StepGroupCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * StepGroup createManyAndReturn
-   */
-  export type StepGroupCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * The data used to create many StepGroups.
-     */
-    data: StepGroupCreateManyInput | StepGroupCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * StepGroup update
-   */
-  export type StepGroupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * The data needed to update a StepGroup.
-     */
-    data: XOR<StepGroupUpdateInput, StepGroupUncheckedUpdateInput>
-    /**
-     * Choose, which StepGroup to update.
-     */
-    where: StepGroupWhereUniqueInput
-  }
-
-  /**
-   * StepGroup updateMany
-   */
-  export type StepGroupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update StepGroups.
-     */
-    data: XOR<StepGroupUpdateManyMutationInput, StepGroupUncheckedUpdateManyInput>
-    /**
-     * Filter which StepGroups to update
-     */
-    where?: StepGroupWhereInput
-    /**
-     * Limit how many StepGroups to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * StepGroup updateManyAndReturn
-   */
-  export type StepGroupUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * The data used to update StepGroups.
-     */
-    data: XOR<StepGroupUpdateManyMutationInput, StepGroupUncheckedUpdateManyInput>
-    /**
-     * Filter which StepGroups to update
-     */
-    where?: StepGroupWhereInput
-    /**
-     * Limit how many StepGroups to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * StepGroup upsert
-   */
-  export type StepGroupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * The filter to search for the StepGroup to update in case it exists.
-     */
-    where: StepGroupWhereUniqueInput
-    /**
-     * In case the StepGroup found by the `where` argument doesn't exist, create a new StepGroup with this data.
-     */
-    create: XOR<StepGroupCreateInput, StepGroupUncheckedCreateInput>
-    /**
-     * In case the StepGroup was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<StepGroupUpdateInput, StepGroupUncheckedUpdateInput>
-  }
-
-  /**
-   * StepGroup delete
-   */
-  export type StepGroupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    /**
-     * Filter which StepGroup to delete.
-     */
-    where: StepGroupWhereUniqueInput
-  }
-
-  /**
-   * StepGroup deleteMany
-   */
-  export type StepGroupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which StepGroups to delete
-     */
-    where?: StepGroupWhereInput
-    /**
-     * Limit how many StepGroups to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * StepGroup.steps
-   */
-  export type StepGroup$stepsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Step
-     */
-    select?: StepSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Step
-     */
-    omit?: StepOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepInclude<ExtArgs> | null
-    where?: StepWhereInput
-    orderBy?: StepOrderByWithRelationInput | StepOrderByWithRelationInput[]
-    cursor?: StepWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: StepScalarFieldEnum | StepScalarFieldEnum[]
-  }
-
-  /**
-   * StepGroup without action
-   */
-  export type StepGroupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
   }
 
 
@@ -7528,6 +6235,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     publishedAt: Date | null
+    imageUrl: string | null
   }
 
   export type RecipeMaxAggregateOutputType = {
@@ -7541,6 +6249,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     publishedAt: Date | null
+    imageUrl: string | null
   }
 
   export type RecipeCountAggregateOutputType = {
@@ -7555,6 +6264,7 @@ export namespace Prisma {
     updatedAt: number
     publishedAt: number
     tags: number
+    imageUrl: number
     _all: number
   }
 
@@ -7582,6 +6292,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     publishedAt?: true
+    imageUrl?: true
   }
 
   export type RecipeMaxAggregateInputType = {
@@ -7595,6 +6306,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     publishedAt?: true
+    imageUrl?: true
   }
 
   export type RecipeCountAggregateInputType = {
@@ -7609,6 +6321,7 @@ export namespace Prisma {
     updatedAt?: true
     publishedAt?: true
     tags?: true
+    imageUrl?: true
     _all?: true
   }
 
@@ -7710,6 +6423,7 @@ export namespace Prisma {
     updatedAt: Date
     publishedAt: Date | null
     tags: string[]
+    imageUrl: string | null
     _count: RecipeCountAggregateOutputType | null
     _avg: RecipeAvgAggregateOutputType | null
     _sum: RecipeSumAggregateOutputType | null
@@ -7743,12 +6457,12 @@ export namespace Prisma {
     updatedAt?: boolean
     publishedAt?: boolean
     tags?: boolean
+    imageUrl?: boolean
     ingredients?: boolean | Recipe$ingredientsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     ingredientGroups?: boolean | Recipe$ingredientGroupsArgs<ExtArgs>
     ratings?: boolean | Recipe$ratingsArgs<ExtArgs>
     steps?: boolean | Recipe$stepsArgs<ExtArgs>
-    stepGroups?: boolean | Recipe$stepGroupsArgs<ExtArgs>
     _count?: boolean | RecipeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["recipe"]>
 
@@ -7764,6 +6478,7 @@ export namespace Prisma {
     updatedAt?: boolean
     publishedAt?: boolean
     tags?: boolean
+    imageUrl?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["recipe"]>
 
@@ -7779,6 +6494,7 @@ export namespace Prisma {
     updatedAt?: boolean
     publishedAt?: boolean
     tags?: boolean
+    imageUrl?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["recipe"]>
 
@@ -7794,16 +6510,16 @@ export namespace Prisma {
     updatedAt?: boolean
     publishedAt?: boolean
     tags?: boolean
+    imageUrl?: boolean
   }
 
-  export type RecipeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "title" | "description" | "servings" | "prepTimeMinutes" | "cookTimeMinutes" | "createdAt" | "updatedAt" | "publishedAt" | "tags", ExtArgs["result"]["recipe"]>
+  export type RecipeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "title" | "description" | "servings" | "prepTimeMinutes" | "cookTimeMinutes" | "createdAt" | "updatedAt" | "publishedAt" | "tags" | "imageUrl", ExtArgs["result"]["recipe"]>
   export type RecipeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ingredients?: boolean | Recipe$ingredientsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     ingredientGroups?: boolean | Recipe$ingredientGroupsArgs<ExtArgs>
     ratings?: boolean | Recipe$ratingsArgs<ExtArgs>
     steps?: boolean | Recipe$stepsArgs<ExtArgs>
-    stepGroups?: boolean | Recipe$stepGroupsArgs<ExtArgs>
     _count?: boolean | RecipeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type RecipeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7821,7 +6537,6 @@ export namespace Prisma {
       ingredientGroups: Prisma.$IngredientGroupPayload<ExtArgs>[]
       ratings: Prisma.$RatingPayload<ExtArgs>[]
       steps: Prisma.$StepPayload<ExtArgs>[]
-      stepGroups: Prisma.$StepGroupPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7835,6 +6550,7 @@ export namespace Prisma {
       updatedAt: Date
       publishedAt: Date | null
       tags: string[]
+      imageUrl: string | null
     }, ExtArgs["result"]["recipe"]>
     composites: {}
   }
@@ -8234,7 +6950,6 @@ export namespace Prisma {
     ingredientGroups<T extends Recipe$ingredientGroupsArgs<ExtArgs> = {}>(args?: Subset<T, Recipe$ingredientGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IngredientGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ratings<T extends Recipe$ratingsArgs<ExtArgs> = {}>(args?: Subset<T, Recipe$ratingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     steps<T extends Recipe$stepsArgs<ExtArgs> = {}>(args?: Subset<T, Recipe$stepsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    stepGroups<T extends Recipe$stepGroupsArgs<ExtArgs> = {}>(args?: Subset<T, Recipe$stepGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StepGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8275,6 +6990,7 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"Recipe", 'DateTime'>
     readonly publishedAt: FieldRef<"Recipe", 'DateTime'>
     readonly tags: FieldRef<"Recipe", 'String[]'>
+    readonly imageUrl: FieldRef<"Recipe", 'String'>
   }
     
 
@@ -8764,30 +7480,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: StepScalarFieldEnum | StepScalarFieldEnum[]
-  }
-
-  /**
-   * Recipe.stepGroups
-   */
-  export type Recipe$stepGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the StepGroup
-     */
-    select?: StepGroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the StepGroup
-     */
-    omit?: StepGroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: StepGroupInclude<ExtArgs> | null
-    where?: StepGroupWhereInput
-    orderBy?: StepGroupOrderByWithRelationInput | StepGroupOrderByWithRelationInput[]
-    cursor?: StepGroupWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: StepGroupScalarFieldEnum | StepGroupScalarFieldEnum[]
   }
 
   /**
@@ -13195,22 +11887,10 @@ export namespace Prisma {
     id: 'id',
     instruction: 'instruction',
     order: 'order',
-    recipeId: 'recipeId',
-    stepGroupId: 'stepGroupId'
-  };
-
-  export type StepScalarFieldEnum = (typeof StepScalarFieldEnum)[keyof typeof StepScalarFieldEnum]
-
-
-  export const StepGroupScalarFieldEnum: {
-    id: 'id',
-    label: 'label',
-    order: 'order',
-    default: 'default',
     recipeId: 'recipeId'
   };
 
-  export type StepGroupScalarFieldEnum = (typeof StepGroupScalarFieldEnum)[keyof typeof StepGroupScalarFieldEnum]
+  export type StepScalarFieldEnum = (typeof StepScalarFieldEnum)[keyof typeof StepScalarFieldEnum]
 
 
   export const RatingScalarFieldEnum: {
@@ -13258,7 +11938,8 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     publishedAt: 'publishedAt',
-    tags: 'tags'
+    tags: 'tags',
+    imageUrl: 'imageUrl'
   };
 
   export type RecipeScalarFieldEnum = (typeof RecipeScalarFieldEnum)[keyof typeof RecipeScalarFieldEnum]
@@ -13371,13 +12052,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -13406,6 +12080,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -13430,9 +12111,7 @@ export namespace Prisma {
     instruction?: StringFilter<"Step"> | string
     order?: IntFilter<"Step"> | number
     recipeId?: StringFilter<"Step"> | string
-    stepGroupId?: StringNullableFilter<"Step"> | string | null
     recipe?: XOR<RecipeScalarRelationFilter, RecipeWhereInput>
-    stepGroup?: XOR<StepGroupNullableScalarRelationFilter, StepGroupWhereInput> | null
   }
 
   export type StepOrderByWithRelationInput = {
@@ -13440,9 +12119,7 @@ export namespace Prisma {
     instruction?: SortOrder
     order?: SortOrder
     recipeId?: SortOrder
-    stepGroupId?: SortOrderInput | SortOrder
     recipe?: RecipeOrderByWithRelationInput
-    stepGroup?: StepGroupOrderByWithRelationInput
   }
 
   export type StepWhereUniqueInput = Prisma.AtLeast<{
@@ -13453,9 +12130,7 @@ export namespace Prisma {
     instruction?: StringFilter<"Step"> | string
     order?: IntFilter<"Step"> | number
     recipeId?: StringFilter<"Step"> | string
-    stepGroupId?: StringNullableFilter<"Step"> | string | null
     recipe?: XOR<RecipeScalarRelationFilter, RecipeWhereInput>
-    stepGroup?: XOR<StepGroupNullableScalarRelationFilter, StepGroupWhereInput> | null
   }, "id">
 
   export type StepOrderByWithAggregationInput = {
@@ -13463,7 +12138,6 @@ export namespace Prisma {
     instruction?: SortOrder
     order?: SortOrder
     recipeId?: SortOrder
-    stepGroupId?: SortOrderInput | SortOrder
     _count?: StepCountOrderByAggregateInput
     _avg?: StepAvgOrderByAggregateInput
     _max?: StepMaxOrderByAggregateInput
@@ -13479,67 +12153,6 @@ export namespace Prisma {
     instruction?: StringWithAggregatesFilter<"Step"> | string
     order?: IntWithAggregatesFilter<"Step"> | number
     recipeId?: StringWithAggregatesFilter<"Step"> | string
-    stepGroupId?: StringNullableWithAggregatesFilter<"Step"> | string | null
-  }
-
-  export type StepGroupWhereInput = {
-    AND?: StepGroupWhereInput | StepGroupWhereInput[]
-    OR?: StepGroupWhereInput[]
-    NOT?: StepGroupWhereInput | StepGroupWhereInput[]
-    id?: StringFilter<"StepGroup"> | string
-    label?: StringFilter<"StepGroup"> | string
-    order?: IntFilter<"StepGroup"> | number
-    default?: BoolFilter<"StepGroup"> | boolean
-    recipeId?: StringFilter<"StepGroup"> | string
-    steps?: StepListRelationFilter
-    recipe?: XOR<RecipeScalarRelationFilter, RecipeWhereInput>
-  }
-
-  export type StepGroupOrderByWithRelationInput = {
-    id?: SortOrder
-    label?: SortOrder
-    order?: SortOrder
-    default?: SortOrder
-    recipeId?: SortOrder
-    steps?: StepOrderByRelationAggregateInput
-    recipe?: RecipeOrderByWithRelationInput
-  }
-
-  export type StepGroupWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: StepGroupWhereInput | StepGroupWhereInput[]
-    OR?: StepGroupWhereInput[]
-    NOT?: StepGroupWhereInput | StepGroupWhereInput[]
-    label?: StringFilter<"StepGroup"> | string
-    order?: IntFilter<"StepGroup"> | number
-    default?: BoolFilter<"StepGroup"> | boolean
-    recipeId?: StringFilter<"StepGroup"> | string
-    steps?: StepListRelationFilter
-    recipe?: XOR<RecipeScalarRelationFilter, RecipeWhereInput>
-  }, "id">
-
-  export type StepGroupOrderByWithAggregationInput = {
-    id?: SortOrder
-    label?: SortOrder
-    order?: SortOrder
-    default?: SortOrder
-    recipeId?: SortOrder
-    _count?: StepGroupCountOrderByAggregateInput
-    _avg?: StepGroupAvgOrderByAggregateInput
-    _max?: StepGroupMaxOrderByAggregateInput
-    _min?: StepGroupMinOrderByAggregateInput
-    _sum?: StepGroupSumOrderByAggregateInput
-  }
-
-  export type StepGroupScalarWhereWithAggregatesInput = {
-    AND?: StepGroupScalarWhereWithAggregatesInput | StepGroupScalarWhereWithAggregatesInput[]
-    OR?: StepGroupScalarWhereWithAggregatesInput[]
-    NOT?: StepGroupScalarWhereWithAggregatesInput | StepGroupScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"StepGroup"> | string
-    label?: StringWithAggregatesFilter<"StepGroup"> | string
-    order?: IntWithAggregatesFilter<"StepGroup"> | number
-    default?: BoolWithAggregatesFilter<"StepGroup"> | boolean
-    recipeId?: StringWithAggregatesFilter<"StepGroup"> | string
   }
 
   export type RatingWhereInput = {
@@ -13743,12 +12356,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Recipe"> | Date | string
     publishedAt?: DateTimeNullableFilter<"Recipe"> | Date | string | null
     tags?: StringNullableListFilter<"Recipe">
+    imageUrl?: StringNullableFilter<"Recipe"> | string | null
     ingredients?: IngredientListRelationFilter
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     ingredientGroups?: IngredientGroupListRelationFilter
     ratings?: RatingListRelationFilter
     steps?: StepListRelationFilter
-    stepGroups?: StepGroupListRelationFilter
   }
 
   export type RecipeOrderByWithRelationInput = {
@@ -13763,12 +12376,12 @@ export namespace Prisma {
     updatedAt?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
     tags?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     ingredients?: IngredientOrderByRelationAggregateInput
     user?: UserOrderByWithRelationInput
     ingredientGroups?: IngredientGroupOrderByRelationAggregateInput
     ratings?: RatingOrderByRelationAggregateInput
     steps?: StepOrderByRelationAggregateInput
-    stepGroups?: StepGroupOrderByRelationAggregateInput
   }
 
   export type RecipeWhereUniqueInput = Prisma.AtLeast<{
@@ -13786,12 +12399,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Recipe"> | Date | string
     publishedAt?: DateTimeNullableFilter<"Recipe"> | Date | string | null
     tags?: StringNullableListFilter<"Recipe">
+    imageUrl?: StringNullableFilter<"Recipe"> | string | null
     ingredients?: IngredientListRelationFilter
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     ingredientGroups?: IngredientGroupListRelationFilter
     ratings?: RatingListRelationFilter
     steps?: StepListRelationFilter
-    stepGroups?: StepGroupListRelationFilter
   }, "id">
 
   export type RecipeOrderByWithAggregationInput = {
@@ -13806,6 +12419,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
     tags?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     _count?: RecipeCountOrderByAggregateInput
     _avg?: RecipeAvgOrderByAggregateInput
     _max?: RecipeMaxOrderByAggregateInput
@@ -13828,6 +12442,7 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Recipe"> | Date | string
     publishedAt?: DateTimeNullableWithAggregatesFilter<"Recipe"> | Date | string | null
     tags?: StringNullableListFilter<"Recipe">
+    imageUrl?: StringNullableWithAggregatesFilter<"Recipe"> | string | null
   }
 
   export type AccountWhereInput = {
@@ -14090,7 +12705,6 @@ export namespace Prisma {
     instruction: string
     order: number
     recipe: RecipeCreateNestedOneWithoutStepsInput
-    stepGroup?: StepGroupCreateNestedOneWithoutStepsInput
   }
 
   export type StepUncheckedCreateInput = {
@@ -14098,7 +12712,6 @@ export namespace Prisma {
     instruction: string
     order: number
     recipeId: string
-    stepGroupId?: string | null
   }
 
   export type StepUpdateInput = {
@@ -14106,7 +12719,6 @@ export namespace Prisma {
     instruction?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     recipe?: RecipeUpdateOneRequiredWithoutStepsNestedInput
-    stepGroup?: StepGroupUpdateOneWithoutStepsNestedInput
   }
 
   export type StepUncheckedUpdateInput = {
@@ -14114,7 +12726,6 @@ export namespace Prisma {
     instruction?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     recipeId?: StringFieldUpdateOperationsInput | string
-    stepGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StepCreateManyInput = {
@@ -14122,7 +12733,6 @@ export namespace Prisma {
     instruction: string
     order: number
     recipeId: string
-    stepGroupId?: string | null
   }
 
   export type StepUpdateManyMutationInput = {
@@ -14135,66 +12745,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     instruction?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
-    recipeId?: StringFieldUpdateOperationsInput | string
-    stepGroupId?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type StepGroupCreateInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    steps?: StepCreateNestedManyWithoutStepGroupInput
-    recipe: RecipeCreateNestedOneWithoutStepGroupsInput
-  }
-
-  export type StepGroupUncheckedCreateInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    recipeId: string
-    steps?: StepUncheckedCreateNestedManyWithoutStepGroupInput
-  }
-
-  export type StepGroupUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-    steps?: StepUpdateManyWithoutStepGroupNestedInput
-    recipe?: RecipeUpdateOneRequiredWithoutStepGroupsNestedInput
-  }
-
-  export type StepGroupUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-    recipeId?: StringFieldUpdateOperationsInput | string
-    steps?: StepUncheckedUpdateManyWithoutStepGroupNestedInput
-  }
-
-  export type StepGroupCreateManyInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    recipeId: string
-  }
-
-  export type StepGroupUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type StepGroupUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
     recipeId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -14383,12 +12933,12 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientCreateNestedManyWithoutRecipeInput
     user: UserCreateNestedOneWithoutRecipesInput
     ingredientGroups?: IngredientGroupCreateNestedManyWithoutRecipeInput
     ratings?: RatingCreateNestedManyWithoutRecipeInput
     steps?: StepCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUncheckedCreateInput = {
@@ -14403,11 +12953,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientUncheckedCreateNestedManyWithoutRecipeInput
     ingredientGroups?: IngredientGroupUncheckedCreateNestedManyWithoutRecipeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutRecipeInput
     steps?: StepUncheckedCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupUncheckedCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUpdateInput = {
@@ -14421,12 +12971,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUpdateManyWithoutRecipeNestedInput
     user?: UserUpdateOneRequiredWithoutRecipesNestedInput
     ingredientGroups?: IngredientGroupUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUpdateManyWithoutRecipeNestedInput
     steps?: StepUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateInput = {
@@ -14441,11 +12991,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUncheckedUpdateManyWithoutRecipeNestedInput
     ingredientGroups?: IngredientGroupUncheckedUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutRecipeNestedInput
     steps?: StepUncheckedUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUncheckedUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeCreateManyInput = {
@@ -14460,6 +13010,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
   }
 
   export type RecipeUpdateManyMutationInput = {
@@ -14473,6 +13024,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RecipeUncheckedUpdateManyInput = {
@@ -14487,6 +13039,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AccountCreateInput = {
@@ -14788,34 +13341,9 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type RecipeScalarRelationFilter = {
     is?: RecipeWhereInput
     isNot?: RecipeWhereInput
-  }
-
-  export type StepGroupNullableScalarRelationFilter = {
-    is?: StepGroupWhereInput | null
-    isNot?: StepGroupWhereInput | null
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type StepCountOrderByAggregateInput = {
@@ -14823,7 +13351,6 @@ export namespace Prisma {
     instruction?: SortOrder
     order?: SortOrder
     recipeId?: SortOrder
-    stepGroupId?: SortOrder
   }
 
   export type StepAvgOrderByAggregateInput = {
@@ -14835,7 +13362,6 @@ export namespace Prisma {
     instruction?: SortOrder
     order?: SortOrder
     recipeId?: SortOrder
-    stepGroupId?: SortOrder
   }
 
   export type StepMinOrderByAggregateInput = {
@@ -14843,7 +13369,6 @@ export namespace Prisma {
     instruction?: SortOrder
     order?: SortOrder
     recipeId?: SortOrder
-    stepGroupId?: SortOrder
   }
 
   export type StepSumOrderByAggregateInput = {
@@ -14882,79 +13407,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type StepListRelationFilter = {
-    every?: StepWhereInput
-    some?: StepWhereInput
-    none?: StepWhereInput
-  }
-
-  export type StepOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type StepGroupCountOrderByAggregateInput = {
-    id?: SortOrder
-    label?: SortOrder
-    order?: SortOrder
-    default?: SortOrder
-    recipeId?: SortOrder
-  }
-
-  export type StepGroupAvgOrderByAggregateInput = {
-    order?: SortOrder
-  }
-
-  export type StepGroupMaxOrderByAggregateInput = {
-    id?: SortOrder
-    label?: SortOrder
-    order?: SortOrder
-    default?: SortOrder
-    recipeId?: SortOrder
-  }
-
-  export type StepGroupMinOrderByAggregateInput = {
-    id?: SortOrder
-    label?: SortOrder
-    order?: SortOrder
-    default?: SortOrder
-    recipeId?: SortOrder
-  }
-
-  export type StepGroupSumOrderByAggregateInput = {
-    order?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type UserScalarRelationFilter = {
@@ -15014,9 +13466,29 @@ export namespace Prisma {
     not?: NestedEnumUnitFilter<$PrismaModel> | $Enums.Unit
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type IngredientGroupNullableScalarRelationFilter = {
     is?: IngredientGroupWhereInput | null
     isNot?: IngredientGroupWhereInput | null
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type IngredientCountOrderByAggregateInput = {
@@ -15085,6 +13557,29 @@ export namespace Prisma {
     _max?: NestedEnumUnitFilter<$PrismaModel>
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type IngredientListRelationFilter = {
     every?: IngredientWhereInput
     some?: IngredientWhereInput
@@ -15125,6 +13620,14 @@ export namespace Prisma {
 
   export type IngredientGroupSumOrderByAggregateInput = {
     order?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -15180,10 +13683,10 @@ export namespace Prisma {
     none?: RatingWhereInput
   }
 
-  export type StepGroupListRelationFilter = {
-    every?: StepGroupWhereInput
-    some?: StepGroupWhereInput
-    none?: StepGroupWhereInput
+  export type StepListRelationFilter = {
+    every?: StepWhereInput
+    some?: StepWhereInput
+    none?: StepWhereInput
   }
 
   export type IngredientGroupOrderByRelationAggregateInput = {
@@ -15194,7 +13697,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type StepGroupOrderByRelationAggregateInput = {
+  export type StepOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -15210,6 +13713,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     publishedAt?: SortOrder
     tags?: SortOrder
+    imageUrl?: SortOrder
   }
 
   export type RecipeAvgOrderByAggregateInput = {
@@ -15229,6 +13733,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     publishedAt?: SortOrder
+    imageUrl?: SortOrder
   }
 
   export type RecipeMinOrderByAggregateInput = {
@@ -15242,6 +13747,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     publishedAt?: SortOrder
+    imageUrl?: SortOrder
   }
 
   export type RecipeSumOrderByAggregateInput = {
@@ -15461,12 +13967,6 @@ export namespace Prisma {
     connect?: RecipeWhereUniqueInput
   }
 
-  export type StepGroupCreateNestedOneWithoutStepsInput = {
-    create?: XOR<StepGroupCreateWithoutStepsInput, StepGroupUncheckedCreateWithoutStepsInput>
-    connectOrCreate?: StepGroupCreateOrConnectWithoutStepsInput
-    connect?: StepGroupWhereUniqueInput
-  }
-
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -15485,80 +13985,6 @@ export namespace Prisma {
     upsert?: RecipeUpsertWithoutStepsInput
     connect?: RecipeWhereUniqueInput
     update?: XOR<XOR<RecipeUpdateToOneWithWhereWithoutStepsInput, RecipeUpdateWithoutStepsInput>, RecipeUncheckedUpdateWithoutStepsInput>
-  }
-
-  export type StepGroupUpdateOneWithoutStepsNestedInput = {
-    create?: XOR<StepGroupCreateWithoutStepsInput, StepGroupUncheckedCreateWithoutStepsInput>
-    connectOrCreate?: StepGroupCreateOrConnectWithoutStepsInput
-    upsert?: StepGroupUpsertWithoutStepsInput
-    disconnect?: StepGroupWhereInput | boolean
-    delete?: StepGroupWhereInput | boolean
-    connect?: StepGroupWhereUniqueInput
-    update?: XOR<XOR<StepGroupUpdateToOneWithWhereWithoutStepsInput, StepGroupUpdateWithoutStepsInput>, StepGroupUncheckedUpdateWithoutStepsInput>
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
-  }
-
-  export type StepCreateNestedManyWithoutStepGroupInput = {
-    create?: XOR<StepCreateWithoutStepGroupInput, StepUncheckedCreateWithoutStepGroupInput> | StepCreateWithoutStepGroupInput[] | StepUncheckedCreateWithoutStepGroupInput[]
-    connectOrCreate?: StepCreateOrConnectWithoutStepGroupInput | StepCreateOrConnectWithoutStepGroupInput[]
-    createMany?: StepCreateManyStepGroupInputEnvelope
-    connect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-  }
-
-  export type RecipeCreateNestedOneWithoutStepGroupsInput = {
-    create?: XOR<RecipeCreateWithoutStepGroupsInput, RecipeUncheckedCreateWithoutStepGroupsInput>
-    connectOrCreate?: RecipeCreateOrConnectWithoutStepGroupsInput
-    connect?: RecipeWhereUniqueInput
-  }
-
-  export type StepUncheckedCreateNestedManyWithoutStepGroupInput = {
-    create?: XOR<StepCreateWithoutStepGroupInput, StepUncheckedCreateWithoutStepGroupInput> | StepCreateWithoutStepGroupInput[] | StepUncheckedCreateWithoutStepGroupInput[]
-    connectOrCreate?: StepCreateOrConnectWithoutStepGroupInput | StepCreateOrConnectWithoutStepGroupInput[]
-    createMany?: StepCreateManyStepGroupInputEnvelope
-    connect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
-  export type StepUpdateManyWithoutStepGroupNestedInput = {
-    create?: XOR<StepCreateWithoutStepGroupInput, StepUncheckedCreateWithoutStepGroupInput> | StepCreateWithoutStepGroupInput[] | StepUncheckedCreateWithoutStepGroupInput[]
-    connectOrCreate?: StepCreateOrConnectWithoutStepGroupInput | StepCreateOrConnectWithoutStepGroupInput[]
-    upsert?: StepUpsertWithWhereUniqueWithoutStepGroupInput | StepUpsertWithWhereUniqueWithoutStepGroupInput[]
-    createMany?: StepCreateManyStepGroupInputEnvelope
-    set?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    disconnect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    delete?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    connect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    update?: StepUpdateWithWhereUniqueWithoutStepGroupInput | StepUpdateWithWhereUniqueWithoutStepGroupInput[]
-    updateMany?: StepUpdateManyWithWhereWithoutStepGroupInput | StepUpdateManyWithWhereWithoutStepGroupInput[]
-    deleteMany?: StepScalarWhereInput | StepScalarWhereInput[]
-  }
-
-  export type RecipeUpdateOneRequiredWithoutStepGroupsNestedInput = {
-    create?: XOR<RecipeCreateWithoutStepGroupsInput, RecipeUncheckedCreateWithoutStepGroupsInput>
-    connectOrCreate?: RecipeCreateOrConnectWithoutStepGroupsInput
-    upsert?: RecipeUpsertWithoutStepGroupsInput
-    connect?: RecipeWhereUniqueInput
-    update?: XOR<XOR<RecipeUpdateToOneWithWhereWithoutStepGroupsInput, RecipeUpdateWithoutStepGroupsInput>, RecipeUncheckedUpdateWithoutStepGroupsInput>
-  }
-
-  export type StepUncheckedUpdateManyWithoutStepGroupNestedInput = {
-    create?: XOR<StepCreateWithoutStepGroupInput, StepUncheckedCreateWithoutStepGroupInput> | StepCreateWithoutStepGroupInput[] | StepUncheckedCreateWithoutStepGroupInput[]
-    connectOrCreate?: StepCreateOrConnectWithoutStepGroupInput | StepCreateOrConnectWithoutStepGroupInput[]
-    upsert?: StepUpsertWithWhereUniqueWithoutStepGroupInput | StepUpsertWithWhereUniqueWithoutStepGroupInput[]
-    createMany?: StepCreateManyStepGroupInputEnvelope
-    set?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    disconnect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    delete?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    connect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-    update?: StepUpdateWithWhereUniqueWithoutStepGroupInput | StepUpdateWithWhereUniqueWithoutStepGroupInput[]
-    updateMany?: StepUpdateManyWithWhereWithoutStepGroupInput | StepUpdateManyWithWhereWithoutStepGroupInput[]
-    deleteMany?: StepScalarWhereInput | StepScalarWhereInput[]
   }
 
   export type RecipeCreateNestedOneWithoutRatingsInput = {
@@ -15631,6 +14057,10 @@ export namespace Prisma {
     update?: XOR<XOR<IngredientGroupUpdateToOneWithWhereWithoutIngredientsInput, IngredientGroupUpdateWithoutIngredientsInput>, IngredientGroupUncheckedUpdateWithoutIngredientsInput>
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type IngredientCreateNestedManyWithoutIngredientGroupInput = {
     create?: XOR<IngredientCreateWithoutIngredientGroupInput, IngredientUncheckedCreateWithoutIngredientGroupInput> | IngredientCreateWithoutIngredientGroupInput[] | IngredientUncheckedCreateWithoutIngredientGroupInput[]
     connectOrCreate?: IngredientCreateOrConnectWithoutIngredientGroupInput | IngredientCreateOrConnectWithoutIngredientGroupInput[]
@@ -15649,6 +14079,10 @@ export namespace Prisma {
     connectOrCreate?: IngredientCreateOrConnectWithoutIngredientGroupInput | IngredientCreateOrConnectWithoutIngredientGroupInput[]
     createMany?: IngredientCreateManyIngredientGroupInputEnvelope
     connect?: IngredientWhereUniqueInput | IngredientWhereUniqueInput[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type IngredientUpdateManyWithoutIngredientGroupNestedInput = {
@@ -15725,13 +14159,6 @@ export namespace Prisma {
     connect?: StepWhereUniqueInput | StepWhereUniqueInput[]
   }
 
-  export type StepGroupCreateNestedManyWithoutRecipeInput = {
-    create?: XOR<StepGroupCreateWithoutRecipeInput, StepGroupUncheckedCreateWithoutRecipeInput> | StepGroupCreateWithoutRecipeInput[] | StepGroupUncheckedCreateWithoutRecipeInput[]
-    connectOrCreate?: StepGroupCreateOrConnectWithoutRecipeInput | StepGroupCreateOrConnectWithoutRecipeInput[]
-    createMany?: StepGroupCreateManyRecipeInputEnvelope
-    connect?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-  }
-
   export type IngredientUncheckedCreateNestedManyWithoutRecipeInput = {
     create?: XOR<IngredientCreateWithoutRecipeInput, IngredientUncheckedCreateWithoutRecipeInput> | IngredientCreateWithoutRecipeInput[] | IngredientUncheckedCreateWithoutRecipeInput[]
     connectOrCreate?: IngredientCreateOrConnectWithoutRecipeInput | IngredientCreateOrConnectWithoutRecipeInput[]
@@ -15758,13 +14185,6 @@ export namespace Prisma {
     connectOrCreate?: StepCreateOrConnectWithoutRecipeInput | StepCreateOrConnectWithoutRecipeInput[]
     createMany?: StepCreateManyRecipeInputEnvelope
     connect?: StepWhereUniqueInput | StepWhereUniqueInput[]
-  }
-
-  export type StepGroupUncheckedCreateNestedManyWithoutRecipeInput = {
-    create?: XOR<StepGroupCreateWithoutRecipeInput, StepGroupUncheckedCreateWithoutRecipeInput> | StepGroupCreateWithoutRecipeInput[] | StepGroupUncheckedCreateWithoutRecipeInput[]
-    connectOrCreate?: StepGroupCreateOrConnectWithoutRecipeInput | StepGroupCreateOrConnectWithoutRecipeInput[]
-    createMany?: StepGroupCreateManyRecipeInputEnvelope
-    connect?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -15852,20 +14272,6 @@ export namespace Prisma {
     deleteMany?: StepScalarWhereInput | StepScalarWhereInput[]
   }
 
-  export type StepGroupUpdateManyWithoutRecipeNestedInput = {
-    create?: XOR<StepGroupCreateWithoutRecipeInput, StepGroupUncheckedCreateWithoutRecipeInput> | StepGroupCreateWithoutRecipeInput[] | StepGroupUncheckedCreateWithoutRecipeInput[]
-    connectOrCreate?: StepGroupCreateOrConnectWithoutRecipeInput | StepGroupCreateOrConnectWithoutRecipeInput[]
-    upsert?: StepGroupUpsertWithWhereUniqueWithoutRecipeInput | StepGroupUpsertWithWhereUniqueWithoutRecipeInput[]
-    createMany?: StepGroupCreateManyRecipeInputEnvelope
-    set?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    disconnect?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    delete?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    connect?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    update?: StepGroupUpdateWithWhereUniqueWithoutRecipeInput | StepGroupUpdateWithWhereUniqueWithoutRecipeInput[]
-    updateMany?: StepGroupUpdateManyWithWhereWithoutRecipeInput | StepGroupUpdateManyWithWhereWithoutRecipeInput[]
-    deleteMany?: StepGroupScalarWhereInput | StepGroupScalarWhereInput[]
-  }
-
   export type IngredientUncheckedUpdateManyWithoutRecipeNestedInput = {
     create?: XOR<IngredientCreateWithoutRecipeInput, IngredientUncheckedCreateWithoutRecipeInput> | IngredientCreateWithoutRecipeInput[] | IngredientUncheckedCreateWithoutRecipeInput[]
     connectOrCreate?: IngredientCreateOrConnectWithoutRecipeInput | IngredientCreateOrConnectWithoutRecipeInput[]
@@ -15920,20 +14326,6 @@ export namespace Prisma {
     update?: StepUpdateWithWhereUniqueWithoutRecipeInput | StepUpdateWithWhereUniqueWithoutRecipeInput[]
     updateMany?: StepUpdateManyWithWhereWithoutRecipeInput | StepUpdateManyWithWhereWithoutRecipeInput[]
     deleteMany?: StepScalarWhereInput | StepScalarWhereInput[]
-  }
-
-  export type StepGroupUncheckedUpdateManyWithoutRecipeNestedInput = {
-    create?: XOR<StepGroupCreateWithoutRecipeInput, StepGroupUncheckedCreateWithoutRecipeInput> | StepGroupCreateWithoutRecipeInput[] | StepGroupUncheckedCreateWithoutRecipeInput[]
-    connectOrCreate?: StepGroupCreateOrConnectWithoutRecipeInput | StepGroupCreateOrConnectWithoutRecipeInput[]
-    upsert?: StepGroupUpsertWithWhereUniqueWithoutRecipeInput | StepGroupUpsertWithWhereUniqueWithoutRecipeInput[]
-    createMany?: StepGroupCreateManyRecipeInputEnvelope
-    set?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    disconnect?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    delete?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    connect?: StepGroupWhereUniqueInput | StepGroupWhereUniqueInput[]
-    update?: StepGroupUpdateWithWhereUniqueWithoutRecipeInput | StepGroupUpdateWithWhereUniqueWithoutRecipeInput[]
-    updateMany?: StepGroupUpdateManyWithWhereWithoutRecipeInput | StepGroupUpdateManyWithWhereWithoutRecipeInput[]
-    deleteMany?: StepGroupScalarWhereInput | StepGroupScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -16157,20 +14549,6 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -16215,6 +14593,53 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedEnumUnitFilter<$PrismaModel = never> = {
+    equals?: $Enums.Unit | EnumUnitFieldRefInput<$PrismaModel>
+    in?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
+    not?: NestedEnumUnitFilter<$PrismaModel> | $Enums.Unit
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedEnumUnitWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Unit | EnumUnitFieldRefInput<$PrismaModel>
+    in?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
+    not?: NestedEnumUnitWithAggregatesFilter<$PrismaModel> | $Enums.Unit
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUnitFilter<$PrismaModel>
+    _max?: NestedEnumUnitFilter<$PrismaModel>
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -16254,39 +14679,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedEnumUnitFilter<$PrismaModel = never> = {
-    equals?: $Enums.Unit | EnumUnitFieldRefInput<$PrismaModel>
-    in?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
-    not?: NestedEnumUnitFilter<$PrismaModel> | $Enums.Unit
-  }
-
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
-  }
-
-  export type NestedEnumUnitWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Unit | EnumUnitFieldRefInput<$PrismaModel>
-    in?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Unit[] | ListEnumUnitFieldRefInput<$PrismaModel>
-    not?: NestedEnumUnitWithAggregatesFilter<$PrismaModel> | $Enums.Unit
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumUnitFilter<$PrismaModel>
-    _max?: NestedEnumUnitFilter<$PrismaModel>
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -16377,11 +14769,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientCreateNestedManyWithoutRecipeInput
     user: UserCreateNestedOneWithoutRecipesInput
     ingredientGroups?: IngredientGroupCreateNestedManyWithoutRecipeInput
     ratings?: RatingCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUncheckedCreateWithoutStepsInput = {
@@ -16396,36 +14788,15 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientUncheckedCreateNestedManyWithoutRecipeInput
     ingredientGroups?: IngredientGroupUncheckedCreateNestedManyWithoutRecipeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupUncheckedCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeCreateOrConnectWithoutStepsInput = {
     where: RecipeWhereUniqueInput
     create: XOR<RecipeCreateWithoutStepsInput, RecipeUncheckedCreateWithoutStepsInput>
-  }
-
-  export type StepGroupCreateWithoutStepsInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    recipe: RecipeCreateNestedOneWithoutStepGroupsInput
-  }
-
-  export type StepGroupUncheckedCreateWithoutStepsInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    recipeId: string
-  }
-
-  export type StepGroupCreateOrConnectWithoutStepsInput = {
-    where: StepGroupWhereUniqueInput
-    create: XOR<StepGroupCreateWithoutStepsInput, StepGroupUncheckedCreateWithoutStepsInput>
   }
 
   export type RecipeUpsertWithoutStepsInput = {
@@ -16450,11 +14821,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUpdateManyWithoutRecipeNestedInput
     user?: UserUpdateOneRequiredWithoutRecipesNestedInput
     ingredientGroups?: IngredientGroupUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateWithoutStepsInput = {
@@ -16469,176 +14840,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUncheckedUpdateManyWithoutRecipeNestedInput
     ingredientGroups?: IngredientGroupUncheckedUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUncheckedUpdateManyWithoutRecipeNestedInput
-  }
-
-  export type StepGroupUpsertWithoutStepsInput = {
-    update: XOR<StepGroupUpdateWithoutStepsInput, StepGroupUncheckedUpdateWithoutStepsInput>
-    create: XOR<StepGroupCreateWithoutStepsInput, StepGroupUncheckedCreateWithoutStepsInput>
-    where?: StepGroupWhereInput
-  }
-
-  export type StepGroupUpdateToOneWithWhereWithoutStepsInput = {
-    where?: StepGroupWhereInput
-    data: XOR<StepGroupUpdateWithoutStepsInput, StepGroupUncheckedUpdateWithoutStepsInput>
-  }
-
-  export type StepGroupUpdateWithoutStepsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-    recipe?: RecipeUpdateOneRequiredWithoutStepGroupsNestedInput
-  }
-
-  export type StepGroupUncheckedUpdateWithoutStepsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-    recipeId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type StepCreateWithoutStepGroupInput = {
-    id?: string
-    instruction: string
-    order: number
-    recipe: RecipeCreateNestedOneWithoutStepsInput
-  }
-
-  export type StepUncheckedCreateWithoutStepGroupInput = {
-    id?: string
-    instruction: string
-    order: number
-    recipeId: string
-  }
-
-  export type StepCreateOrConnectWithoutStepGroupInput = {
-    where: StepWhereUniqueInput
-    create: XOR<StepCreateWithoutStepGroupInput, StepUncheckedCreateWithoutStepGroupInput>
-  }
-
-  export type StepCreateManyStepGroupInputEnvelope = {
-    data: StepCreateManyStepGroupInput | StepCreateManyStepGroupInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type RecipeCreateWithoutStepGroupsInput = {
-    id?: string
-    title: string
-    description: string
-    servings?: number | null
-    prepTimeMinutes?: number | null
-    cookTimeMinutes?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    publishedAt?: Date | string | null
-    tags?: RecipeCreatetagsInput | string[]
-    ingredients?: IngredientCreateNestedManyWithoutRecipeInput
-    user: UserCreateNestedOneWithoutRecipesInput
-    ingredientGroups?: IngredientGroupCreateNestedManyWithoutRecipeInput
-    ratings?: RatingCreateNestedManyWithoutRecipeInput
-    steps?: StepCreateNestedManyWithoutRecipeInput
-  }
-
-  export type RecipeUncheckedCreateWithoutStepGroupsInput = {
-    id?: string
-    userId: string
-    title: string
-    description: string
-    servings?: number | null
-    prepTimeMinutes?: number | null
-    cookTimeMinutes?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    publishedAt?: Date | string | null
-    tags?: RecipeCreatetagsInput | string[]
-    ingredients?: IngredientUncheckedCreateNestedManyWithoutRecipeInput
-    ingredientGroups?: IngredientGroupUncheckedCreateNestedManyWithoutRecipeInput
-    ratings?: RatingUncheckedCreateNestedManyWithoutRecipeInput
-    steps?: StepUncheckedCreateNestedManyWithoutRecipeInput
-  }
-
-  export type RecipeCreateOrConnectWithoutStepGroupsInput = {
-    where: RecipeWhereUniqueInput
-    create: XOR<RecipeCreateWithoutStepGroupsInput, RecipeUncheckedCreateWithoutStepGroupsInput>
-  }
-
-  export type StepUpsertWithWhereUniqueWithoutStepGroupInput = {
-    where: StepWhereUniqueInput
-    update: XOR<StepUpdateWithoutStepGroupInput, StepUncheckedUpdateWithoutStepGroupInput>
-    create: XOR<StepCreateWithoutStepGroupInput, StepUncheckedCreateWithoutStepGroupInput>
-  }
-
-  export type StepUpdateWithWhereUniqueWithoutStepGroupInput = {
-    where: StepWhereUniqueInput
-    data: XOR<StepUpdateWithoutStepGroupInput, StepUncheckedUpdateWithoutStepGroupInput>
-  }
-
-  export type StepUpdateManyWithWhereWithoutStepGroupInput = {
-    where: StepScalarWhereInput
-    data: XOR<StepUpdateManyMutationInput, StepUncheckedUpdateManyWithoutStepGroupInput>
-  }
-
-  export type StepScalarWhereInput = {
-    AND?: StepScalarWhereInput | StepScalarWhereInput[]
-    OR?: StepScalarWhereInput[]
-    NOT?: StepScalarWhereInput | StepScalarWhereInput[]
-    id?: StringFilter<"Step"> | string
-    instruction?: StringFilter<"Step"> | string
-    order?: IntFilter<"Step"> | number
-    recipeId?: StringFilter<"Step"> | string
-    stepGroupId?: StringNullableFilter<"Step"> | string | null
-  }
-
-  export type RecipeUpsertWithoutStepGroupsInput = {
-    update: XOR<RecipeUpdateWithoutStepGroupsInput, RecipeUncheckedUpdateWithoutStepGroupsInput>
-    create: XOR<RecipeCreateWithoutStepGroupsInput, RecipeUncheckedCreateWithoutStepGroupsInput>
-    where?: RecipeWhereInput
-  }
-
-  export type RecipeUpdateToOneWithWhereWithoutStepGroupsInput = {
-    where?: RecipeWhereInput
-    data: XOR<RecipeUpdateWithoutStepGroupsInput, RecipeUncheckedUpdateWithoutStepGroupsInput>
-  }
-
-  export type RecipeUpdateWithoutStepGroupsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    servings?: NullableIntFieldUpdateOperationsInput | number | null
-    prepTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
-    cookTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tags?: RecipeUpdatetagsInput | string[]
-    ingredients?: IngredientUpdateManyWithoutRecipeNestedInput
-    user?: UserUpdateOneRequiredWithoutRecipesNestedInput
-    ingredientGroups?: IngredientGroupUpdateManyWithoutRecipeNestedInput
-    ratings?: RatingUpdateManyWithoutRecipeNestedInput
-    steps?: StepUpdateManyWithoutRecipeNestedInput
-  }
-
-  export type RecipeUncheckedUpdateWithoutStepGroupsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    servings?: NullableIntFieldUpdateOperationsInput | number | null
-    prepTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
-    cookTimeMinutes?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tags?: RecipeUpdatetagsInput | string[]
-    ingredients?: IngredientUncheckedUpdateManyWithoutRecipeNestedInput
-    ingredientGroups?: IngredientGroupUncheckedUpdateManyWithoutRecipeNestedInput
-    ratings?: RatingUncheckedUpdateManyWithoutRecipeNestedInput
-    steps?: StepUncheckedUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeCreateWithoutRatingsInput = {
@@ -16652,11 +14857,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientCreateNestedManyWithoutRecipeInput
     user: UserCreateNestedOneWithoutRecipesInput
     ingredientGroups?: IngredientGroupCreateNestedManyWithoutRecipeInput
     steps?: StepCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUncheckedCreateWithoutRatingsInput = {
@@ -16671,10 +14876,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientUncheckedCreateNestedManyWithoutRecipeInput
     ingredientGroups?: IngredientGroupUncheckedCreateNestedManyWithoutRecipeInput
     steps?: StepUncheckedCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupUncheckedCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeCreateOrConnectWithoutRatingsInput = {
@@ -16731,11 +14936,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUpdateManyWithoutRecipeNestedInput
     user?: UserUpdateOneRequiredWithoutRecipesNestedInput
     ingredientGroups?: IngredientGroupUpdateManyWithoutRecipeNestedInput
     steps?: StepUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateWithoutRatingsInput = {
@@ -16750,10 +14955,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUncheckedUpdateManyWithoutRecipeNestedInput
     ingredientGroups?: IngredientGroupUncheckedUpdateManyWithoutRecipeNestedInput
     steps?: StepUncheckedUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUncheckedUpdateManyWithoutRecipeNestedInput
   }
 
   export type UserUpsertWithoutRatingsInput = {
@@ -16800,11 +15005,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     user: UserCreateNestedOneWithoutRecipesInput
     ingredientGroups?: IngredientGroupCreateNestedManyWithoutRecipeInput
     ratings?: RatingCreateNestedManyWithoutRecipeInput
     steps?: StepCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUncheckedCreateWithoutIngredientsInput = {
@@ -16819,10 +15024,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredientGroups?: IngredientGroupUncheckedCreateNestedManyWithoutRecipeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutRecipeInput
     steps?: StepUncheckedCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupUncheckedCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeCreateOrConnectWithoutIngredientsInput = {
@@ -16873,11 +15078,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutRecipesNestedInput
     ingredientGroups?: IngredientGroupUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUpdateManyWithoutRecipeNestedInput
     steps?: StepUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateWithoutIngredientsInput = {
@@ -16892,10 +15097,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredientGroups?: IngredientGroupUncheckedUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutRecipeNestedInput
     steps?: StepUncheckedUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUncheckedUpdateManyWithoutRecipeNestedInput
   }
 
   export type IngredientGroupUpsertWithoutIngredientsInput = {
@@ -16964,11 +15169,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientCreateNestedManyWithoutRecipeInput
     user: UserCreateNestedOneWithoutRecipesInput
     ratings?: RatingCreateNestedManyWithoutRecipeInput
     steps?: StepCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUncheckedCreateWithoutIngredientGroupsInput = {
@@ -16983,10 +15188,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientUncheckedCreateNestedManyWithoutRecipeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutRecipeInput
     steps?: StepUncheckedCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupUncheckedCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeCreateOrConnectWithoutIngredientGroupsInput = {
@@ -17045,11 +15250,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUpdateManyWithoutRecipeNestedInput
     user?: UserUpdateOneRequiredWithoutRecipesNestedInput
     ratings?: RatingUpdateManyWithoutRecipeNestedInput
     steps?: StepUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateWithoutIngredientGroupsInput = {
@@ -17064,10 +15269,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUncheckedUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutRecipeNestedInput
     steps?: StepUncheckedUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUncheckedUpdateManyWithoutRecipeNestedInput
   }
 
   export type IngredientCreateWithoutRecipeInput = {
@@ -17177,14 +15382,12 @@ export namespace Prisma {
     id?: string
     instruction: string
     order: number
-    stepGroup?: StepGroupCreateNestedOneWithoutStepsInput
   }
 
   export type StepUncheckedCreateWithoutRecipeInput = {
     id?: string
     instruction: string
     order: number
-    stepGroupId?: string | null
   }
 
   export type StepCreateOrConnectWithoutRecipeInput = {
@@ -17194,32 +15397,6 @@ export namespace Prisma {
 
   export type StepCreateManyRecipeInputEnvelope = {
     data: StepCreateManyRecipeInput | StepCreateManyRecipeInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type StepGroupCreateWithoutRecipeInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    steps?: StepCreateNestedManyWithoutStepGroupInput
-  }
-
-  export type StepGroupUncheckedCreateWithoutRecipeInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
-    steps?: StepUncheckedCreateNestedManyWithoutStepGroupInput
-  }
-
-  export type StepGroupCreateOrConnectWithoutRecipeInput = {
-    where: StepGroupWhereUniqueInput
-    create: XOR<StepGroupCreateWithoutRecipeInput, StepGroupUncheckedCreateWithoutRecipeInput>
-  }
-
-  export type StepGroupCreateManyRecipeInputEnvelope = {
-    data: StepGroupCreateManyRecipeInput | StepGroupCreateManyRecipeInput[]
     skipDuplicates?: boolean
   }
 
@@ -17341,31 +15518,14 @@ export namespace Prisma {
     data: XOR<StepUpdateManyMutationInput, StepUncheckedUpdateManyWithoutRecipeInput>
   }
 
-  export type StepGroupUpsertWithWhereUniqueWithoutRecipeInput = {
-    where: StepGroupWhereUniqueInput
-    update: XOR<StepGroupUpdateWithoutRecipeInput, StepGroupUncheckedUpdateWithoutRecipeInput>
-    create: XOR<StepGroupCreateWithoutRecipeInput, StepGroupUncheckedCreateWithoutRecipeInput>
-  }
-
-  export type StepGroupUpdateWithWhereUniqueWithoutRecipeInput = {
-    where: StepGroupWhereUniqueInput
-    data: XOR<StepGroupUpdateWithoutRecipeInput, StepGroupUncheckedUpdateWithoutRecipeInput>
-  }
-
-  export type StepGroupUpdateManyWithWhereWithoutRecipeInput = {
-    where: StepGroupScalarWhereInput
-    data: XOR<StepGroupUpdateManyMutationInput, StepGroupUncheckedUpdateManyWithoutRecipeInput>
-  }
-
-  export type StepGroupScalarWhereInput = {
-    AND?: StepGroupScalarWhereInput | StepGroupScalarWhereInput[]
-    OR?: StepGroupScalarWhereInput[]
-    NOT?: StepGroupScalarWhereInput | StepGroupScalarWhereInput[]
-    id?: StringFilter<"StepGroup"> | string
-    label?: StringFilter<"StepGroup"> | string
-    order?: IntFilter<"StepGroup"> | number
-    default?: BoolFilter<"StepGroup"> | boolean
-    recipeId?: StringFilter<"StepGroup"> | string
+  export type StepScalarWhereInput = {
+    AND?: StepScalarWhereInput | StepScalarWhereInput[]
+    OR?: StepScalarWhereInput[]
+    NOT?: StepScalarWhereInput | StepScalarWhereInput[]
+    id?: StringFilter<"Step"> | string
+    instruction?: StringFilter<"Step"> | string
+    order?: IntFilter<"Step"> | number
+    recipeId?: StringFilter<"Step"> | string
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -17561,11 +15721,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientCreateNestedManyWithoutRecipeInput
     ingredientGroups?: IngredientGroupCreateNestedManyWithoutRecipeInput
     ratings?: RatingCreateNestedManyWithoutRecipeInput
     steps?: StepCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeUncheckedCreateWithoutUserInput = {
@@ -17579,11 +15739,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
     ingredients?: IngredientUncheckedCreateNestedManyWithoutRecipeInput
     ingredientGroups?: IngredientGroupUncheckedCreateNestedManyWithoutRecipeInput
     ratings?: RatingUncheckedCreateNestedManyWithoutRecipeInput
     steps?: StepUncheckedCreateNestedManyWithoutRecipeInput
-    stepGroups?: StepGroupUncheckedCreateNestedManyWithoutRecipeInput
   }
 
   export type RecipeCreateOrConnectWithoutUserInput = {
@@ -17710,6 +15870,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Recipe"> | Date | string
     publishedAt?: DateTimeNullableFilter<"Recipe"> | Date | string | null
     tags?: StringNullableListFilter<"Recipe">
+    imageUrl?: StringNullableFilter<"Recipe"> | string | null
   }
 
   export type RatingUpsertWithWhereUniqueWithoutUserInput = {
@@ -17726,34 +15887,6 @@ export namespace Prisma {
   export type RatingUpdateManyWithWhereWithoutUserInput = {
     where: RatingScalarWhereInput
     data: XOR<RatingUpdateManyMutationInput, RatingUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type StepCreateManyStepGroupInput = {
-    id?: string
-    instruction: string
-    order: number
-    recipeId: string
-  }
-
-  export type StepUpdateWithoutStepGroupInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    instruction?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    recipe?: RecipeUpdateOneRequiredWithoutStepsNestedInput
-  }
-
-  export type StepUncheckedUpdateWithoutStepGroupInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    instruction?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    recipeId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type StepUncheckedUpdateManyWithoutStepGroupInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    instruction?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    recipeId?: StringFieldUpdateOperationsInput | string
   }
 
   export type IngredientCreateManyIngredientGroupInput = {
@@ -17818,14 +15951,6 @@ export namespace Prisma {
     id?: string
     instruction: string
     order: number
-    stepGroupId?: string | null
-  }
-
-  export type StepGroupCreateManyRecipeInput = {
-    id?: string
-    label: string
-    order: number
-    default?: boolean
   }
 
   export type IngredientUpdateWithoutRecipeInput = {
@@ -17900,44 +16025,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     instruction?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
-    stepGroup?: StepGroupUpdateOneWithoutStepsNestedInput
   }
 
   export type StepUncheckedUpdateWithoutRecipeInput = {
     id?: StringFieldUpdateOperationsInput | string
     instruction?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
-    stepGroupId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StepUncheckedUpdateManyWithoutRecipeInput = {
     id?: StringFieldUpdateOperationsInput | string
     instruction?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
-    stepGroupId?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type StepGroupUpdateWithoutRecipeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-    steps?: StepUpdateManyWithoutStepGroupNestedInput
-  }
-
-  export type StepGroupUncheckedUpdateWithoutRecipeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
-    steps?: StepUncheckedUpdateManyWithoutStepGroupNestedInput
-  }
-
-  export type StepGroupUncheckedUpdateManyWithoutRecipeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    label?: StringFieldUpdateOperationsInput | string
-    order?: IntFieldUpdateOperationsInput | number
-    default?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AccountCreateManyUserInput = {
@@ -17972,6 +16071,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     publishedAt?: Date | string | null
     tags?: RecipeCreatetagsInput | string[]
+    imageUrl?: string | null
   }
 
   export type RatingCreateManyUserInput = {
@@ -18054,11 +16154,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUpdateManyWithoutRecipeNestedInput
     ingredientGroups?: IngredientGroupUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUpdateManyWithoutRecipeNestedInput
     steps?: StepUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateWithoutUserInput = {
@@ -18072,11 +16172,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: IngredientUncheckedUpdateManyWithoutRecipeNestedInput
     ingredientGroups?: IngredientGroupUncheckedUpdateManyWithoutRecipeNestedInput
     ratings?: RatingUncheckedUpdateManyWithoutRecipeNestedInput
     steps?: StepUncheckedUpdateManyWithoutRecipeNestedInput
-    stepGroups?: StepGroupUncheckedUpdateManyWithoutRecipeNestedInput
   }
 
   export type RecipeUncheckedUpdateManyWithoutUserInput = {
@@ -18090,6 +16190,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tags?: RecipeUpdatetagsInput | string[]
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RatingUpdateWithoutUserInput = {

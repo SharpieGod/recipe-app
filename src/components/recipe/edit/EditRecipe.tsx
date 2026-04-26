@@ -22,7 +22,6 @@ import {
   getFirstCollision,
   pointerWithin,
   closestCenter,
-  defaultDropAnimationSideEffects,
   MeasuringStrategy,
 } from "@dnd-kit/core";
 import {
@@ -37,9 +36,14 @@ import {
   IngredientSection,
   IngredientSectionDragPreview,
 } from "./IngredientSection";
+import { StepEdit, StepDragPreview } from "./StepEdit";
 import Container from "../../generic/Container";
 import { AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { useUploadThing } from "~/utils/uploadthing";
+import Image from "next/image";
+import Button from "../../generic/Button";
+import { cn } from "~/lib/utils";
 
 type Props = {
   recipeId: string;
@@ -51,12 +55,19 @@ const EditRecipe = ({ recipeId }: Props) => {
   const getResolvedId = useGetResolvedId();
 
   const [inputFocusId, setInputFocusId] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { startUpload, isUploading } = useUploadThing("imageUploader", {
+    onClientUploadComplete: (res) => {
+      setImageUrl(res[0]?.ufsUrl ?? null);
+    },
+  });
 
   // -- Recipe --
   const updateRecipeFull = () => {
     if (!debouncedRecipeValues || !serverRecipe) return;
     const values = debouncedRecipeValues;
-    updateRecipe(values);
+    updateRecipe({ ...values, imageUrl });
 
     const serverIngMap = new Map<
       string | null,
@@ -120,6 +131,21 @@ const EditRecipe = ({ recipeId }: Props) => {
         }
       });
     });
+
+    values.steps.forEach((s) => {
+      const realStepId = getResolvedId(s.id);
+      if (!realStepId) return;
+
+      const serverStep = serverRecipe.steps.find((ss) => ss.id === realStepId);
+      const stepChanged =
+        !serverStep ||
+        serverStep.instruction !== s.instruction ||
+        serverStep.order !== s.order;
+
+      if (stepChanged) {
+        updateStep({ id: realStepId, instruction: s.instruction, order: s.order });
+      }
+    });
   };
 
   const { data: serverRecipe } = api.recipe.get.useQuery({ id: recipeId });
@@ -129,6 +155,7 @@ const EditRecipe = ({ recipeId }: Props) => {
   useEffect(() => {
     if (localRecipe == null && serverRecipe) {
       setLocalRecipe(serverRecipe);
+      setImageUrl(serverRecipe.imageUrl ?? null);
     }
   }, [serverRecipe]);
 
@@ -144,7 +171,7 @@ const EditRecipe = ({ recipeId }: Props) => {
       if (!localRecipe || !prev_recipe) return;
       utils.recipe.get.setData({ id: recipeId }, { ...localRecipe });
 
-      const { ingredientGroups, stepGroups, ...preview } = localRecipe;
+      const { ingredientGroups, steps, ...preview } = localRecipe;
       utils.recipe.getPreview.setData({ id: recipeId }, { ...preview });
       return prev_recipe;
     },
@@ -281,6 +308,80 @@ const EditRecipe = ({ recipeId }: Props) => {
 
   const [newIngredientLabel, setNewIngredientLabel] = useState("");
 
+  // -- Steps --
+  const { mutate: newStep } = api.step.new.useMutation({
+    onMutate(variables) {
+      if (!localRecipe) return;
+      const fakeId = "_tempid_" + crypto.randomUUID();
+      const fakeStep: RecipeIncluded["steps"][number] = {
+        id: fakeId,
+        recipeId: localRecipe.id,
+        instruction: variables.instruction,
+        order: localRecipe.steps.length,
+      };
+      setLocalRecipe({ ...localRecipe, steps: [...localRecipe.steps, fakeStep] });
+      return { fakeId };
+    },
+    onSuccess(data, _, ctx) {
+      if (!ctx?.fakeId || !data) return;
+      setResolvedId(ctx.fakeId, data.id);
+    },
+  });
+
+  const { mutate: updateStep } = api.step.update.useMutation({
+    onMutate(variables) {
+      utils.recipe.get.setData({ id: recipeId }, (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          steps: prev.steps.map((s) =>
+            s.id === variables.id ? { ...s, ...variables } : s,
+          ),
+        };
+      });
+    },
+  });
+
+  const [newStepLabel, setNewStepLabel] = useState("");
+
+  const [activeStep, setActiveStep] = useState<
+    RecipeIncluded["steps"][number] | null
+  >(null);
+
+  const stepDragStartRecipe = useRef<RecipeIncluded | null>(null);
+
+  const handleStepDragStart = (event: DragStartEvent) => {
+    stepDragStartRecipe.current = localRecipe;
+    setActiveStep(
+      localRecipe?.steps.find((s) => s.id === String(event.active.id)) ?? null,
+    );
+  };
+
+  const handleStepDragEnd = (event: DragEndEvent) => {
+    setActiveStep(null);
+    stepDragStartRecipe.current = null;
+    if (!localRecipe) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const sorted = [...localRecipe.steps].sort((a, b) => a.order - b.order);
+    const oldIndex = sorted.findIndex((s) => s.id === active.id);
+    const newIndex = sorted.findIndex((s) => s.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(sorted, oldIndex, newIndex).map((s, idx) => ({
+      ...s,
+      order: idx,
+    }));
+    setLocalRecipe({ ...localRecipe, steps: reordered });
+  };
+
+  const handleStepDragCancel = () => {
+    if (stepDragStartRecipe.current) setLocalRecipe(stepDragStartRecipe.current);
+    setActiveStep(null);
+    stepDragStartRecipe.current = null;
+  };
+
   const stripIds = (recipe: RecipeIncluded) => ({
     title: recipe.title,
     description: recipe.description,
@@ -306,18 +407,11 @@ const EditRecipe = ({ recipeId }: Props) => {
             ingredientGroupId: i.ingredientGroupId,
           })),
       })),
-    stepGroups: recipe.stepGroups
+
+    steps: recipe.steps
       .slice()
       .sort((a, b) => a.order - b.order)
-      .map((sg) => ({
-        label: sg.label,
-        order: sg.order,
-        default: sg.default,
-        steps: sg.steps
-          .slice()
-          .sort((a, b) => a.order - b.order)
-          .map((s) => ({ instruction: s.instruction, order: s.order })),
-      })),
+      .map((s) => ({ instruction: s.instruction, order: s.order })),
   });
 
   const recipeIsSame =
@@ -401,6 +495,22 @@ const EditRecipe = ({ recipeId }: Props) => {
     });
 
     if (getFirstCollision(groupPointerCollisions)) {
+      // If the cursor is in the gap between ingredients within the same group,
+      // use closestCenter among that group's ingredients so overIndex stays valid
+      // and the SortableContext can produce smooth displacement animations.
+      const overGroupId = getFirstCollision(groupPointerCollisions)?.id;
+      const activeGroupId = active.data.current?.groupId as string | undefined;
+      if (overGroupId && overGroupId === activeGroupId) {
+        const sameGroupItems = itemContainers.filter(
+          (c) => c.data.current?.groupId === activeGroupId,
+        );
+        if (sameGroupItems.length > 0) {
+          return closestCenter({
+            ...args,
+            droppableContainers: sameGroupItems,
+          });
+        }
+      }
       return groupPointerCollisions;
     }
 
@@ -700,6 +810,35 @@ const EditRecipe = ({ recipeId }: Props) => {
               ? "syncing..."
               : "not synced"}
         </span>
+        <div className="flex flex-col gap-2">
+          <Image
+            className={cn("w-3/5 rounded-xl object-cover", {
+              "animate-skeleton": isUploading,
+            })}
+            width={1000}
+            height={1000}
+            src={imageUrl ?? "/placeholder.webp"}
+            alt="recipe image"
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) startUpload([file], { recipeId });
+            }}
+          />
+          <Button
+            variant="accent"
+            className="w-fit"
+            disabled={isUploading}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {isUploading ? "Uploading..." : "Upload Image"}
+          </Button>
+        </div>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Input
@@ -761,9 +900,8 @@ const EditRecipe = ({ recipeId }: Props) => {
               id="tags"
               className="focus-within:outline-accent-500 flex w-fit flex-wrap items-center gap-2 rounded-xl border border-black/10 p-2 transition-colors focus-within:outline hover:border-black/20"
             >
-              {localRecipe.tags.length > 0 ? (
-                <ul className="flex items-center gap-2">
-                  {localRecipe.tags.map((t, i) => (
+              {localRecipe.tags.length > 0
+                ? localRecipe.tags.map((t, i) => (
                     <li
                       onClick={() => {
                         setLocalRecipe((prev) => {
@@ -774,15 +912,14 @@ const EditRecipe = ({ recipeId }: Props) => {
                           };
                         });
                       }}
-                      className="bg-secondary-200 text-secondary-700 hover:bg-secondary-300 flex w-fit cursor-pointer items-center justify-start rounded-full p-1 px-2"
+                      className="bg-secondary-200 text-secondary-700 hover:bg-secondary-300 flex w-fit cursor-pointer items-center justify-start gap-0.5 rounded-full p-1 px-2"
                       key={i}
                     >
-                      <X size={16} />
+                      <X size={14} />
                       <span>{t}</span>
                     </li>
-                  ))}
-                </ul>
-              ) : null}
+                  ))
+                : null}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -919,6 +1056,52 @@ const EditRecipe = ({ recipeId }: Props) => {
             onChange={(e) => setNewIngredientSectionLabel(e.target.value)}
             className="border-accent-600 w-70 border-dashed focus:outline-dashed"
             placeholder="Create new ingredient section"
+          />
+        </form>
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleStepDragStart}
+          onDragEnd={handleStepDragEnd}
+          onDragCancel={handleStepDragCancel}
+        >
+          <SortableContext
+            items={localRecipe.steps
+              .slice()
+              .sort((a, b) => a.order - b.order)
+              .map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {localRecipe.steps.length > 0 && (
+              <ul className="flex flex-col gap-2">
+                {localRecipe.steps
+                  .slice()
+                  .sort((a, b) => a.order - b.order)
+                  .map((s) => (
+                    <StepEdit key={s.id} step={s} />
+                  ))}
+              </ul>
+            )}
+          </SortableContext>
+          <DragOverlay dropAnimation={null}>
+            {activeStep ? <StepDragPreview step={activeStep} /> : null}
+          </DragOverlay>
+        </DndContext>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!newStepLabel.trim()) return;
+            newStep({ recipeId, instruction: newStepLabel });
+            setNewStepLabel("");
+          }}
+        >
+          <Input
+            value={newStepLabel}
+            onChange={(e) => setNewStepLabel(e.target.value)}
+            placeholder="Add a new step"
+            className="border-accent-600 border-dashed focus:outline-dashed"
           />
         </form>
       </Container>

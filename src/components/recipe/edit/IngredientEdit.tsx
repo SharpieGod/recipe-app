@@ -5,10 +5,12 @@ import { type Ingredient, Unit } from "generated/prisma";
 import { unitLabel } from "~/types";
 import Input from "../../generic/Input";
 import SelectPopdown from "../../generic/SelectPopdown";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecipeEdit } from "./RecipeEditContext";
+import { api } from "~/trpc/react";
+import { useGetResolvedId } from "~/hooks/useResolvedId";
 export const IngredientDragPreview = ({
   ingredient,
 }: {
@@ -75,6 +77,7 @@ function simpleFraction(x: number, maxDen: number = 9): string {
 }
 
 export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
+  const getResolvedId = useGetResolvedId();
   const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } =
     useRecipeEdit();
   const [valueStr, setValueStr] = React.useState(
@@ -140,6 +143,36 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
       });
     }
   };
+
+  const utils = api.useUtils();
+
+  const { mutate: del } = api.ingredient.delete.useMutation({
+    onMutate(variables, context) {
+      setLocalRecipe((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          ingredientGroups: prev.ingredientGroups.map((g) => ({
+            ...g,
+            ingredients: g.ingredients.filter((i) => i.id !== ingredient.id),
+          })),
+        };
+      });
+
+      utils.recipe.get.setData({ id: localRecipe.id }, (prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          ingredientGroups: prev.ingredientGroups.map((g) => ({
+            ...g,
+            ingredients: g.ingredients.filter((i) => i.id !== ingredient.id),
+          })),
+        };
+      });
+    },
+  });
 
   return (
     <li
@@ -209,6 +242,16 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
           })
         }
       />
+      <button
+        onClick={() => {
+          const realId = getResolvedId(ingredient.id);
+          if (!realId) return;
+
+          del({ id: realId });
+        }}
+      >
+        <Trash2 size={16} className="text-text-400 shrink-0" />
+      </button>
     </li>
   );
 };

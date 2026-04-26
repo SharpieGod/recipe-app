@@ -3,7 +3,7 @@
 import React from "react";
 import type { RecipeIncluded } from "~/types";
 import Input from "../../generic/Input";
-import { GripVertical, Trash, Trash2 } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 import {
   useSortable,
   SortableContext,
@@ -13,7 +13,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useRecipeEdit } from "./RecipeEditContext";
 import { IngredientEdit } from "./IngredientEdit";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { api } from "~/trpc/react";
 import { useGetResolvedId } from "~/hooks/useResolvedId";
 
@@ -66,7 +66,6 @@ export const IngredientSection = ({
     setLocalRecipe,
     focusedInputId,
     setFocusedInputId,
-    layoutAnimationsEnabled,
   } = useRecipeEdit();
 
   const {
@@ -137,14 +136,15 @@ export const IngredientSection = ({
   });
 
   return (
-    <motion.li
-      initial={{ opacity: 1, height: "auto" }}
-      animate={{ opacity: isDragging ? 0.3 : 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      transition={{ opacity: { duration: 0.5 } }}
+    <li
       ref={setNodeRef}
-      layout={layoutAnimationsEnabled}
-      style={style}
+      style={{
+        ...style,
+        opacity: isDragging ? 0.3 : 1,
+        transition: [style.transition, "opacity 500ms ease"]
+          .filter(Boolean)
+          .join(", "),
+      }}
       className={`bg-background-50 relative flex w-fit min-w-90 flex-col gap-4 rounded-lg border p-4 ${
         ingredientIsOver ? "border-accent-500/50" : "border-black/10"
       }`}
@@ -162,7 +162,10 @@ export const IngredientSection = ({
         }}
         title={`Delete ${group.label}`}
       >
-        <Trash2 className="text-text-300" size={24} />
+        <Trash2
+          className="text-text-300 hover:text-text-400 transition-colors"
+          size={20}
+        />
       </button>
       <div className="flex min-w-0 items-center gap-4">
         <button
@@ -220,6 +223,6 @@ export const IngredientSection = ({
           </div>
         )}
       </SortableContext>
-    </motion.li>
+    </li>
   );
 };

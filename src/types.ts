@@ -5,7 +5,6 @@ import type {
   Prisma,
   Recipe,
   Step,
-  StepGroup,
   Unit,
 } from "generated/prisma";
 
@@ -45,7 +44,7 @@ import type { AppRouter } from "./server/api/root";
 export type RecipeIncluded = Prisma.RecipeGetPayload<{
   include: {
     ingredientGroups: { include: { ingredients: true } };
-    stepGroups: { include: { steps: true } };
+    steps: true;
   };
 }>;
 

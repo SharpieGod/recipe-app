@@ -3,6 +3,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { userRouter } from "./routers/user";
 import { ingredientsRouter } from "./routers/ingredients";
 import { ingredientGroupsRouter } from "./routers/ingredientGroup";
+import { stepRouter } from "./routers/steps";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   recipe: recipeRouter,
   ingredient: ingredientsRouter,
   ingredientGroup: ingredientGroupsRouter,
+  step: stepRouter,
   user: userRouter,
 });
 

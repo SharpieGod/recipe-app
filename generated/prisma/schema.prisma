@@ -39,23 +39,11 @@ enum Unit {
 }
 
 model Step {
-  id          String     @id @default(cuid())
+  id          String @id @default(cuid())
   instruction String
   order       Int
-  recipe      Recipe     @relation(fields: [recipeId], references: [id])
+  recipe      Recipe @relation(fields: [recipeId], references: [id])
   recipeId    String
-  stepGroup   StepGroup? @relation(fields: [stepGroupId], references: [id])
-  stepGroupId String?
-}
-
-model StepGroup {
-  id       String  @id @default(cuid())
-  label    String
-  order    Int
-  default  Boolean @default(false)
-  steps    Step[]
-  recipe   Recipe  @relation(fields: [recipeId], references: [id])
-  recipeId String
 }
 
 model Rating {
@@ -107,11 +95,11 @@ model Recipe {
   ingredientGroups IngredientGroup[]
   ratings          Rating[]
   steps            Step[]
-  stepGroups       StepGroup[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   publishedAt      DateTime?
   tags             String[]
+  imageUrl         String?
 
   @@index([title, description])
 }

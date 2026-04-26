@@ -1,6 +1,10 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+
+import { ourFileRouter } from "~/app/api/uploadthing/core";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -16,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`font-noto tracking-wide`}>
       <body className="bg-background-50 text-text-800 min-h-screen">
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>

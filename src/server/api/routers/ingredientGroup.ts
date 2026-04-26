@@ -84,11 +84,6 @@ export const ingredientGroupsRouter = createTRPCRouter({
         },
       });
 
-      console.log(
-        defaultIngredientGroup,
-        defaultIngredientGroup?.id === input.id,
-      );
-
       if (!defaultIngredientGroup) return null;
       if (defaultIngredientGroup.id === input.id) return null;
 

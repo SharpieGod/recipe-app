@@ -16,9 +16,9 @@ const RecipeList = ({ recipes: initialRecipes, canEdit, userId }: Props) => {
   );
 
   return (
-    <ul>
+    <ul className="grid grid-cols-2 gap-4">
       {recipes.map((r) => (
-        <li className="flex flex-col gap-4" key={r.id}>
+        <li className="" key={r.id}>
           <RecipeItem recipe={r} canEdit={canEdit} userId={userId} />
         </li>
       ))}

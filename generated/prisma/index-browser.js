@@ -125,15 +125,6 @@ exports.Prisma.StepScalarFieldEnum = {
   id: 'id',
   instruction: 'instruction',
   order: 'order',
-  recipeId: 'recipeId',
-  stepGroupId: 'stepGroupId'
-};
-
-exports.Prisma.StepGroupScalarFieldEnum = {
-  id: 'id',
-  label: 'label',
-  order: 'order',
-  default: 'default',
   recipeId: 'recipeId'
 };
 
@@ -173,7 +164,8 @@ exports.Prisma.RecipeScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   publishedAt: 'publishedAt',
-  tags: 'tags'
+  tags: 'tags',
+  imageUrl: 'imageUrl'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -245,7 +237,6 @@ exports.Unit = exports.$Enums.Unit = {
 
 exports.Prisma.ModelName = {
   Step: 'Step',
-  StepGroup: 'StepGroup',
   Rating: 'Rating',
   Ingredient: 'Ingredient',
   IngredientGroup: 'IngredientGroup',

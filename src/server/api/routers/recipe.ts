@@ -40,7 +40,6 @@ export const recipeRouter = createTRPCRouter({
       await db.$transaction([
         db.ingredient.deleteMany({ where: { recipeId: input.id } }),
         db.step.deleteMany({ where: { recipeId: input.id } }),
-        db.stepGroup.deleteMany({ where: { recipeId: input.id } }),
         db.ingredientGroup.deleteMany({ where: { recipeId: input.id } }),
         db.rating.deleteMany({ where: { recipeId: input.id } }),
         db.recipe.delete({
@@ -84,10 +83,7 @@ export const recipeRouter = createTRPCRouter({
           orderBy: { order: "asc" as const },
           include: { ingredients: { orderBy: { order: "asc" as const } } },
         },
-        stepGroups: {
-          orderBy: { order: "asc" as const },
-          include: { steps: { orderBy: { order: "asc" as const } } },
-        },
+        steps: { orderBy: { order: "asc" as const } },
       };
 
       const recipe = await db.recipe.findFirst({
@@ -142,6 +138,7 @@ export const recipeRouter = createTRPCRouter({
         prepTimeMinutes: z.number().nullable(),
         servings: z.number().nullable(),
         tags: z.array(z.string()),
+        imageUrl: z.string().nullable(),
       }),
     )
     .mutation(async ({ ctx: { session, db }, input }) => {
@@ -151,12 +148,7 @@ export const recipeRouter = createTRPCRouter({
           userId: session.user.id,
         },
         data: {
-          title: input.title,
-          description: input.description,
-          cookTimeMinutes: input.cookTimeMinutes,
-          prepTimeMinutes: input.prepTimeMinutes,
-          servings: input.servings,
-          tags: input.tags,
+          ...input,
         },
       });
     }),

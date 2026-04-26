@@ -7,6 +7,7 @@ import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { useResolvedId } from "~/hooks/useResolvedId";
 import Button from "../generic/Button";
+import Image from "next/image";
 
 type Props = {
   recipe: RouterOutputs["user"]["getUserRecipes"][number];
@@ -75,32 +76,43 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
         <>Loading</>
       ) : (
         <>
-          <div className="hover:bg-background-100 flex flex-col items-start gap-2 p-3 transition-colors">
-            <div className="flex w-full flex-row flex-wrap items-center justify-between">
-              <h1 className="min-w-fit text-xl">{recipe.title}</h1>
-              <div className="text-text-500 flex flex-row items-center justify-end gap-8">
-                {!canEdit ? (
-                  <span>{recipe.servings ?? "?"} servings</span>
-                ) : (
-                  <span>{!recipe.publishedAt ? "private" : "public"}</span>
-                )}
-                {recipe.publishedAt ? (
-                  <span
-                    aria-busy={ratingsLoading || !ratings}
-                    className="transition-opacity duration-300 not-aria-busy:opacity-100 aria-busy:opacity-50"
-                  >
-                    {ratingsLoading || !ratings
-                      ? "?/5 (?)"
-                      : `${ratings._avg.value ?? "?"}/5 (${ratings._count})`}
-                  </span>
-                ) : null}
-              </div>
+          <div className="hover:bg-background-100 flex h-70 flex-col items-start transition-colors">
+            <div className="relative h-full min-h-0 w-full flex-1 overflow-hidden">
+              <Image
+                src={recipe.imageUrl ?? "/placeholder.webp"}
+                className="h-full w-full object-cover object-center"
+                alt={recipe.title + " image"}
+                width={600}
+                height={600}
+              />
             </div>
-            {recipe.description.length === 0 ? (
-              <span className="text-text-500">Description is empty</span>
-            ) : (
-              <span className="text-text-500">{recipe.description}</span>
-            )}
+            <div className="flex w-full shrink-0 flex-col gap-2 p-3">
+              <div className="flex w-full flex-row flex-wrap items-center justify-between">
+                <h1 className="min-w-fit text-xl">{recipe.title}</h1>
+                <div className="text-text-500 flex flex-row items-center justify-end gap-8">
+                  {!canEdit ? (
+                    <span>{recipe.servings ?? "?"} servings</span>
+                  ) : (
+                    <span>{!recipe.publishedAt ? "private" : "public"}</span>
+                  )}
+                  {recipe.publishedAt ? (
+                    <span
+                      aria-busy={ratingsLoading || !ratings}
+                      className="transition-opacity duration-300 not-aria-busy:opacity-100 aria-busy:opacity-50"
+                    >
+                      {ratingsLoading || !ratings
+                        ? "?/5 (?)"
+                        : `${ratings._avg.value ?? "?"}/5 (${ratings._count})`}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+              {recipe.description.length === 0 ? (
+                <span className="text-text-500">Description is empty</span>
+              ) : (
+                <span className="text-text-500">{recipe.description}</span>
+              )}
+            </div>
           </div>
         </>
       )}
@@ -114,7 +126,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
         <Popdown
           trigger={RecipeComponent}
           className="w-80"
-          openStyle="top-22"
+          openStyle="top-70"
           enabled={!isTemp}
         >
           <Link href={`/recipe/${editableId}/edit`}>Edit</Link>
