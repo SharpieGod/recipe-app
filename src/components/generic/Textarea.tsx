@@ -23,7 +23,7 @@ const TextArea: FC<TextAreaProps> = ({
       <textarea
         id={id}
         className={cn(
-          "focus:outline-accent-500 placeholder:text-text-500/50 max-w-full cursor-text rounded-lg border border-black/10 p-2 transition-colors hover:border-black/20 focus:outline disabled:cursor-not-allowed disabled:opacity-50",
+          "focus:outline-accent-500 placeholder:text-text-500/50 max-w-full cursor-text rounded-xl border border-black/10 p-2 transition-colors hover:border-black/20 focus:outline disabled:cursor-not-allowed disabled:opacity-50",
 
           className,
         )}

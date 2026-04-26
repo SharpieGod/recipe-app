@@ -18,7 +18,12 @@ const Input: FC<Input> = ({
 }) => {
   const id = useId();
   return (
-    <div className={cn("flex w-fit max-w-full flex-col items-start justify-start", wrapperClassName)}>
+    <div
+      className={cn(
+        "flex w-fit max-w-full flex-col items-start justify-start",
+        wrapperClassName,
+      )}
+    >
       {label ? (
         <label className="text-text-500" htmlFor={id}>
           {label}
@@ -28,7 +33,7 @@ const Input: FC<Input> = ({
         ref={ref}
         id={id}
         className={cn(
-          "focus:outline-accent-500 placeholder:text-text-500/50 cursor-text rounded-lg border border-black/10 p-2 transition-colors hover:border-black/20 focus:outline disabled:cursor-not-allowed disabled:opacity-50",
+          "focus:outline-accent-500 placeholder:text-text-500/50 cursor-text rounded-xl border border-black/10 p-2 transition-colors hover:border-black/20 focus:outline disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         {...props}

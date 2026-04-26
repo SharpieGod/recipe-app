@@ -3,7 +3,7 @@
 import React from "react";
 import type { RecipeIncluded } from "~/types";
 import Input from "../../generic/Input";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Trash, Trash2 } from "lucide-react";
 import {
   useSortable,
   SortableContext,
@@ -15,6 +15,7 @@ import { useRecipeEdit } from "./RecipeEditContext";
 import { IngredientEdit } from "./IngredientEdit";
 import { AnimatePresence, motion } from "framer-motion";
 import { api } from "~/trpc/react";
+import { useGetResolvedId } from "~/hooks/useResolvedId";
 
 export const DroppableIngredientList = ({
   groupId,
@@ -58,6 +59,8 @@ export const IngredientSection = ({
 }: {
   group: RecipeIncluded["ingredientGroups"][number];
 }) => {
+  const getResolvedId = useGetResolvedId();
+
   const {
     localRecipe,
     setLocalRecipe,
@@ -89,51 +92,45 @@ export const IngredientSection = ({
 
   const { mutate: del } = api.ingredientGroup.delete.useMutation({
     onMutate(variables, context) {
+      if (!localRecipe) return;
+
       const defaultSectionId = localRecipe.ingredientGroups.find(
         (g) => g.default,
-      )!.id;
+      )?.id;
+      if (!defaultSectionId) return;
 
-      const ingredients = localRecipe.ingredientGroups.find(
-        (g) => g.id === variables.id,
-      )!.ingredients;
+      const sectionToDelete = localRecipe.ingredientGroups.find(
+        (g) => g.id === group.id, // use local id, not variables.id
+      );
+      if (!sectionToDelete) return;
+
+      const ingredients = sectionToDelete.ingredients;
 
       setLocalRecipe((prev) => {
         if (!prev) return prev;
-
         return {
           ...prev,
           ingredientGroups: prev.ingredientGroups
-            .map((g) => {
-              if (g.id === defaultSectionId) {
-                return {
-                  ...g,
-                  ingredients: [...g.ingredients, ...ingredients],
-                };
-              }
-
-              return g;
-            })
-            .filter((g) => g.id !== variables.id),
+            .map((g) =>
+              g.id === defaultSectionId
+                ? { ...g, ingredients: [...g.ingredients, ...ingredients] }
+                : g,
+            )
+            .filter((g) => g.id !== group.id), // also use local id here
         };
       });
 
       utils.recipe.get.setData({ id: group.recipeId }, (prev) => {
         if (!prev) return prev;
-
         return {
           ...prev,
           ingredientGroups: prev.ingredientGroups
-            .map((g) => {
-              if (g.id === defaultSectionId) {
-                return {
-                  ...g,
-                  ingredients: [...g.ingredients, ...ingredients],
-                };
-              }
-
-              return g;
-            })
-            .filter((g) => g.id !== variables.id),
+            .map((g) =>
+              g.id === defaultSectionId
+                ? { ...g, ingredients: [...g.ingredients, ...ingredients] }
+                : g,
+            )
+            .filter((g) => g.id !== group.id),
         };
       });
     },
@@ -148,12 +145,26 @@ export const IngredientSection = ({
       ref={setNodeRef}
       layout={layoutAnimationsEnabled}
       style={style}
-      className={`bg-background-50 flex w-fit min-w-90 flex-col gap-4 rounded-lg border p-4 ${
+      className={`bg-background-50 relative flex w-fit min-w-90 flex-col gap-4 rounded-lg border p-4 ${
         ingredientIsOver ? "border-accent-500/50" : "border-black/10"
       }`}
     >
+      <button
+        className="absolute top-4 right-4 cursor-pointer"
+        onClick={() => {
+          const realId = getResolvedId(group.id);
+
+          if (!realId) {
+            return;
+          }
+
+          del({ id: realId });
+        }}
+        title={`Delete ${group.label}`}
+      >
+        <Trash2 className="text-text-300" size={24} />
+      </button>
       <div className="flex min-w-0 items-center gap-4">
-        <button onClick={() => del({ id: group.id })}>Delete</button>
         <button
           type="button"
           className="text-background-300 cursor-grab active:cursor-grabbing"

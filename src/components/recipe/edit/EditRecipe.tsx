@@ -39,6 +39,7 @@ import {
 } from "./IngredientSection";
 import Container from "../../generic/Container";
 import { AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 type Props = {
   recipeId: string;
@@ -150,7 +151,9 @@ const EditRecipe = ({ recipeId }: Props) => {
     onError(error, variables, prev_recipe, context) {
       utils.recipe.get.setData({ id: recipeId }, prev_recipe);
     },
-    onSuccess(data, variables, onMutateResult, context) {},
+    onSuccess(data, variables, onMutateResult, context) {
+      utils.recipe.get.invalidate({ id: recipeId });
+    },
   });
 
   const debouncedRecipeValues = useDebounce(localRecipe, 800);
@@ -638,6 +641,8 @@ const EditRecipe = ({ recipeId }: Props) => {
     (g) => g.default,
   );
 
+  const [newTagText, setNewTagText] = useState("");
+
   if (!localRecipe || !defaultIngredientGroup) {
     return <div className="text-text-500 p-16">loading...</div>;
   }
@@ -747,6 +752,72 @@ const EditRecipe = ({ recipeId }: Props) => {
                 })
               }
             />
+          </div>
+          <div className="flex flex-col justify-start">
+            <label htmlFor="new-tag-input " className="text-text-500">
+              Tags
+            </label>
+            <div
+              id="tags"
+              className="focus-within:outline-accent-500 flex w-fit flex-wrap items-center gap-2 rounded-xl border border-black/10 p-2 transition-colors focus-within:outline hover:border-black/20"
+            >
+              {localRecipe.tags.length > 0 ? (
+                <ul className="flex items-center gap-2">
+                  {localRecipe.tags.map((t, i) => (
+                    <li
+                      onClick={() => {
+                        setLocalRecipe((prev) => {
+                          if (!prev) return prev;
+                          return {
+                            ...prev,
+                            tags: prev.tags.filter((tf, idx) => idx != i),
+                          };
+                        });
+                      }}
+                      className="bg-secondary-200 text-secondary-700 hover:bg-secondary-300 flex w-fit cursor-pointer items-center justify-start rounded-full p-1 px-2"
+                      key={i}
+                    >
+                      <X size={16} />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+
+                  setLocalRecipe((prev) => {
+                    if (!prev) return prev;
+
+                    return { ...prev, tags: [...prev.tags, newTagText] };
+                  });
+
+                  setNewTagText("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key == "Backspace" && newTagText === "") {
+                    setLocalRecipe((prev) => {
+                      if (!prev) return prev;
+                      return {
+                        ...prev,
+                        tags: prev.tags.slice(0, prev.tags.length - 1),
+                      };
+                    });
+                  }
+                }}
+                className="flex items-center justify-start self-stretch"
+              >
+                <input
+                  id="new-tag-input"
+                  placeholder="Add tags..."
+                  type="text"
+                  className="placeholder:text-text-500/50 h-full focus:outline-none"
+                  value={newTagText}
+                  onChange={(e) => setNewTagText(e.target.value)}
+                />
+              </form>
+            </div>
           </div>
         </div>
 

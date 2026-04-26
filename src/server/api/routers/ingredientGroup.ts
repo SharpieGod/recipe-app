@@ -66,6 +66,7 @@ export const ingredientGroupsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx: { db, session }, input }) => {
+      console.log("DELETING!!");
       const defaultIngredientGroup = await db.ingredientGroup.findFirst({
         where: {
           default: true,
@@ -82,6 +83,11 @@ export const ingredientGroupsRouter = createTRPCRouter({
           id: true,
         },
       });
+
+      console.log(
+        defaultIngredientGroup,
+        defaultIngredientGroup?.id === input.id,
+      );
 
       if (!defaultIngredientGroup) return null;
       if (defaultIngredientGroup.id === input.id) return null;
