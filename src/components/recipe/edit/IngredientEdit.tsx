@@ -196,9 +196,7 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
       />
       <SelectPopdown
         className="w-full"
-        entries={Object.values(Unit)
-          .filter((u) => u != "NONE")
-          .map((s) => ({ label: unitLabel(s), key: s }))}
+        entries={Object.values(Unit).map((s) => ({ label: unitLabel(s), key: s }))}
         onSelected={(key) => {
           const newUnit = key as Unit;
           const cur = localRecipe.ingredientGroups

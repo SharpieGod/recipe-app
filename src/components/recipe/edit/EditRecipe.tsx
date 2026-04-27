@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { type RecipeIncluded } from "~/types";
 import Input from "../../generic/Input";
@@ -51,6 +52,8 @@ type Props = {
 
 const EditRecipe = ({ recipeId }: Props) => {
   const utils = api.useUtils();
+  const router = useRouter();
+  const intentionalNav = useRef(false);
   const setResolvedId = useSetResolvedId();
   const getResolvedId = useGetResolvedId();
 
@@ -165,7 +168,17 @@ const EditRecipe = ({ recipeId }: Props) => {
   };
 
   const { mutate: publishRecipe } = api.recipe.updateStatus.useMutation({
-    onSuccess(data, variables, onMutateResult, context) {
+    onMutate(variables) {
+      utils.recipe.get.setData({ id: recipeId }, (prev) =>
+        prev ? { ...prev, puclicityStatus: variables.puclicityStatus } : prev,
+      );
+      utils.recipe.getPreview.setData({ id: recipeId }, (prev) =>
+        prev ? { ...prev, puclicityStatus: variables.puclicityStatus } : prev,
+      );
+      intentionalNav.current = true;
+      router.push(`/recipe/${recipeId}`);
+    },
+    onSuccess() {
       utils.recipe.get.invalidate();
       utils.recipe.getPreview.invalidate();
     },
@@ -202,6 +215,8 @@ const EditRecipe = ({ recipeId }: Props) => {
     },
     onSuccess(data, variables, onMutateResult, context) {
       utils.recipe.get.invalidate({ id: recipeId });
+      utils.recipe.getPreview.invalidate({ id: recipeId });
+      utils.user.getUserRecipes.invalidate({ id: localRecipe?.userId });
     },
   });
 
@@ -447,6 +462,58 @@ const EditRecipe = ({ recipeId }: Props) => {
     JSON.stringify(stripIds(serverRecipe)) ===
       JSON.stringify(stripIds(localRecipe));
 
+  const updateRecipeFullRef = useRef(updateRecipeFull);
+  updateRecipeFullRef.current = updateRecipeFull;
+  const recipeIsSameRef = useRef(recipeIsSame);
+  recipeIsSameRef.current = recipeIsSame;
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!recipeIsSameRef.current) updateRecipeFullRef.current();
+    }, 800);
+    return () => clearInterval(id);
+  }, []);
+
+  const hasUnsavedRef = useRef(false);
+  hasUnsavedRef.current = !recipeIsSame || isPending;
+
+  useEffect(() => {
+    const confirmLeave = () => {
+      if (intentionalNav.current || !hasUnsavedRef.current) return true;
+      return window.confirm("You have unsaved changes. Leave anyway?");
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedRef.current) e.preventDefault();
+    };
+
+    const originalPush = window.history.pushState.bind(window.history);
+    const originalReplace = window.history.replaceState.bind(window.history);
+
+    window.history.pushState = (...args) => {
+      if (confirmLeave()) originalPush(...args);
+    };
+    window.history.replaceState = (...args) => {
+      if (confirmLeave()) originalReplace(...args);
+    };
+
+    const handlePopState = () => {
+      if (!confirmLeave()) {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.history.pushState = originalPush;
+      window.history.replaceState = originalReplace;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
   const recomputeIngredientOrders = (
     recipe: RecipeIncluded,
   ): RecipeIncluded => {
@@ -505,40 +572,47 @@ const EditRecipe = ({ recipeId }: Props) => {
       });
     }
 
-    // Try pointerWithin on items — uses cursor, not active rect
-    const itemPointerCollisions = pointerWithin({
-      ...args,
-      droppableContainers: itemContainers,
-    });
+    const activeGroupId = active.data.current?.groupId as string | undefined;
+    const sameGroupItems = itemContainers.filter(
+      (c) => c.data.current?.groupId === activeGroupId,
+    );
+    const otherGroupItems = itemContainers.filter(
+      (c) => c.data.current?.groupId !== activeGroupId,
+    );
 
-    if (getFirstCollision(itemPointerCollisions)) {
-      return itemPointerCollisions;
+    // When the cursor is inside the same group, always use closestCenter on
+    // same-group items. closestCenter triggers at the midpoint of each item
+    // regardless of drag direction, giving symmetric up/down animation.
+    // pointerWithin only fires when the cursor is inside the item rect, so
+    // dragging up causes gaps where detection briefly snaps back.
+    const inSameGroup = getFirstCollision(
+      pointerWithin({
+        ...args,
+        droppableContainers: groupContainers.filter(
+          (c) => c.id === activeGroupId,
+        ),
+      }),
+    );
+    if (inSameGroup && sameGroupItems.length > 0) {
+      return closestCenter({ ...args, droppableContainers: sameGroupItems });
     }
 
-    // Fall back to group containers via pointerWithin
-    const groupPointerCollisions = pointerWithin({
+    // Cursor outside the home group — check other groups' items first
+    const otherItemCollisions = pointerWithin({
       ...args,
-      droppableContainers: groupContainers,
+      droppableContainers: otherGroupItems,
     });
+    if (getFirstCollision(otherItemCollisions)) {
+      return otherItemCollisions;
+    }
 
-    if (getFirstCollision(groupPointerCollisions)) {
-      // If the cursor is in the gap between ingredients within the same group,
-      // use closestCenter among that group's ingredients so overIndex stays valid
-      // and the SortableContext can produce smooth displacement animations.
-      const overGroupId = getFirstCollision(groupPointerCollisions)?.id;
-      const activeGroupId = active.data.current?.groupId as string | undefined;
-      if (overGroupId && overGroupId === activeGroupId) {
-        const sameGroupItems = itemContainers.filter(
-          (c) => c.data.current?.groupId === activeGroupId,
-        );
-        if (sameGroupItems.length > 0) {
-          return closestCenter({
-            ...args,
-            droppableContainers: sameGroupItems,
-          });
-        }
-      }
-      return groupPointerCollisions;
+    // Then other group containers (cross-group or empty group)
+    const otherGroupCollisions = pointerWithin({
+      ...args,
+      droppableContainers: groupContainers.filter((c) => c.id !== activeGroupId),
+    });
+    if (getFirstCollision(otherGroupCollisions)) {
+      return otherGroupCollisions;
     }
 
     // Final fallback

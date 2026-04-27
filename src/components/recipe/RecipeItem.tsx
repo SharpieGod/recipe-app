@@ -124,8 +124,16 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
           openStyle="top-full"
           enabled={!isTemp}
         >
-          <Link href={`/recipe/${editableId}/edit`}>Edit</Link>
-          <Link href={`/recipe/${editableId}/preview`}>Preview</Link>
+          {recipe?.publishedAt === null ? (
+            <>
+              <Link href={`/recipe/${editableId}/edit`}>Edit</Link>
+              <Link href={`/recipe/${editableId}/preview`}>Preview</Link>
+            </>
+          ) : (
+            <>
+              <Link href={`/recipe/${editableId}`}>View</Link>
+            </>
+          )}
           <button onClick={() => setIsDeleteOpen(true)}>Delete</button>
         </Popdown>
       ) : (
