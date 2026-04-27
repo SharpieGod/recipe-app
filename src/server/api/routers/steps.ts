@@ -14,6 +14,7 @@ export const stepRouter = createTRPCRouter({
         where: {
           id: input.recipeId,
           userId: session.user.id,
+          publishedAt: null,
         },
         select: {
           _count: { select: { steps: true } },
@@ -41,7 +42,7 @@ export const stepRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx: { session, db }, input }) => {
       return await db.step.update({
-        where: { id: input.id, recipe: { userId: session.user.id } },
+        where: { id: input.id, recipe: { userId: session.user.id, publishedAt: null } },
         data: { instruction: input.instruction, order: input.order },
       });
     }),
@@ -50,7 +51,7 @@ export const stepRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx: { session, db }, input }) => {
       return await db.step.delete({
-        where: { id: input.id, recipe: { userId: session.user.id } },
+        where: { id: input.id, recipe: { userId: session.user.id, publishedAt: null } },
       });
     }),
 });

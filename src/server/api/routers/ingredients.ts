@@ -17,6 +17,7 @@ export const ingredientsRouter = createTRPCRouter({
         where: {
           id: input.recipeId,
           userId: session.user.id,
+          publishedAt: null,
         },
         select: {
           id: true,
@@ -60,7 +61,7 @@ export const ingredientsRouter = createTRPCRouter({
       const ingredient = await db.ingredient.findFirst({
         where: {
           id: input.id,
-          recipe: { userId: session.user.id },
+          recipe: { userId: session.user.id, publishedAt: null },
         },
         select: { id: true },
       });
@@ -77,7 +78,7 @@ export const ingredientsRouter = createTRPCRouter({
       const ingredient = await db.ingredient.findFirst({
         where: {
           id: input.id,
-          recipe: { userId: session.user.id },
+          recipe: { userId: session.user.id, publishedAt: null },
         },
         select: { id: true },
       });

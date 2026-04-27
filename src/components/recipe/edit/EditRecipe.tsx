@@ -76,7 +76,10 @@ const EditRecipe = ({ recipeId }: Props) => {
   const updateRecipeFull = () => {
     if (!debouncedRecipeValues || !serverRecipe) return;
     const values = debouncedRecipeValues;
-    updateRecipe({ ...values, imageUrl });
+    const safeImageUrl = imageUrl?.startsWith("blob:")
+      ? (serverRecipe.imageUrl ?? null)
+      : imageUrl;
+    updateRecipe({ ...values, imageUrl: safeImageUrl });
 
     const serverIngMap = new Map<
       string | null,
@@ -1198,7 +1201,8 @@ const EditRecipe = ({ recipeId }: Props) => {
             </ul>
           ) : (
             <span className="text-text-500">
-              This will make your recipe visible to others
+              This will make your recipe visible to others. You will not be able
+              to edit your recipe after this.
             </span>
           )}
           <div className="flex gap-2">

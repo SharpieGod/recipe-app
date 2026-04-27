@@ -15,6 +15,7 @@ export const ingredientGroupsRouter = createTRPCRouter({
         where: {
           id: input.recipeId,
           userId: session.user.id,
+          publishedAt: null,
         },
         select: {
           id: true,
@@ -50,7 +51,7 @@ export const ingredientGroupsRouter = createTRPCRouter({
       return await db.ingredientGroup.update({
         where: {
           id: input.id,
-          recipe: { userId: session.user.id },
+          recipe: { userId: session.user.id, publishedAt: null },
         },
         data: {
           label: input.label,

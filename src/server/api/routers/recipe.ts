@@ -147,6 +147,7 @@ export const recipeRouter = createTRPCRouter({
         where: {
           id: input.id,
           userId: session.user.id,
+          publishedAt: null,
         },
         data: {
           ...input,

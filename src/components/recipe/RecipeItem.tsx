@@ -92,9 +92,9 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
                 <div className="text-text-500 flex flex-row items-center justify-end gap-8">
                   {!canEdit ? (
                     <span>{recipe.servings ?? "?"} servings</span>
-                  ) : (
-                    <span>{!recipe.publishedAt ? "private" : "public"}</span>
-                  )}
+                  ) : !recipe.publishedAt ? (
+                    <span>private</span>
+                  ) : null}
                   {recipe.publishedAt ? (
                     <span
                       aria-busy={ratingsLoading || !ratings}

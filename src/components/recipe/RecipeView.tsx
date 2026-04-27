@@ -21,7 +21,7 @@ function formatMinutesToTime(totalMinutes: number) {
 
   return parts.join(" ") || "0m";
 }
-
+1;
 const RecipeView = ({ recipeId, preview }: Props) => {
   const { data: recipe } = api.recipe.get.useQuery({ id: recipeId });
 
