@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 import {
   createTRPCRouter,
@@ -161,6 +162,51 @@ export const recipeRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx: { session, db }, input }) => {
+      // Make sure that recipe is publishable
+
+      const recipe = await db.recipe.findFirst({
+        where: {
+          id: input.id,
+          userId: session.user.id,
+        },
+        include: {
+          ingredients: { include: { ingredientGroup: true } },
+          ingredientGroups: true,
+          steps: true,
+        },
+      });
+
+      if (!recipe) return null;
+
+      if (input.puclicityStatus) {
+        const errors: string[] = [];
+
+        if (!recipe.title.trim()) errors.push("Recipe title is required");
+
+        for (const ingredient of recipe.ingredients) {
+          if (!ingredient.label.trim())
+            errors.push(`An ingredient is missing a label`);
+          if (ingredient.value <= 0)
+            errors.push(`Ingredient "${ingredient.label}" has an invalid value`);
+        }
+
+        for (const group of recipe.ingredientGroups) {
+          if (!group.default && !group.label.trim())
+            errors.push("An ingredient section is missing a label");
+        }
+
+        for (const step of recipe.steps) {
+          if (!step.instruction.trim()) errors.push("A step is missing instructions");
+        }
+
+        if (errors.length > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: errors.join("\n"),
+          });
+        }
+      }
+
       await db.recipe.update({
         where: {
           id: input.id,
@@ -176,6 +222,8 @@ export const recipeRouter = createTRPCRouter({
     .input(
       z.object({
         query: z.string(),
+        cursor: z.number().int().nonnegative().default(0),
+        limit: z.number().int().min(1).max(50).default(20),
       }),
     )
     .query(async ({ ctx: { db }, input }) => {
@@ -185,23 +233,32 @@ export const recipeRouter = createTRPCRouter({
         tags: string[];
         imageUrl: string | null;
       };
-      return db.$queryRaw<Row[]>`
+      const { query, cursor: offset, limit } = input;
+      const rows = await db.$queryRaw<Row[]>`
         SELECT id, title, tags, "imageUrl",
           GREATEST(
-            MAX(similarity(tag_val, ${input.query})) * 3,
-            similarity(title, ${input.query}) * 2,
-            similarity(description, ${input.query})
+            MAX(similarity(tag_val, ${query})) * 3,
+            similarity(title, ${query}) * 2,
+            similarity(description, ${query})
           ) AS score
         FROM "Recipe"
         LEFT JOIN LATERAL unnest(tags) AS tag_val ON true
+        WHERE "publishedAt" IS NOT NULL
         GROUP BY id, title, tags, "imageUrl", description
         HAVING GREATEST(
-          MAX(similarity(tag_val, ${input.query})) * 3,
-          similarity(title, ${input.query}) * 2,
-          similarity(description, ${input.query})
+          MAX(similarity(tag_val, ${query})) * 3,
+          similarity(title, ${query}) * 2,
+          similarity(description, ${query})
         ) > 0.1
         ORDER BY score DESC
-        LIMIT 20
+        LIMIT ${limit + 1}
+        OFFSET ${offset}
       `;
+
+      const hasMore = rows.length > limit;
+      return {
+        items: hasMore ? rows.slice(0, limit) : rows,
+        nextCursor: hasMore ? offset + limit : null,
+      };
     }),
 });

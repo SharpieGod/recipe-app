@@ -161,6 +161,12 @@ const EditRecipe = ({ recipeId }: Props) => {
     });
   };
 
+  const { mutate: publishRecipe } = api.recipe.updateStatus.useMutation({
+    onSuccess(data, variables, onMutateResult, context) {
+      utils.recipe.get.invalidate();
+      utils.recipe.getPreview.invalidate();
+    },
+  });
   const { data: serverRecipe } = api.recipe.get.useQuery({ id: recipeId });
 
   const [localRecipe, setLocalRecipe] = useState<RecipeIncluded | null>(null);
@@ -359,6 +365,7 @@ const EditRecipe = ({ recipeId }: Props) => {
   });
 
   const [newStepLabel, setNewStepLabel] = useState("");
+  const [isPublishOpen, setIsPublishOpen] = useState(false);
 
   const [activeStep, setActiveStep] = useState<
     RecipeIncluded["steps"][number] | null
@@ -770,6 +777,28 @@ const EditRecipe = ({ recipeId }: Props) => {
 
   const [newTagText, setNewTagText] = useState("");
 
+  const publishErrors = localRecipe
+    ? (() => {
+        const errors: string[] = [];
+        if (!localRecipe.title.trim()) errors.push("Recipe title is required");
+        for (const group of localRecipe.ingredientGroups) {
+          if (!group.default && !group.label.trim())
+            errors.push("An ingredient section is missing a label");
+          for (const i of group.ingredients) {
+            if (!i.label.trim())
+              errors.push("An ingredient is missing a label");
+            if (i.value <= 0)
+              errors.push(`Ingredient "${i.label}" has an invalid value`);
+          }
+        }
+        for (const s of localRecipe.steps) {
+          if (!s.instruction.trim())
+            errors.push("A step is missing instructions");
+        }
+        return errors;
+      })()
+    : [];
+
   if (!localRecipe || !defaultIngredientGroup) {
     return <div className="text-text-500 p-16">loading...</div>;
   }
@@ -1142,7 +1171,52 @@ const EditRecipe = ({ recipeId }: Props) => {
             className="border-accent-600 border-dashed focus:outline-dashed"
           />
         </form>
+        <Button className="w-fit" onClick={() => setIsPublishOpen(true)}>
+          Publish
+        </Button>
       </Container>
+      <div
+        onClick={() => setIsPublishOpen(false)}
+        className={cn(
+          "fixed inset-0 z-100 bg-black/50 backdrop-blur-xs",
+          "transition-opacity duration-200",
+          isPublishOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
+        )}
+      >
+        <div
+          className="bg-background-100 z-101 mx-auto mt-40 flex w-100 flex-col gap-2 rounded-xl border border-black/10 p-4 shadow-sm"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h1 className="text-xl">Publish "{localRecipe?.title}"?</h1>
+          {publishErrors.length > 0 ? (
+            <ul className="flex flex-col gap-1 text-sm text-red-500">
+              {publishErrors.map((e, i) => (
+                <li key={i}>{e}</li>
+              ))}
+            </ul>
+          ) : (
+            <span className="text-text-500">
+              This will make your recipe visible to others
+            </span>
+          )}
+          <div className="flex gap-2">
+            <Button
+              disabled={publishErrors.length > 0}
+              onClick={() => {
+                publishRecipe({ id: recipeId, puclicityStatus: true });
+                setIsPublishOpen(false);
+              }}
+            >
+              Publish
+            </Button>
+            <Button variant="empty" onClick={() => setIsPublishOpen(false)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
     </RecipeEditContext.Provider>
   );
 };
