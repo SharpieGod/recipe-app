@@ -1,5 +1,9 @@
+import { redirect } from "next/navigation";
 import Container from "~/components/generic/Container";
 import Navbar from "~/components/generic/Navbar";
+import RecipeView from "~/components/recipe/RecipeView";
+import { auth } from "~/server/auth";
+import { api, HydrateClient } from "~/trpc/server";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -8,10 +12,20 @@ type Props = {
 const PreviewRecipePage = async ({ params }: Props) => {
   const { id } = await params;
 
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
+  }
+
+  api.recipe.get.prefetch({ id });
+
   return (
     <>
       <Navbar />
-      <Container>{id}</Container>
+      <HydrateClient>
+        <RecipeView recipeId={id} preview />
+      </HydrateClient>
     </>
   );
 };

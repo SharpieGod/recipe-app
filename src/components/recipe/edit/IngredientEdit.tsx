@@ -43,9 +43,9 @@ const IMPERIAL_UNITS = new Set<Unit>([
   "POUND",
 ]);
 
-const isImperial = (unit: Unit) => IMPERIAL_UNITS.has(unit);
+export const isImperial = (unit: Unit) => IMPERIAL_UNITS.has(unit);
 
-function toMixedFraction(x: number): string {
+export function toMixedFraction(x: number): string {
   if (x === 0) return "0";
   const whole = Math.floor(x);
   const frac = x - whole;
@@ -54,7 +54,7 @@ function toMixedFraction(x: number): string {
   return whole > 0 ? `${whole} ${fracStr}` : fracStr;
 }
 
-function simpleFraction(x: number, maxDen: number = 9): string {
+export function simpleFraction(x: number, maxDen: number = 9): string {
   let bestNum = 0;
   let bestDen = 1;
   let bestErr = Infinity;
@@ -178,7 +178,7 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
     <li
       ref={setNodeRef}
       style={style}
-      className="bg-background-100 flex w-120 max-w-full items-center gap-2 rounded-lg p-2"
+      className="bg-background-100 flex w-120 max-w-full items-center gap-2 rounded-lg p-2 text-sm"
     >
       <button
         type="button"
@@ -249,8 +249,12 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
 
           del({ id: realId });
         }}
+        className="cursor-pointer"
       >
-        <Trash2 size={16} className="text-text-400 shrink-0" />
+        <Trash2
+          size={16}
+          className="text-text-400 hover:text-text-500 shrink-0 transition-colors"
+        />
       </button>
     </li>
   );

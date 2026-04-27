@@ -152,4 +152,56 @@ export const recipeRouter = createTRPCRouter({
         },
       });
     }),
+
+  updateStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        puclicityStatus: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx: { session, db }, input }) => {
+      await db.recipe.update({
+        where: {
+          id: input.id,
+          userId: session.user.id,
+        },
+        data: {
+          publishedAt: input.puclicityStatus ? new Date() : null,
+        },
+      });
+    }),
+
+  search: publicProcedure
+    .input(
+      z.object({
+        query: z.string(),
+      }),
+    )
+    .query(async ({ ctx: { db }, input }) => {
+      type Row = {
+        id: string;
+        title: string;
+        tags: string[];
+        imageUrl: string | null;
+      };
+      return db.$queryRaw<Row[]>`
+        SELECT id, title, tags, "imageUrl",
+          GREATEST(
+            MAX(similarity(tag_val, ${input.query})) * 3,
+            similarity(title, ${input.query}) * 2,
+            similarity(description, ${input.query})
+          ) AS score
+        FROM "Recipe"
+        LEFT JOIN LATERAL unnest(tags) AS tag_val ON true
+        GROUP BY id, title, tags, "imageUrl", description
+        HAVING GREATEST(
+          MAX(similarity(tag_val, ${input.query})) * 3,
+          similarity(title, ${input.query}) * 2,
+          similarity(description, ${input.query})
+        ) > 0.1
+        ORDER BY score DESC
+        LIMIT 20
+      `;
+    }),
 });

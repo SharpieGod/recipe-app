@@ -59,7 +59,16 @@ const EditRecipe = ({ recipeId }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res) => {
-      setImageUrl(res[0]?.ufsUrl ?? null);
+      const newUrl = res[0]?.ufsUrl ?? null;
+      setImageUrl(newUrl);
+
+      utils.recipe.get.setData({ id: recipeId }, (prev) =>
+        prev ? { ...prev, imageUrl: newUrl } : prev,
+      );
+
+      utils.recipe.getPreview.setData({ id: recipeId }, (prev) =>
+        prev ? { ...prev, imageUrl: newUrl } : prev,
+      );
     },
   });
 
@@ -143,7 +152,11 @@ const EditRecipe = ({ recipeId }: Props) => {
         serverStep.order !== s.order;
 
       if (stepChanged) {
-        updateStep({ id: realStepId, instruction: s.instruction, order: s.order });
+        updateStep({
+          id: realStepId,
+          instruction: s.instruction,
+          order: s.order,
+        });
       }
     });
   };
@@ -319,7 +332,10 @@ const EditRecipe = ({ recipeId }: Props) => {
         instruction: variables.instruction,
         order: localRecipe.steps.length,
       };
-      setLocalRecipe({ ...localRecipe, steps: [...localRecipe.steps, fakeStep] });
+      setLocalRecipe({
+        ...localRecipe,
+        steps: [...localRecipe.steps, fakeStep],
+      });
       return { fakeId };
     },
     onSuccess(data, _, ctx) {
@@ -377,7 +393,8 @@ const EditRecipe = ({ recipeId }: Props) => {
   };
 
   const handleStepDragCancel = () => {
-    if (stepDragStartRecipe.current) setLocalRecipe(stepDragStartRecipe.current);
+    if (stepDragStartRecipe.current)
+      setLocalRecipe(stepDragStartRecipe.current);
     setActiveStep(null);
     stepDragStartRecipe.current = null;
   };
@@ -812,11 +829,11 @@ const EditRecipe = ({ recipeId }: Props) => {
         </span>
         <div className="flex flex-col gap-2">
           <Image
-            className={cn("w-3/5 rounded-xl object-cover", {
+            className={cn("aspect-7/3 rounded-xl object-cover", {
               "animate-skeleton": isUploading,
             })}
-            width={1000}
-            height={1000}
+            width={1400}
+            height={600}
             src={imageUrl ?? "/placeholder.webp"}
             alt="recipe image"
           />
@@ -827,7 +844,14 @@ const EditRecipe = ({ recipeId }: Props) => {
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) startUpload([file], { recipeId });
+              if (!file) return;
+
+              // instant preview
+              const previewUrl = URL.createObjectURL(file);
+              setImageUrl(previewUrl);
+
+              // upload in background
+              startUpload([file], { recipeId });
             }}
           />
           <Button
@@ -865,6 +889,20 @@ const EditRecipe = ({ recipeId }: Props) => {
             />
           </div>
           <div className="flex gap-4">
+            <Input
+              label="Servings"
+              placeholder="# of servings"
+              className="w-28"
+              value={localRecipe.servings ?? ""}
+              onChange={(e) =>
+                handleNumberChange(e.target.value, (num) => {
+                  setLocalRecipe({
+                    ...localRecipe,
+                    servings: num,
+                  });
+                })
+              }
+            />
             <Input
               label="Prep Time (minutes)"
               placeholder="Time to prep"

@@ -76,11 +76,11 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
         <>Loading</>
       ) : (
         <>
-          <div className="hover:bg-background-100 flex h-70 flex-col items-start transition-colors">
+          <div className="hover:bg-background-100 flex flex-col items-start transition-colors">
             <div className="relative h-full min-h-0 w-full flex-1 overflow-hidden">
               <Image
                 src={recipe.imageUrl ?? "/placeholder.webp"}
-                className="h-full w-full object-cover object-center"
+                className="aspect-7/3 w-full object-cover object-center"
                 alt={recipe.title + " image"}
                 width={600}
                 height={600}
@@ -107,11 +107,6 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
                   ) : null}
                 </div>
               </div>
-              {recipe.description.length === 0 ? (
-                <span className="text-text-500">Description is empty</span>
-              ) : (
-                <span className="text-text-500">{recipe.description}</span>
-              )}
             </div>
           </div>
         </>
@@ -126,7 +121,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
         <Popdown
           trigger={RecipeComponent}
           className="w-80"
-          openStyle="top-70"
+          openStyle="top-full"
           enabled={!isTemp}
         >
           <Link href={`/recipe/${editableId}/edit`}>Edit</Link>

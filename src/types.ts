@@ -8,7 +8,7 @@ import type {
   Unit,
 } from "generated/prisma";
 
-const UNIT_LABELS: Record<Unit, string> = {
+export const UNIT_LABELS: Record<Unit, string> = {
   NONE: "",
   TEASPOON: "tsp",
   TABLESPOON: "tbsp",
