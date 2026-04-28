@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { auth } from "~/server/auth";
-import SignInButton from "../SignInButton";
-import SignOutButton from "../SingOutButton";
+import SignInButton from "../user/SignInButton";
+import SignOutButton from "../user/SingOutButton";
 import Button from "./Button";
-import AccountButton from "../AccountButton";
+import AccountButton from "../user/AccountButton";
 const Navbar = async () => {
   const session = await auth();
 

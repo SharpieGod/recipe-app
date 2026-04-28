@@ -45,6 +45,7 @@ export type RecipeIncluded = Prisma.RecipeGetPayload<{
   include: {
     ingredientGroups: { include: { ingredients: true } };
     steps: true;
+    user: true;
   };
 }>;
 

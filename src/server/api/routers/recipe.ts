@@ -85,6 +85,7 @@ export const recipeRouter = createTRPCRouter({
           include: { ingredients: { orderBy: { order: "asc" as const } } },
         },
         steps: { orderBy: { order: "asc" as const } },
+        user: true,
       };
 
       const recipe = await db.recipe.findFirst({

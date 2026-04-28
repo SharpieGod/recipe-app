@@ -65,7 +65,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
   const RecipeComponent = (
     <div
       className={cn(
-        "cursor-pointer overflow-hidden rounded-xl border border-black/10 shadow-sm transition-opacity duration-300",
+        "cursor-pointer overflow-hidden rounded-xl border border-black/10 transition-opacity duration-300",
         {
           "cursor-not-allowed border-dotted border-black/50 opacity-30": isTemp,
           "opacity-100": !isTemp,
@@ -153,8 +153,8 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
           className="bg-background-100 z-101 mx-auto mt-40 flex w-100 flex-col gap-2 rounded-xl border border-black/10 p-4 shadow-sm"
           onClick={(e) => e.stopPropagation()}
         >
-          <h1 className="text-xl">Delete "{recipe?.title}"?</h1>
-          <span className="text-text-500">This can't be undone</span>
+          <h1 className="text-xl">Delete &quot;{recipe?.title}&quot;?</h1>
+          <span className="text-text-500">This can&apos;t be undone</span>
           <div className="flex gap-2">
             <Button
               onClick={() => {

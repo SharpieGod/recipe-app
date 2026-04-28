@@ -61,12 +61,8 @@ export const IngredientSection = ({
 }) => {
   const getResolvedId = useGetResolvedId();
 
-  const {
-    localRecipe,
-    setLocalRecipe,
-    focusedInputId,
-    setFocusedInputId,
-  } = useRecipeEdit();
+  const { localRecipe, setLocalRecipe, focusedInputId, setFocusedInputId } =
+    useRecipeEdit();
 
   const {
     attributes,

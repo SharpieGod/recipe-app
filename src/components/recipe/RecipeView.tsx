@@ -4,6 +4,8 @@ import Container from "../generic/Container";
 import Image from "next/image";
 import { UNIT_LABELS, unitLabel } from "~/types";
 import { isImperial, toMixedFraction } from "./edit/IngredientEdit";
+import UserImage from "../user/UserImage";
+import Link from "next/link";
 
 type Props = {
   preview?: boolean;
@@ -21,15 +23,28 @@ function formatMinutesToTime(totalMinutes: number) {
 
   return parts.join(" ") || "0m";
 }
-1;
+
 const RecipeView = ({ recipeId, preview }: Props) => {
   const { data: recipe } = api.recipe.get.useQuery({ id: recipeId });
 
   return recipe ? (
     <Container className="text-text-700 flex flex-col gap-4 text-lg">
-      <h1 className="text-text-700 text-5xl">
-        {!preview ? recipe.title : recipe.title + " (preview)"}
-      </h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-text-700 text-5xl">
+          {!preview ? recipe.title : recipe.title + " (preview)"}
+        </h1>
+
+        <Link
+          href={`/user-recipes/${recipe.user.id}`}
+          className="flex items-center gap-1"
+        >
+          <div className="scale-80">
+            <UserImage user={recipe.user} />
+          </div>
+          <span className="text-text-500">{recipe.user.name}</span>
+        </Link>
+      </div>
+
       <div className="flex flex-col gap-2">
         <div className="text-text-500 flex gap-8">
           <span>Servings: {recipe.servings ?? "?"}</span>
@@ -66,6 +81,7 @@ const RecipeView = ({ recipeId, preview }: Props) => {
         width={1400}
         height={600}
       />
+
       <p className="text-text-700 whitespace-pre-line">
         {recipe.description.length > 0 ? recipe.description : "No description."}
       </p>

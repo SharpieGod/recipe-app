@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "next-auth/react";
-import Button from "./generic/Button";
+import Button from "../generic/Button";
 import Image from "next/image";
 import type { ReactNode } from "react";
 

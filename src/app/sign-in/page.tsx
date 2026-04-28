@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Container from "~/components/generic/Container";
 import Navbar from "~/components/generic/Navbar";
-import SignInButton from "~/components/SignInButton";
+import SignInButton from "~/components/user/SignInButton";
 import { auth } from "~/server/auth";
 
 const SignInPage = async () => {

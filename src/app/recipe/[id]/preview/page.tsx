@@ -3,6 +3,7 @@ import Container from "~/components/generic/Container";
 import Navbar from "~/components/generic/Navbar";
 import RecipeView from "~/components/recipe/RecipeView";
 import { auth } from "~/server/auth";
+import { db } from "~/server/db";
 import { api, HydrateClient } from "~/trpc/server";
 
 type Props = {
@@ -18,7 +19,17 @@ const PreviewRecipePage = async ({ params }: Props) => {
     return redirect("/");
   }
 
-  api.recipe.get.prefetch({ id });
+  const recipe = await api.recipe.get({ id });
+
+  if (!recipe) {
+    return redirect("/");
+  }
+
+  if (recipe.publishedAt) {
+    return redirect("/recipe/" + id);
+  }
+
+  void api.recipe.get.prefetch({ id });
 
   return (
     <>

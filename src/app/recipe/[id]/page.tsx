@@ -18,7 +18,7 @@ const PreviewRecipePage = async ({ params }: Props) => {
     return redirect("/");
   }
 
-  api.recipe.get.prefetch({ id });
+  void api.recipe.get.prefetch({ id });
 
   return (
     <>

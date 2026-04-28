@@ -179,8 +179,8 @@ const EditRecipe = ({ recipeId }: Props) => {
       router.push(`/recipe/${recipeId}`);
     },
     onSuccess() {
-      utils.recipe.get.invalidate();
-      utils.recipe.getPreview.invalidate();
+      void utils.recipe.get.invalidate();
+      void utils.recipe.getPreview.invalidate();
     },
   });
   const { data: serverRecipe } = api.recipe.get.useQuery({ id: recipeId });
@@ -206,7 +206,7 @@ const EditRecipe = ({ recipeId }: Props) => {
       if (!localRecipe || !prev_recipe) return;
       utils.recipe.get.setData({ id: recipeId }, { ...localRecipe });
 
-      const { ingredientGroups, steps, ...preview } = localRecipe;
+      const { ingredientGroups, steps, user: _user, ...preview } = localRecipe;
       utils.recipe.getPreview.setData({ id: recipeId }, { ...preview });
       return prev_recipe;
     },
@@ -214,9 +214,9 @@ const EditRecipe = ({ recipeId }: Props) => {
       utils.recipe.get.setData({ id: recipeId }, prev_recipe);
     },
     onSuccess(data, variables, onMutateResult, context) {
-      utils.recipe.get.invalidate({ id: recipeId });
-      utils.recipe.getPreview.invalidate({ id: recipeId });
-      utils.user.getUserRecipes.invalidate({ id: localRecipe?.userId });
+      void utils.recipe.get.invalidate({ id: recipeId });
+      void utils.recipe.getPreview.invalidate({ id: recipeId });
+      void utils.user.getUserRecipes.invalidate({ id: localRecipe?.userId });
     },
   });
 
@@ -609,7 +609,9 @@ const EditRecipe = ({ recipeId }: Props) => {
     // Then other group containers (cross-group or empty group)
     const otherGroupCollisions = pointerWithin({
       ...args,
-      droppableContainers: groupContainers.filter((c) => c.id !== activeGroupId),
+      droppableContainers: groupContainers.filter(
+        (c) => c.id !== activeGroupId,
+      ),
     });
     if (getFirstCollision(otherGroupCollisions)) {
       return otherGroupCollisions;
@@ -957,7 +959,7 @@ const EditRecipe = ({ recipeId }: Props) => {
               setImageUrl(previewUrl);
 
               // upload in background
-              startUpload([file], { recipeId });
+              void startUpload([file], { recipeId });
             }}
           />
           <Button
@@ -969,7 +971,7 @@ const EditRecipe = ({ recipeId }: Props) => {
             {isUploading ? "Uploading..." : "Upload Image"}
           </Button>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex w-140 flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Input
               onChange={(e) => {
@@ -984,7 +986,7 @@ const EditRecipe = ({ recipeId }: Props) => {
             <TextArea
               value={localRecipe?.description ?? ""}
               cols={50}
-              className="resize-none"
+              className="w-full resize-none"
               label="Description"
               placeholder="Talk about your recipe"
               rows={6}
@@ -1012,6 +1014,7 @@ const EditRecipe = ({ recipeId }: Props) => {
             <Input
               label="Prep Time (minutes)"
               placeholder="Time to prep"
+              className="w-full"
               value={localRecipe.prepTimeMinutes ?? ""}
               onChange={(e) =>
                 handleNumberChange(e.target.value, (num) => {
@@ -1025,6 +1028,7 @@ const EditRecipe = ({ recipeId }: Props) => {
             <Input
               label="Cook Time (minutes)"
               placeholder="Time to cook"
+              className="w-full"
               value={localRecipe.cookTimeMinutes ?? ""}
               onChange={(e) =>
                 handleNumberChange(e.target.value, (num) => {
@@ -1093,7 +1097,7 @@ const EditRecipe = ({ recipeId }: Props) => {
                   id="new-tag-input"
                   placeholder="Add tags..."
                   type="text"
-                  className="placeholder:text-text-500/50 h-full focus:outline-none"
+                  className="placeholder:text-text-500/50 h-full w-40 focus:outline-none"
                   value={newTagText}
                   onChange={(e) => setNewTagText(e.target.value)}
                 />
@@ -1266,7 +1270,7 @@ const EditRecipe = ({ recipeId }: Props) => {
           className="bg-background-100 z-101 mx-auto mt-40 flex w-100 flex-col gap-2 rounded-xl border border-black/10 p-4 shadow-sm"
           onClick={(e) => e.stopPropagation()}
         >
-          <h1 className="text-xl">Publish "{localRecipe?.title}"?</h1>
+          <h1 className="text-xl">Publish &quot;{localRecipe?.title}&quot;?</h1>
           {publishErrors.length > 0 ? (
             <ul className="flex flex-col gap-1 text-sm text-red-500">
               {publishErrors.map((e, i) => (
