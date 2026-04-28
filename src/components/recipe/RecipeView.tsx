@@ -86,7 +86,8 @@ const RecipeView = ({ recipeId, preview }: Props) => {
     for (const g of recipe.ingredientGroups)
       for (const i of g.ingredients) {
         if (i.unit === "NONE") continue;
-        isMetricUnit(i.unit) ? metric++ : imperial++;
+        if (isMetricUnit(i.unit)) metric++;
+        else imperial++;
       }
     return metric > imperial;
   }, [recipe]);
