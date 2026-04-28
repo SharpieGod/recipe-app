@@ -25,6 +25,14 @@ const SearchResults = ({ query }: Props) => {
     return <p className="text-text-500 py-4 text-center">Loading...</p>;
   }
 
+  if (items.length === 0) {
+    return (
+      <p className="text-text-500 py-4 text-center">
+        No recipes matched your query.
+      </p>
+    );
+  }
+
   return (
     <InfiniteScroll
       dataLength={items.length}
