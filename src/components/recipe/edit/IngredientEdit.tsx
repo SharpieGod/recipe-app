@@ -21,7 +21,7 @@ export const IngredientDragPreview = ({
       <GripVertical className="text-background-300 size-5 shrink-0" />
       <span className="w-14 shrink-0 text-sm">
         {isImperial(ingredient.unit as Unit)
-          ? toMixedFraction(ingredient.value)
+          ? toMixedFraction(ingredient.value, ingredient.unit as Unit)
           : String(ingredient.value)}
       </span>
       <span className="text-text-500 shrink-0 text-sm">
@@ -45,17 +45,25 @@ const IMPERIAL_UNITS = new Set<Unit>([
 
 export const isImperial = (unit: Unit) => IMPERIAL_UNITS.has(unit);
 
-export function toMixedFraction(x: number): string {
+function denominatorsForUnit(unit?: Unit): number[] {
+  if (unit === "TEASPOON") return [8];
+  if (unit === "CUP") return [2, 3, 4, 8];
+  return [2, 4, 8];
+}
+
+export function toMixedFraction(x: number, unit?: Unit): string {
   if (x === 0) return "0";
   const whole = Math.floor(x);
   const frac = x - whole;
   if (frac < 0.005) return String(whole);
-  const fracStr = simpleFraction(frac);
+  const fracStr = simpleFraction(frac, denominatorsForUnit(unit));
   return whole > 0 ? `${whole} ${fracStr}` : fracStr;
 }
 
-export function simpleFraction(x: number): string {
-  const denominators = [2, 4, 8];
+export function simpleFraction(
+  x: number,
+  denominators: number[] = [2, 4, 8],
+): string {
   let bestNum = 0;
   let bestDen = 1;
   let bestErr = Infinity;
@@ -83,7 +91,7 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
     useRecipeEdit();
   const [valueStr, setValueStr] = React.useState(
     isImperial(ingredient.unit as Unit)
-      ? toMixedFraction(ingredient.value)
+      ? toMixedFraction(ingredient.value, ingredient.unit as Unit)
       : String(ingredient.value),
   );
 
@@ -207,7 +215,7 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
             .flatMap((g) => g.ingredients)
             .find((i) => i.id === ingredient.id);
           const val = cur?.value ?? ingredient.value;
-          setValueStr(isImperial(newUnit) ? toMixedFraction(val) : String(val));
+          setValueStr(isImperial(newUnit) ? toMixedFraction(val, newUnit) : String(val));
           setLocalRecipe({
             ...localRecipe,
             ingredientGroups: localRecipe.ingredientGroups.map((g) => ({

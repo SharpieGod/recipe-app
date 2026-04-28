@@ -35,14 +35,14 @@ function displayIngredient(
   if (!metric && isMetricUnit(unit)) {
     const conv = metricToImperial(scaled, unit);
     return {
-      text: toMixedFraction(conv.value),
+      text: toMixedFraction(conv.value, conv.unit),
       unitLabel: UNIT_LABELS[conv.unit],
     };
   }
 
   return {
     text: isImperial(unit)
-      ? toMixedFraction(scaled)
+      ? toMixedFraction(scaled, unit)
       : String(roundMetric(scaled, unit as Metric)),
     unitLabel: UNIT_LABELS[unit],
   };
@@ -50,7 +50,7 @@ function displayIngredient(
 
 import UserImage from "../user/UserImage";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "~/lib/utils";
 
@@ -78,18 +78,33 @@ const RecipeView = ({ recipeId, preview }: Props) => {
     api.recipe.getRating.useQuery({ id: recipeId });
 
   const [scale, setScale] = useState(1);
-  const [isMetric, setIsMetric] = useState(false);
+  const [isMetricOverride, setIsMetric] = useState<boolean | null>(null);
+  const defaultIsMetric = useMemo(() => {
+    if (!recipe) return false;
+    let metric = 0,
+      imperial = 0;
+    for (const g of recipe.ingredientGroups)
+      for (const i of g.ingredients) {
+        if (i.unit === "NONE") continue;
+        isMetricUnit(i.unit) ? metric++ : imperial++;
+      }
+    return metric > imperial;
+  }, [recipe]);
+  const isMetric = isMetricOverride ?? defaultIsMetric;
 
   return recipe ? (
     <Container className="text-text-700 flex flex-col gap-4 text-lg">
       <div className="flex flex-col gap-1">
         <h1 className="text-text-700 text-5xl">
-          {!preview ? recipe.title : recipe.title + " (preview)"}
+          {recipe.title}{" "}
+          {!recipe.publishedAt ? (
+            <span className="text-text-300">(preview)</span>
+          ) : null}
         </h1>
 
         <Link
           href={`/user-recipes/${recipe.user.id}`}
-          className="flex items-center gap-1"
+          className="flex w-fit items-center gap-1"
         >
           <div className="scale-80">
             <UserImage user={recipe.user} />
@@ -132,7 +147,7 @@ const RecipeView = ({ recipeId, preview }: Props) => {
       <Image
         alt={recipe.title + " image"}
         src={recipe.imageUrl ?? "/placeholder.webp"}
-        className="aspect-7/3 rounded-xl object-cover object-center shadow-md"
+        className="aspect-7/3 rounded-xl object-cover object-center"
         width={1400}
         height={600}
       />
@@ -141,29 +156,29 @@ const RecipeView = ({ recipeId, preview }: Props) => {
         {recipe.description.length > 0 ? recipe.description : "No description."}
       </p>
       <div className="mt-4 flex flex-row flex-wrap gap-12 lg:flex-nowrap">
-        <ul className="bg-primary-100 border-primary-300 sticky top-26 flex h-fit shrink-0 basis-85 flex-col gap-2 rounded-xl border p-4">
-          <ul className="text-accent-600 flex gap-2 text-base">
+        <ul className="bg-primary-100 border-primary-300 top-26 flex h-fit shrink-0 basis-85 flex-col gap-2 rounded-xl border p-4 lg:sticky">
+          <ul className="text-primary-600 flex gap-2 text-base">
             {(["imperial", "metric"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setIsMetric(m === "metric")}
                 className={cn(
-                  "border-secondary-200 bg-secondary-200/30 cursor-pointer rounded-xl border px-2 py-0.5 transition-colors",
-                  { "bg-secondary-200": isMetric === (m === "metric") },
+                  "border-primary-200 bg-primary-200/30 cursor-pointer rounded-xl border px-2 py-0.5 transition-colors",
+                  { "bg-primary-200": isMetric === (m === "metric") },
                 )}
               >
                 {m}
               </button>
             ))}
           </ul>
-          <ul className="text-accent-600 flex gap-2 text-base">
-            {[0.5, 1, 2, 4, 5, 10].map((n) => (
+          <ul className="text-primary-600 flex gap-2 text-base">
+            {[0.5, 1, 2, 5, 10].map((n) => (
               <button
                 key={n}
                 onClick={() => setScale(n)}
                 className={cn(
-                  "border-secondary-200 bg-secondary-200/30 flex cursor-pointer items-center gap-0.5 rounded-xl border px-2 py-0.5 transition-colors",
-                  { "bg-secondary-200": scale == n },
+                  "border-primary-200 bg-primary-200/30 flex cursor-pointer items-center gap-0.5 rounded-xl border px-2 py-0.5 transition-colors",
+                  { "bg-primary-200": scale == n },
                 )}
               >
                 <X size={11} />
@@ -211,7 +226,7 @@ const RecipeView = ({ recipeId, preview }: Props) => {
           {recipe.steps.map((s, i) => (
             <li key={s.id}>
               <p>
-                <span className="font-nothing mr-2 text-5xl font-bold">
+                <span className="font-nothing mr-4 text-5xl font-bold">
                   {i + 1}.
                 </span>
                 <span className="text-xl">{s.instruction}</span>

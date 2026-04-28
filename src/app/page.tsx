@@ -1,13 +1,17 @@
-import Container from "~/components/generic/Container";
+import Link from "next/link";
+import { auth } from "~/server/auth";
 import Navbar from "~/components/generic/Navbar";
+import Button from "~/components/generic/Button";
+import Container from "~/components/generic/Container";
 
-const HomePage = () => {
+const HomePage = async () => {
+  const session = await auth();
+
   return (
     <>
       <Navbar />
-      <Container>
-        <h1 className="text-3xl">This is the homepage</h1>
-      </Container>
+
+      <Container>Homepage</Container>
     </>
   );
 };

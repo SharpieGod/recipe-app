@@ -70,24 +70,25 @@ export type Metric = Extract<
   "MILLILITER" | "LITER" | "GRAM" | "KILOGRAM"
 >;
 
+// Simple kitchen-friendly factors (not scientifically precise)
 const IMPERIAL_TO_METRIC_ML: Record<
   Exclude<Imperical, "OUNCE" | "POUND">,
   { factor: number; unit: Metric }
 > = {
-  TEASPOON: { factor: 4.92892, unit: "MILLILITER" },
-  TABLESPOON: { factor: 14.7868, unit: "MILLILITER" },
-  FLUID_OUNCE: { factor: 29.5735, unit: "MILLILITER" },
-  CUP: { factor: 236.588, unit: "MILLILITER" },
-  PINT: { factor: 473.176, unit: "MILLILITER" },
-  QUART: { factor: 0.946353, unit: "LITER" },
+  TEASPOON: { factor: 5, unit: "MILLILITER" }, // 1 tsp  = 5 ml
+  TABLESPOON: { factor: 15, unit: "MILLILITER" }, // 1 tbsp = 15 ml
+  FLUID_OUNCE: { factor: 30, unit: "MILLILITER" }, // 1 fl oz = 30 ml
+  CUP: { factor: 250, unit: "MILLILITER" }, // 1 cup  = 250 ml
+  PINT: { factor: 500, unit: "MILLILITER" }, // 1 pt   = 500 ml
+  QUART: { factor: 1, unit: "LITER" }, // 1 qt   = 1 L
 };
 
 export function imperialToMetric(
   value: number,
   unit: Imperical,
 ): { value: number; unit: Metric } {
-  if (unit === "OUNCE") return { value: value * 28.3495, unit: "GRAM" };
-  if (unit === "POUND") return { value: value * 0.453592, unit: "KILOGRAM" };
+  if (unit === "OUNCE") return { value: value * 30, unit: "GRAM" }; // 1 oz = 30 g
+  if (unit === "POUND") return { value: value * 0.45, unit: "KILOGRAM" }; // 1 lb = 0.45 kg
   const conv = IMPERIAL_TO_METRIC_ML[unit];
   return { value: value * conv.factor, unit: conv.unit };
 }
@@ -98,13 +99,13 @@ export function metricToImperial(
 ): { value: number; unit: Imperical } {
   switch (unit) {
     case "MILLILITER":
-      return { value: value * 0.202884, unit: "TEASPOON" };
+      return { value: value / 5, unit: "TEASPOON" }; // 5 ml = 1 tsp
     case "LITER":
-      return { value: value * 1.05669, unit: "QUART" };
+      return { value: value, unit: "QUART" }; // 1 L  = 1 qt
     case "GRAM":
-      return { value: value * 0.035274, unit: "OUNCE" };
+      return { value: value / 30, unit: "OUNCE" }; // 30 g = 1 oz
     case "KILOGRAM":
-      return { value: value * 2.20462, unit: "POUND" };
+      return { value: value / 0.45, unit: "POUND" }; // 0.45 kg = 1 lb
   }
 }
 
@@ -115,9 +116,13 @@ export function metricToImperial(
 //   kg  → nearest 0.01  (e.g. 0.454 → 0.45)
 export function roundMetric(value: number, unit: Metric): number {
   switch (unit) {
-    case "MILLILITER": return Math.round(value);
-    case "LITER":      return Math.round(value / 0.05) * 0.05;
-    case "GRAM":       return Math.round(value);
-    case "KILOGRAM":   return Math.round(value * 100) / 100;
+    case "MILLILITER":
+      return Math.round(value);
+    case "LITER":
+      return Math.round(value / 0.05) * 0.05;
+    case "GRAM":
+      return Math.round(value);
+    case "KILOGRAM":
+      return Math.round(value * 100) / 100;
   }
 }

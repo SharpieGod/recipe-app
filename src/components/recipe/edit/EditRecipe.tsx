@@ -970,7 +970,6 @@ const EditRecipe = ({ recipeId }: Props) => {
             }}
           />
           <Button
-            variant="accent"
             className="w-fit"
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
