@@ -13,7 +13,7 @@ type Step = RecipeIncluded["steps"][number];
 
 export const StepDragPreview = ({ step }: { step: Step }) => {
   return (
-    <li className="bg-background-50 flex w-120 items-start gap-2 rounded-lg p-2 shadow-md">
+    <li className="bg-background-50 flex w-120 items-start gap-2 rounded-xl p-2 shadow-md">
       <GripVertical className="text-background-300 mt-1 size-5 shrink-0" />
       <span className="text-text-400 w-6 shrink-0 pt-0.5 text-sm">
         {step.order + 1}.

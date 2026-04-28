@@ -137,7 +137,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
           <button onClick={() => setIsDeleteOpen(true)}>Delete</button>
         </Popdown>
       ) : (
-        RecipeComponent
+        <Link href={`/recipe/${recipe?.id}`}>{RecipeComponent}</Link>
       )}
       <div
         onClick={() => setIsDeleteOpen(false)}

@@ -497,9 +497,16 @@ const EditRecipe = ({ recipeId }: Props) => {
       if (confirmLeave()) originalReplace(...args);
     };
 
+    let suppressNextPopstate = false;
+
     const handlePopState = () => {
+      if (suppressNextPopstate) {
+        suppressNextPopstate = false;
+        return;
+      }
       if (!confirmLeave()) {
-        window.history.pushState(null, "", window.location.href);
+        suppressNextPopstate = true;
+        window.history.go(1);
       }
     };
 

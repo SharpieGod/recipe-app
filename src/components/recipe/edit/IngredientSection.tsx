@@ -41,7 +41,7 @@ export const IngredientSectionDragPreview = ({
   group: RecipeIncluded["ingredientGroups"][number];
 }) => {
   return (
-    <div className="bg-background-50 flex items-center gap-3 rounded-lg border border-black/10 p-4 shadow-lg">
+    <div className="bg-background-50 flex items-center gap-3 rounded-xl border border-black/10 p-4 shadow-lg">
       <GripVertical className="text-background-300 size-6 shrink-0" />
       <div className="flex items-center gap-2">
         <span className="">{group.label || "Untitled section"}</span>
@@ -141,7 +141,7 @@ export const IngredientSection = ({
           .filter(Boolean)
           .join(", "),
       }}
-      className={`bg-background-50 relative flex w-fit min-w-90 flex-col gap-4 rounded-lg border p-4 ${
+      className={`bg-background-50 relative flex w-fit min-w-90 flex-col gap-4 rounded-xl border p-4 ${
         ingredientIsOver ? "border-accent-500/50" : "border-black/10"
       }`}
     >

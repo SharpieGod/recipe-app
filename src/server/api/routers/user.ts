@@ -17,7 +17,7 @@ export const userRouter = createTRPCRouter({
           ...(!isOwner && { publishedAt: { not: null } }),
         },
 
-        orderBy: isOwner ? { updatedAt: "desc" } : { publishedAt: "desc" },
+        orderBy: isOwner ? { createdAt: "desc" } : { publishedAt: "desc" },
       });
     }),
 });

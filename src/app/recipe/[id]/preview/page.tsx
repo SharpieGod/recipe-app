@@ -19,7 +19,14 @@ const PreviewRecipePage = async ({ params }: Props) => {
     return redirect("/");
   }
 
-  const recipe = await api.recipe.get({ id });
+  const recipe = await db.recipe.findFirst({
+    where: {
+      id,
+    },
+    select: {
+      publishedAt: true,
+    },
+  });
 
   if (!recipe) {
     return redirect("/");

@@ -2,10 +2,57 @@
 import { api } from "~/trpc/react";
 import Container from "../generic/Container";
 import Image from "next/image";
-import { UNIT_LABELS, unitLabel } from "~/types";
+import {
+  UNIT_LABELS,
+  imperialToMetric,
+  metricToImperial,
+  roundMetric,
+} from "~/types";
+import type { Metric, Imperical } from "~/types";
 import { isImperial, toMixedFraction } from "./edit/IngredientEdit";
+import type { Unit } from "generated/prisma";
+
+const METRIC_UNITS = new Set<Unit>(["MILLILITER", "LITER", "GRAM", "KILOGRAM"]);
+const isMetricUnit = (unit: Unit): unit is Metric => METRIC_UNITS.has(unit);
+
+function displayIngredient(
+  value: number,
+  unit: Unit,
+  scale: number,
+  metric: boolean,
+): { text: string; unitLabel: string } {
+  const scaled = value * scale;
+  if (unit === "NONE") return { text: toMixedFraction(scaled), unitLabel: "" };
+
+  if (metric && isImperial(unit)) {
+    const conv = imperialToMetric(scaled, unit as Imperical);
+    return {
+      text: String(roundMetric(conv.value, conv.unit)),
+      unitLabel: UNIT_LABELS[conv.unit],
+    };
+  }
+
+  if (!metric && isMetricUnit(unit)) {
+    const conv = metricToImperial(scaled, unit);
+    return {
+      text: toMixedFraction(conv.value),
+      unitLabel: UNIT_LABELS[conv.unit],
+    };
+  }
+
+  return {
+    text: isImperial(unit)
+      ? toMixedFraction(scaled)
+      : String(roundMetric(scaled, unit as Metric)),
+    unitLabel: UNIT_LABELS[unit],
+  };
+}
+
 import UserImage from "../user/UserImage";
 import Link from "next/link";
+import { useState } from "react";
+import { X } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 type Props = {
   preview?: boolean;
@@ -27,6 +74,12 @@ function formatMinutesToTime(totalMinutes: number) {
 const RecipeView = ({ recipeId, preview }: Props) => {
   const { data: recipe } = api.recipe.get.useQuery({ id: recipeId });
 
+  const { data: rating, isPending: ratingsPending } =
+    api.recipe.getRating.useQuery({ id: recipeId });
+
+  const [scale, setScale] = useState(1);
+  const [isMetric, setIsMetric] = useState(false);
+
   return recipe ? (
     <Container className="text-text-700 flex flex-col gap-4 text-lg">
       <div className="flex flex-col gap-1">
@@ -47,7 +100,9 @@ const RecipeView = ({ recipeId, preview }: Props) => {
 
       <div className="flex flex-col gap-2">
         <div className="text-text-500 flex gap-8">
-          <span>Servings: {recipe.servings ?? "?"}</span>
+          <span className="flex items-center gap-1">
+            Servings: {recipe.servings}
+          </span>
           <span>
             Prep time:{" "}
             {recipe.prepTimeMinutes
@@ -86,7 +141,40 @@ const RecipeView = ({ recipeId, preview }: Props) => {
         {recipe.description.length > 0 ? recipe.description : "No description."}
       </p>
       <div className="mt-4 flex flex-row flex-wrap gap-12 lg:flex-nowrap">
-        <ul className="bg-primary-100 border-primary-300 sticky top-26 flex h-fit shrink-0 basis-65 flex-col gap-4 rounded-xl border p-4">
+        <ul className="bg-primary-100 border-primary-300 sticky top-26 flex h-fit shrink-0 basis-85 flex-col gap-2 rounded-xl border p-4">
+          <ul className="text-accent-600 flex gap-2 text-base">
+            {(["imperial", "metric"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setIsMetric(m === "metric")}
+                className={cn(
+                  "border-secondary-200 bg-secondary-200/30 cursor-pointer rounded-xl border px-2 py-0.5 transition-colors",
+                  { "bg-secondary-200": isMetric === (m === "metric") },
+                )}
+              >
+                {m}
+              </button>
+            ))}
+          </ul>
+          <ul className="text-accent-600 flex gap-2 text-base">
+            {[0.5, 1, 2, 4, 5, 10].map((n) => (
+              <button
+                key={n}
+                onClick={() => setScale(n)}
+                className={cn(
+                  "border-secondary-200 bg-secondary-200/30 flex cursor-pointer items-center gap-0.5 rounded-xl border px-2 py-0.5 transition-colors",
+                  { "bg-secondary-200": scale == n },
+                )}
+              >
+                <X size={11} />
+                <span>{n}</span>
+              </button>
+            ))}
+          </ul>
+
+          <span className="text-text-500 text-base">
+            Makes {(recipe.servings ?? 0) * scale}
+          </span>
           {recipe.ingredientGroups
             .filter((g) => g.ingredients.length > 0)
             .map((g) => (
@@ -97,12 +185,22 @@ const RecipeView = ({ recipeId, preview }: Props) => {
                 <ul className="flex flex-col">
                   {g.ingredients.map((i) => (
                     <li key={i.id}>
-                      <span className="text-nowrap">
-                        {isImperial(i.unit)
-                          ? toMixedFraction(i.value)
-                          : String(i.value)}{" "}
-                        {UNIT_LABELS[i.unit]} {i.label}
-                      </span>
+                      {(() => {
+                        const d = displayIngredient(
+                          i.value,
+                          i.unit,
+                          scale,
+                          isMetric,
+                        );
+                        return (
+                          <div className="flex gap-2 text-nowrap">
+                            <span>
+                              {d.text} {d.unitLabel}
+                            </span>
+                            <span className="text-text-500">{i.label}</span>
+                          </div>
+                        );
+                      })()}
                     </li>
                   ))}
                 </ul>

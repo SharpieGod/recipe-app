@@ -17,7 +17,7 @@ export const IngredientDragPreview = ({
   ingredient: Ingredient;
 }) => {
   return (
-    <li className="bg-background-100 flex w-120 items-center gap-2 rounded-lg p-2 shadow-md">
+    <li className="bg-background-100 flex w-120 items-center gap-2 rounded-xl p-2 shadow-md">
       <GripVertical className="text-background-300 size-5 shrink-0" />
       <span className="w-14 shrink-0 text-sm">
         {isImperial(ingredient.unit as Unit)
@@ -54,12 +54,13 @@ export function toMixedFraction(x: number): string {
   return whole > 0 ? `${whole} ${fracStr}` : fracStr;
 }
 
-export function simpleFraction(x: number, maxDen: number = 9): string {
+export function simpleFraction(x: number): string {
+  const denominators = [2, 4, 8];
   let bestNum = 0;
   let bestDen = 1;
   let bestErr = Infinity;
 
-  for (let d = 1; d <= maxDen; d++) {
+  for (const d of denominators) {
     const n = Math.round(x * d);
     const err = Math.abs(x - n / d);
     if (err < bestErr) {
@@ -69,8 +70,8 @@ export function simpleFraction(x: number, maxDen: number = 9): string {
     }
   }
 
+  // reduce (e.g. 2/4 → 1/2)
   const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
-
   const g = gcd(Math.abs(bestNum), bestDen);
 
   return `${bestNum / g}/${bestDen / g}`;
@@ -178,7 +179,7 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
     <li
       ref={setNodeRef}
       style={style}
-      className="bg-background-100 flex w-120 max-w-full items-center gap-2 rounded-lg p-2 text-sm"
+      className="bg-background-100 flex w-120 max-w-full items-center gap-2 rounded-xl p-2 text-sm"
     >
       <button
         type="button"
@@ -196,7 +197,10 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
       />
       <SelectPopdown
         className="w-full"
-        entries={Object.values(Unit).map((s) => ({ label: unitLabel(s), key: s }))}
+        entries={Object.values(Unit).map((s) => ({
+          label: unitLabel(s),
+          key: s,
+        }))}
         onSelected={(key) => {
           const newUnit = key as Unit;
           const cur = localRecipe.ingredientGroups
