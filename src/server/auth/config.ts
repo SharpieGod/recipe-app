@@ -36,8 +36,7 @@ export const authConfig = {
     DiscordProvider({
       clientId: env.AUTH_DISCORD_ID,
       clientSecret: env.AUTH_DISCORD_SECRET,
-      authorization:
-        "https://discord.com/oauth2/authorize?client_id=1495844014828814346&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback%2Fdiscord&scope=identify",
+      authorization: `https://discord.com/oauth2/authorize?client_id=${env.AUTH_DISCORD_ID}&response_type=code&redirect_uri=${encodeURIComponent(`${env.NEXT_AUTH_URL}/api/auth/callback/discord`)}&scope=identify`,
     }),
     {
       id: "hackclub",

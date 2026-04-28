@@ -151,6 +151,8 @@ const RecipeView = ({ recipeId, preview }: Props) => {
         className="aspect-7/3 rounded-xl object-cover object-center"
         width={1400}
         height={600}
+        sizes="(max-width: 768px) 100vw, 1080px"
+        priority
       />
 
       <p className="text-text-700 whitespace-pre-line">

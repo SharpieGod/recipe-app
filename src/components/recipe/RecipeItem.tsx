@@ -86,6 +86,7 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
                 alt={recipe.title + " image"}
                 width={600}
                 height={600}
+                sizes="(max-width: 768px) 100vw, 540px"
               />
             </div>
             <div className="flex w-full shrink-0 flex-col gap-2 p-3">

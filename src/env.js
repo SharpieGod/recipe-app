@@ -15,6 +15,7 @@ export const env = createEnv({
     AUTH_HACKCLUB_SECRET: z.string(),
     AUTH_DISCORD_ID: z.string(),
     AUTH_DISCORD_SECRET: z.string(),
+    NEXT_AUTH_URL: z.string().url().default("http://localhost:3000"),
     DATABASE_URL: z.string().url(),
     UPLOADTHING_TOKEN: z.string(),
     NODE_ENV: z
@@ -41,6 +42,7 @@ export const env = createEnv({
     AUTH_HACKCLUB_SECRET: process.env.AUTH_HACKCLUB_SECRET,
     AUTH_DISCORD_ID: process.env.AUTH_DISCORD_ID,
     AUTH_DISCORD_SECRET: process.env.AUTH_DISCORD_SECRET,
+    NEXT_AUTH_URL: process.env.NEXT_AUTH_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,

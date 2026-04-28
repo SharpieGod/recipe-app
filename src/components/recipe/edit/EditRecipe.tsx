@@ -954,6 +954,7 @@ const EditRecipe = ({ recipeId }: Props) => {
             })}
             width={1400}
             height={600}
+            sizes="(max-width: 768px) 100vw, 1080px"
             src={imageUrl ?? "/placeholder.webp"}
             alt="recipe image"
           />

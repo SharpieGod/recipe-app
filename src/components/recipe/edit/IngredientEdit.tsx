@@ -47,7 +47,7 @@ export const isImperial = (unit: Unit) => IMPERIAL_UNITS.has(unit);
 
 function denominatorsForUnit(unit?: Unit): number[] {
   if (unit === "TEASPOON") return [8];
-  if (unit === "CUP") return [2, 3, 4, 8];
+  if (unit === "CUP") return [2, 3, 4];
   return [2, 4, 8];
 }
 
@@ -62,7 +62,7 @@ export function toMixedFraction(x: number, unit?: Unit): string {
 
 export function simpleFraction(
   x: number,
-  denominators: number[] = [2, 4, 8],
+  denominators: number[] = [2, 4],
 ): string {
   let bestNum = 0;
   let bestDen = 1;
@@ -215,7 +215,9 @@ export const IngredientEdit = ({ ingredient }: { ingredient: Ingredient }) => {
             .flatMap((g) => g.ingredients)
             .find((i) => i.id === ingredient.id);
           const val = cur?.value ?? ingredient.value;
-          setValueStr(isImperial(newUnit) ? toMixedFraction(val, newUnit) : String(val));
+          setValueStr(
+            isImperial(newUnit) ? toMixedFraction(val, newUnit) : String(val),
+          );
           setLocalRecipe({
             ...localRecipe,
             ingredientGroups: localRecipe.ingredientGroups.map((g) => ({
