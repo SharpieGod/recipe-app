@@ -8,6 +8,8 @@ import { cn } from "~/lib/utils";
 import { useResolvedId } from "~/hooks/useResolvedId";
 import Button from "../generic/Button";
 import Image from "next/image";
+import { formatMinutesToTime } from "./RecipeView";
+import { Clock1, Clock12, Clock4 } from "lucide-react";
 
 type Props = {
   recipe: RouterOutputs["user"]["getUserRecipes"][number];
@@ -91,7 +93,15 @@ const RecipeItem = ({ recipe: initialRecipe, canEdit, userId }: Props) => {
                 <h1 className="min-w-fit text-xl">{recipe.title}</h1>
                 <div className="text-text-500 flex flex-row items-center justify-end gap-8">
                   {!canEdit ? (
-                    <span>{recipe.servings ?? "?"} servings</span>
+                    <div className="flex items-center gap-1">
+                      <Clock4 size={16} />
+                      <span>
+                        {formatMinutesToTime(
+                          (recipe.cookTimeMinutes ?? 0) +
+                            (recipe.prepTimeMinutes ?? 0),
+                        )}
+                      </span>
+                    </div>
                   ) : !recipe.publishedAt ? (
                     <span>private</span>
                   ) : null}

@@ -62,6 +62,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      react-infinite-scroll-component:
+        specifier: ^7.2.0
+        version: 7.2.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -2115,6 +2118,13 @@ packages:
     resolution: {integrity: sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag==}
     peerDependencies:
       react: ^19.2.5
+
+  react-infinite-scroll-component@7.2.0:
+    resolution: {integrity: sha512-oX0jgsm5wM2tT8sIxGUDZIBloXinfHmjWRduPk5AVTQ4KC7FW75wyp03VCUBDT8f9ousFK3vLiIcWoA5y+siOA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=17'
+      react-dom: '>=17'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -4355,6 +4365,11 @@ snapshots:
     dependencies:
       react: 19.2.5
       scheduler: 0.27.0
+
+  react-infinite-scroll-component@7.2.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+    dependencies:
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
 
   react-is@16.13.1: {}
 

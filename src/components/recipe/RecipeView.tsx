@@ -59,7 +59,7 @@ type Props = {
   recipeId: string;
 };
 
-function formatMinutesToTime(totalMinutes: number) {
+export function formatMinutesToTime(totalMinutes: number) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = Math.floor(totalMinutes % 60);
 

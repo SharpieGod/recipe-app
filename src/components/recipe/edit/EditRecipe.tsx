@@ -188,7 +188,12 @@ const EditRecipe = ({ recipeId }: Props) => {
   const [localRecipe, setLocalRecipe] = useState<RecipeIncluded | null>(null);
 
   useEffect(() => {
-    if (localRecipe == null && serverRecipe) {
+    if (!serverRecipe) return;
+    if (serverRecipe.publishedAt) {
+      router.replace(`/recipe/${recipeId}`);
+      return;
+    }
+    if (localRecipe == null) {
       setLocalRecipe(serverRecipe);
       setImageUrl(serverRecipe.imageUrl ?? null);
     }
@@ -1254,7 +1259,7 @@ const EditRecipe = ({ recipeId }: Props) => {
           <Input
             value={newStepLabel}
             onChange={(e) => setNewStepLabel(e.target.value)}
-            placeholder="Add a new step"
+            placeholder="Create a new step"
             className="border-accent-600 border-dashed focus:outline-dashed"
           />
         </form>

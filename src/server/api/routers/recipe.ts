@@ -718,28 +718,38 @@ export const recipeRouter = createTRPCRouter({
     .query(async ({ ctx: { db }, input }) => {
       type Row = {
         id: string;
+        userId: string;
         title: string;
+        description: string;
+        servings: number | null;
+        prepTimeMinutes: number | null;
+        cookTimeMinutes: number | null;
         tags: string[];
         imageUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        publishedAt: Date | null;
       };
       const { query, cursor: offset, limit } = input;
       const rows = await db.$queryRaw<Row[]>`
-        SELECT id, title, tags, "imageUrl",
+        SELECT r.id, r."userId", r.title, r.description, r.servings, r."prepTimeMinutes", r."cookTimeMinutes", r.tags, r."imageUrl", r."createdAt", r."updatedAt", r."publishedAt",
           GREATEST(
             MAX(similarity(tag_val, ${query})) * 3,
-            similarity(title, ${query}) * 2,
-            similarity(description, ${query})
-          ) AS score
-        FROM "Recipe"
-        LEFT JOIN LATERAL unnest(tags) AS tag_val ON true
-        WHERE "publishedAt" IS NOT NULL
-        GROUP BY id, title, tags, "imageUrl", description
+            similarity(r.title, ${query}) * 2,
+            similarity(r.description, ${query})
+          ) AS score,
+          COALESCE(AVG(rt.value), 0) AS avg_rating
+        FROM "Recipe" r
+        LEFT JOIN LATERAL unnest(r.tags) AS tag_val ON true
+        LEFT JOIN "Rating" rt ON rt."recipeId" = r.id
+        WHERE r."publishedAt" IS NOT NULL
+        GROUP BY r.id, r."userId", r.title, r.description, r.servings, r."prepTimeMinutes", r."cookTimeMinutes", r.tags, r."imageUrl", r."createdAt", r."updatedAt", r."publishedAt"
         HAVING GREATEST(
           MAX(similarity(tag_val, ${query})) * 3,
-          similarity(title, ${query}) * 2,
-          similarity(description, ${query})
-        ) > 0.1
-        ORDER BY score DESC
+          similarity(r.title, ${query}) * 2,
+          similarity(r.description, ${query})
+        ) > 0.5
+        ORDER BY avg_rating DESC, score DESC
         LIMIT ${limit + 1}
         OFFSET ${offset}
       `;
