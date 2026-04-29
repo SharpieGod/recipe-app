@@ -731,12 +731,14 @@ export const recipeRouter = createTRPCRouter({
         publishedAt: Date | null;
       };
       const { query, cursor: offset, limit } = input;
+      const threshold = query.length > 0 ? 0.3 : -1;
+
       const rows = await db.$queryRaw<Row[]>`
         SELECT r.id, r."userId", r.title, r.description, r.servings, r."prepTimeMinutes", r."cookTimeMinutes", r.tags, r."imageUrl", r."createdAt", r."updatedAt", r."publishedAt",
           GREATEST(
-            MAX(similarity(tag_val, ${query})) * 3,
-            similarity(r.title, ${query}) * 2,
-            similarity(r.description, ${query})
+            MAX(word_similarity(${query}, tag_val)) * 3,
+            word_similarity(${query}, r.title) * 2,
+            word_similarity(${query}, r.description)
           ) AS score,
           COALESCE(AVG(rt.value), 0) AS avg_rating
         FROM "Recipe" r
@@ -745,10 +747,10 @@ export const recipeRouter = createTRPCRouter({
         WHERE r."publishedAt" IS NOT NULL
         GROUP BY r.id, r."userId", r.title, r.description, r.servings, r."prepTimeMinutes", r."cookTimeMinutes", r.tags, r."imageUrl", r."createdAt", r."updatedAt", r."publishedAt"
         HAVING GREATEST(
-          MAX(similarity(tag_val, ${query})) * 3,
-          similarity(r.title, ${query}) * 2,
-          similarity(r.description, ${query})
-        ) > 0.5
+          MAX(word_similarity(${query}, tag_val)),
+          word_similarity(${query}, r.title),
+          word_similarity(${query}, r.description)
+        ) > ${threshold}
         ORDER BY avg_rating DESC, score DESC
         LIMIT ${limit + 1}
         OFFSET ${offset}

@@ -12,7 +12,7 @@ const HomePage = async () => {
       <Navbar />
 
       <Container className="flex flex-col gap-4">
-        <div className="flex h-[calc(100svh-10rem)] flex-col items-center justify-center gap-6 text-center">
+        <div className="flex h-[calc(100vh-20.75rem)] flex-col items-center justify-center gap-6 text-center">
           <div className="flex flex-col items-center gap-3">
             <h1 className="font-nothing text-8xl font-medium">
               Recipe Notebook

@@ -12,12 +12,6 @@ type Props = {
 const PreviewRecipePage = async ({ params }: Props) => {
   const { id } = await params;
 
-  const session = await auth();
-
-  if (!session) {
-    return redirect("/");
-  }
-
   void api.recipe.get.prefetch({ id });
 
   return (
