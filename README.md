@@ -2,6 +2,8 @@
 
 A personal recipe manager where you can create, organize, and share recipes. Sign in with Discord or Hack Club, build your cookbook, publish recipes for others to discover, and rate what you cook.
 
+[DEMO](https://recipenotebook.vercel.app)
+
 ---
 
 ## Features
@@ -106,17 +108,17 @@ Open [http://localhost:3000](http://localhost:3000) — done!
 
 ## Tech Stack
 
-|              |                                          |
-| ------------ | ---------------------------------------- |
-| Framework    | Next.js 15 (App Router)                  |
-| Language     | TypeScript                               |
-| Styling      | Tailwind CSS + Framer Motion             |
-| API          | tRPC v11 + React Query                   |
-| Database     | PostgreSQL + Prisma                      |
-| Search       | PostgreSQL `pg_trgm` (fuzzy full-text)   |
-| Auth         | NextAuth v5 (Discord & Hack Club OAuth)  |
-| File uploads | UploadThing                              |
-| Drag & drop  | @dnd-kit                                 |
+|              |                                         |
+| ------------ | --------------------------------------- |
+| Framework    | Next.js 15 (App Router)                 |
+| Language     | TypeScript                              |
+| Styling      | Tailwind CSS + Framer Motion            |
+| API          | tRPC v11 + React Query                  |
+| Database     | PostgreSQL + Prisma                     |
+| Search       | PostgreSQL `pg_trgm` (fuzzy full-text)  |
+| Auth         | NextAuth v5 (Discord & Hack Club OAuth) |
+| File uploads | UploadThing                             |
+| Drag & drop  | @dnd-kit                                |
 
 ---
 
