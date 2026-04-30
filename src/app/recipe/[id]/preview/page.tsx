@@ -1,3 +1,4 @@
+import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
 import Container from "~/components/generic/Container";
 import Navbar from "~/components/generic/Navbar";
@@ -42,7 +43,9 @@ const PreviewRecipePage = async ({ params }: Props) => {
     <>
       <Navbar />
       <HydrateClient>
-        <RecipeView recipeId={id} preview />
+        <SessionProvider>
+          <RecipeView recipeId={id} preview />
+        </SessionProvider>
       </HydrateClient>
     </>
   );
