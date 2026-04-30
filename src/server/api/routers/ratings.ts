@@ -2,6 +2,20 @@ import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const ratingRouter = createTRPCRouter({
+  getMyRating: protectedProcedure
+    .input(z.object({ recipeId: z.string() }))
+    .query(async ({ ctx: { session, db }, input }) => {
+      return db.rating.findUnique({
+        where: {
+          userId_recipeId: {
+            userId: session.user.id,
+            recipeId: input.recipeId,
+          },
+        },
+        select: { value: true },
+      });
+    }),
+
   rate: protectedProcedure
     .input(
       z.object({

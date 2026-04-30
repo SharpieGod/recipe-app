@@ -36,7 +36,10 @@ export const authConfig = {
     DiscordProvider({
       clientId: env.AUTH_DISCORD_ID,
       clientSecret: env.AUTH_DISCORD_SECRET,
-      authorization: { params: { scope: "identify" } },
+      authorization: {
+        url: "https://discord.com/api/oauth2/authorize",
+        params: { scope: "identify email" },
+      },
     }),
     {
       id: "hackclub",

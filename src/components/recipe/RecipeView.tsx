@@ -78,8 +78,64 @@ const RecipeView = ({ recipeId, preview }: Props) => {
   const { data: recipe } = api.recipe.get.useQuery({ id: recipeId });
 
   const session = useSession();
+  const utils = api.useUtils();
 
-  const { mutate: rateRecipe } = api.rating.rate.useMutation({});
+  const { data: ratings, isLoading: ratingsLoading } =
+    api.recipe.getRating.useQuery({ id: recipeId }, { enabled: !preview });
+
+  const { data: myRating } = api.rating.getMyRating.useQuery(
+    { recipeId },
+    { enabled: !preview && !!session.data },
+  );
+
+  const { mutate: rateRecipe } = api.rating.rate.useMutation({
+    onMutate: async ({ rating }) => {
+      await utils.recipe.getRating.cancel({ id: recipeId });
+      await utils.rating.getMyRating.cancel({ recipeId });
+
+      const prevRatings = utils.recipe.getRating.getData({ id: recipeId });
+      const prevMyRating = utils.rating.getMyRating.getData({ recipeId });
+
+      const oldValue = prevMyRating?.value ?? null;
+      const currentCount = prevRatings?._count ?? 0;
+      const currentAvg = prevRatings?._avg.value ?? null;
+
+      let newCount = currentCount;
+      let newAvg: number;
+      if (oldValue === null) {
+        newCount = currentCount + 1;
+        newAvg =
+          currentAvg === null
+            ? rating
+            : (currentAvg * currentCount + rating) / newCount;
+      } else {
+        newAvg =
+          currentCount === 0
+            ? rating
+            : (currentAvg! * currentCount - oldValue + rating) / currentCount;
+      }
+
+      utils.recipe.getRating.setData(
+        { id: recipeId },
+        prevRatings
+          ? { ...prevRatings, _avg: { value: newAvg }, _count: newCount }
+          : { _avg: { value: newAvg }, _count: newCount },
+      );
+      utils.rating.getMyRating.setData({ recipeId }, { value: rating });
+
+      return { prevRatings, prevMyRating };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevRatings !== undefined)
+        utils.recipe.getRating.setData({ id: recipeId }, ctx.prevRatings);
+      if (ctx?.prevMyRating !== undefined)
+        utils.rating.getMyRating.setData({ recipeId }, ctx.prevMyRating);
+    },
+    onSettled: () => {
+      void utils.recipe.getRating.invalidate({ id: recipeId });
+      void utils.rating.getMyRating.invalidate({ recipeId });
+    },
+  });
 
   const [scale, setScale] = useState(1);
   const [isMetricOverride, setIsMetric] = useState<boolean | null>(null);
@@ -97,14 +153,6 @@ const RecipeView = ({ recipeId, preview }: Props) => {
     return metric > imperial;
   }, [recipe]);
   const isMetric = isMetricOverride ?? defaultIsMetric;
-
-  const { data: ratings, isLoading: ratingsLoading } =
-    api.recipe.getRating.useQuery(
-      {
-        id: recipeId,
-      },
-      { enabled: !preview },
-    );
 
   return recipe ? (
     <Container className="text-text-700 flex flex-col gap-4 text-lg">
@@ -297,7 +345,8 @@ const RecipeView = ({ recipeId, preview }: Props) => {
                     size={28}
                     className={cn(
                       "text-primary-300 px-0.5 transition-colors",
-                      (hoverStar ?? 0) >= n && "fill-primary-300",
+                      (hoverStar !== null ? hoverStar : (myRating?.value ?? 0)) >= n &&
+                        "fill-primary-300",
                     )}
                   />
                 </button>
