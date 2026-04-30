@@ -328,11 +328,9 @@ const RecipeView = ({ recipeId, preview }: Props) => {
               </Button>
             }
             className="w-fit p-3"
+            openStyle="*:hover:bg-transparent!"
           >
-            <div
-              className="flex"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="flex" onClick={(e) => e.stopPropagation()}>
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
@@ -345,8 +343,9 @@ const RecipeView = ({ recipeId, preview }: Props) => {
                     size={28}
                     className={cn(
                       "text-primary-300 px-0.5 transition-colors",
-                      (hoverStar !== null ? hoverStar : (myRating?.value ?? 0)) >= n &&
-                        "fill-primary-300",
+                      (hoverStar !== null
+                        ? hoverStar
+                        : (myRating?.value ?? 0)) >= n && "fill-primary-300",
                     )}
                   />
                 </button>
