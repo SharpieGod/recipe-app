@@ -315,11 +315,19 @@ const RecipeView = ({ recipeId, preview }: Props) => {
       <div className="w-fit">
         {recipe.publishedAt && !preview ? (
           <Popdown
-            enabled={!!session.data}
+            enabled={!!session.data && session.data.user.id !== recipe.user.id}
             trigger={
               <Button
-                disabled={!session.data}
-                title={!session.data ? "Sign in to rate" : undefined}
+                disabled={
+                  !session.data || session.data.user.id === recipe.user.id
+                }
+                title={
+                  !session.data
+                    ? "Sign in to rate"
+                    : session.data.user.id === recipe.user.id
+                      ? "You can't rate your own recipe"
+                      : undefined
+                }
                 variant="primary"
                 className="flex items-center gap-2"
               >
@@ -343,9 +351,8 @@ const RecipeView = ({ recipeId, preview }: Props) => {
                     size={28}
                     className={cn(
                       "text-primary-300 px-0.5 transition-colors",
-                      (hoverStar !== null
-                        ? hoverStar
-                        : (myRating?.value ?? 0)) >= n && "fill-primary-300",
+                      (hoverStar ?? myRating?.value ?? 0) >= n &&
+                        "fill-primary-300",
                     )}
                   />
                 </button>

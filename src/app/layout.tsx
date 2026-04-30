@@ -11,7 +11,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 export const metadata: Metadata = {
   title: "Recipe Notebook",
   description: "An extensive website for keeping recipes.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/chef-hat.png" }],
 };
 
 export default function RootLayout({

@@ -24,6 +24,13 @@ export const ratingRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx: { session, db }, input }) => {
+      const recipe = await db.recipe.findUnique({
+        where: { id: input.recipeId },
+        select: { userId: true },
+      });
+      if (recipe?.userId === session.user.id)
+        throw new Error("You cannot rate your own recipe");
+
       return db.rating.upsert({
         where: {
           userId_recipeId: {

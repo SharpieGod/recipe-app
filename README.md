@@ -1,16 +1,21 @@
 # Recipe Notebook
 
-A personal recipe manager where you can create, organize, and share your recipes. Sign in with Discord or Hack Club, build your cookbook, and publish recipes for others to see.
+A personal recipe manager where you can create, organize, and share recipes. Sign in with Discord or Hack Club, build your cookbook, publish recipes for others to discover, and rate what you cook.
 
 ---
 
 ## Features
 
-- **Create & edit recipes** — Add ingredients (with units), group them, write step-by-step instructions, and upload a cover photo
-- **Drag to reorder** — Rearrange ingredients and steps by dragging them
-- **Publish or keep private** — Recipes stay private until you choose to publish them
-- **Rate recipes** — Leave star ratings on published recipes
-- **Preview before publishing** — See exactly how your recipe looks to others before going public
+- **Create & edit recipes** — Add a title, description, prep/cook time, servings, tags, cover photo, ingredient groups, and step-by-step instructions
+- **Drag to reorder** — Rearrange ingredients (within and between groups), ingredient groups, and steps by dragging
+- **Auto-save** — Changes are debounced and saved to the server automatically as you type
+- **Ingredient scaling** — Scale any recipe to 0.5×, 1×, 2×, 5×, or 10× — quantities and servings update instantly
+- **Unit conversion** — Toggle between metric and imperial; values are converted with kitchen-friendly precision (fractions for imperial, decimals for metric)
+- **Tags** — Tag recipes for better searchability; tags are weighted higher in search results
+- **Browse & search** — Full-text fuzzy search across all published recipes, ranked by relevance and average rating
+- **Publish or keep private** — Recipes stay private until you publish them; published recipes are immutable and visible to anyone
+- **Star ratings** — Rate any published recipe 1–5 stars; average rating and count are shown on every recipe card
+- **User profiles** — View all published recipes from any user at `/user-recipes/[id]`
 
 ---
 
@@ -49,9 +54,17 @@ UPLOADTHING_TOKEN=""
 > - **Discord OAuth** — [discord.com/developers/applications](https://discord.com/developers/applications) → New Application → OAuth2
 > - **Hack Club OAuth** — [identity.hackclub.com](https://identity.hackclub.com)
 > - **UploadThing** — [uploadthing.com](https://uploadthing.com) → create a project and copy the token
-> - **Database** — [supabase.com](https://supabase.com) for a free hosted Postgres, or run locally with the included script
+> - **Database** — [supabase.com](https://supabase.com) for a free hosted Postgres (enable the `pg_trgm` extension), or run locally with the included script
 
-### 3. Start the database
+### 3. Enable the pg_trgm extension
+
+The search feature requires PostgreSQL's `pg_trgm` extension. If using Supabase, run this once in the SQL editor:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+```
+
+### 4. Start the database (local only)
 
 If running locally with Docker/Podman:
 
@@ -59,15 +72,15 @@ If running locally with Docker/Podman:
 ./start-database.sh
 ```
 
-Or just paste your Supabase connection strings in `.env` and skip this step.
+Or paste your Supabase connection strings in `.env` and skip this step.
 
-### 4. Push the database schema
+### 5. Push the database schema
 
 ```bash
 pnpm db:push
 ```
 
-### 5. Run the app
+### 6. Run the app
 
 ```bash
 pnpm dev
@@ -93,15 +106,17 @@ Open [http://localhost:3000](http://localhost:3000) — done!
 
 ## Tech Stack
 
-|              |                                   |
-| ------------ | --------------------------------- |
-| Framework    | Next.js 15 (App Router)           |
-| Language     | TypeScript                        |
-| Styling      | Tailwind CSS + Framer Motion      |
-| API          | tRPC                              |
-| Database     | PostgreSQL + Prisma               |
-| Auth         | NextAuth v5 (Discord & Hack Club) |
-| File uploads | UploadThing                       |
+|              |                                          |
+| ------------ | ---------------------------------------- |
+| Framework    | Next.js 15 (App Router)                  |
+| Language     | TypeScript                               |
+| Styling      | Tailwind CSS + Framer Motion             |
+| API          | tRPC v11 + React Query                   |
+| Database     | PostgreSQL + Prisma                      |
+| Search       | PostgreSQL `pg_trgm` (fuzzy full-text)   |
+| Auth         | NextAuth v5 (Discord & Hack Club OAuth)  |
+| File uploads | UploadThing                              |
+| Drag & drop  | @dnd-kit                                 |
 
 ---
 
@@ -111,18 +126,40 @@ Open [http://localhost:3000](http://localhost:3000) — done!
 
 1. Sign in at `/sign-in`
 2. Go to **My Recipes** and click **New Recipe**
-3. Add a title, description, cook time, and servings
-4. Add ingredients — pick a unit (cup, grams, etc.) and a label
-5. Write your steps — drag to reorder them anytime
+3. Add a title, description, prep/cook time, servings, and tags
+4. Add ingredient groups and ingredients — choose a unit and label for each
+5. Write your steps
 6. Upload a cover photo
-7. Hit **Save**
+7. Changes save automatically — no save button needed
+
+### Reordering content
+
+Drag the handle icon next to any ingredient, ingredient group, or step to reorder it. You can also drag ingredients between groups.
+
+### Scaling a recipe
+
+On any recipe view page, use the scale buttons (0.5×, 1×, 2×, 5×, 10×) to adjust quantities. Servings update to match. This is display-only and doesn't modify the stored recipe.
+
+### Switching units
+
+Use the metric/imperial toggle on a recipe view to convert all ingredient quantities. Imperial values display as fractions; metric values display as decimals.
 
 ### Publishing a recipe
 
 1. Open the recipe and click **Preview** to see how it looks publicly
-2. If you're happy with it, click **Publish**
-3. Published recipes are visible to anyone with the link
+2. When ready, click **Publish**
+3. The app validates your recipe before publishing (title, ingredient labels, step text)
+4. Confirm the warning — **published recipes cannot be edited**
+5. Published recipes are visible at `/recipe/[id]` and appear in search results
+
+### Browsing & searching
+
+Go to `/search` to browse all published recipes. Type in the search box for fuzzy full-text search — results are ranked by tag matches, then title, then description, then average rating. Scroll down to load more.
 
 ### Rating a recipe
 
-Open any published recipe and click a star (1–5) at the bottom of the page.
+Open any published recipe you don't own and click a star (1–5). Your rating is saved immediately and the average updates in real time. You can change your rating by clicking a different star.
+
+### Viewing a user's recipes
+
+Click a recipe author's name or avatar to go to their profile at `/user-recipes/[id]`, which shows all of their published recipes.
