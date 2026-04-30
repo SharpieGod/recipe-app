@@ -30,7 +30,7 @@ const HomePage = async () => {
                 <Button variant="empty">My Recipes</Button>
               </Link>
             ) : (
-              <Link href="/auth/signin">
+              <Link href="/sign-in">
                 <Button variant="empty">Get Started</Button>
               </Link>
             )}
