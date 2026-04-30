@@ -12,14 +12,18 @@ type Props = {
 const SearchResults = ({ query }: Props) => {
   const { data, fetchNextPage, hasNextPage, isLoading } =
     api.recipe.search.useInfiniteQuery(
-      { query, limit: 20 },
+      { query, limit: 6 },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
         initialCursor: 0,
       },
     );
 
-  const items = data?.pages.flatMap((p) => p.items) ?? [];
+  const seen = new Set<string>();
+  const items =
+    data?.pages
+      .flatMap((p) => p.items)
+      .filter((r) => (seen.has(r.id) ? false : seen.add(r.id))) ?? [];
 
   if (isLoading) {
     return <p className="text-text-500 py-4 text-center">Loading...</p>;
