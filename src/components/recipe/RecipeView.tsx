@@ -51,8 +51,11 @@ function displayIngredient(
 import UserImage from "../user/UserImage";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { Star, X } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { useSession } from "next-auth/react";
+import Button from "../generic/Button";
+import Popdown from "../generic/Popdown";
 
 type Props = {
   preview?: boolean;
@@ -74,11 +77,13 @@ export function formatMinutesToTime(totalMinutes: number) {
 const RecipeView = ({ recipeId, preview }: Props) => {
   const { data: recipe } = api.recipe.get.useQuery({ id: recipeId });
 
-  const { data: rating, isPending: ratingsPending } =
-    api.recipe.getRating.useQuery({ id: recipeId });
+  const session = useSession();
+
+  const { mutate: rateRecipe } = api.rating.rate.useMutation({});
 
   const [scale, setScale] = useState(1);
   const [isMetricOverride, setIsMetric] = useState<boolean | null>(null);
+  const [hoverStar, setHoverStar] = useState<number | null>(null);
   const defaultIsMetric = useMemo(() => {
     if (!recipe) return false;
     let metric = 0,
@@ -92,6 +97,14 @@ const RecipeView = ({ recipeId, preview }: Props) => {
     return metric > imperial;
   }, [recipe]);
   const isMetric = isMetricOverride ?? defaultIsMetric;
+
+  const { data: ratings, isLoading: ratingsLoading } =
+    api.recipe.getRating.useQuery(
+      {
+        id: recipeId,
+      },
+      { enabled: !preview },
+    );
 
   return recipe ? (
     <Container className="text-text-700 flex flex-col gap-4 text-lg">
@@ -114,8 +127,8 @@ const RecipeView = ({ recipeId, preview }: Props) => {
         </Link>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <div className="text-text-500 flex gap-8">
+      <div className="flex w-full flex-col gap-2">
+        <div className="text-text-500 w-full1 flex gap-8">
           <span className="flex items-center gap-1">
             Servings: {recipe.servings}
           </span>
@@ -131,6 +144,18 @@ const RecipeView = ({ recipeId, preview }: Props) => {
               ? formatMinutesToTime(recipe.cookTimeMinutes)
               : "?"}
           </span>
+
+          {recipe.publishedAt ? (
+            <span
+              aria-busy={ratingsLoading || !ratings}
+              className="self-end transition-opacity duration-300 not-aria-busy:opacity-100 aria-busy:opacity-50"
+            >
+              Rating:{" "}
+              {ratingsLoading || !ratings
+                ? "?/5 (?)"
+                : `${ratings._avg.value ?? "?"}/5 (${ratings._count})`}
+            </span>
+          ) : null}
         </div>
         {recipe.tags.length > 0 ? (
           <ul className="text-text-500 flex flex-wrap gap-2 text-base">
@@ -237,6 +262,49 @@ const RecipeView = ({ recipeId, preview }: Props) => {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="w-fit">
+        {recipe.publishedAt && !preview ? (
+          <Popdown
+            enabled={!!session.data}
+            trigger={
+              <Button
+                disabled={!session.data}
+                title={!session.data ? "Sign in to rate" : undefined}
+                variant="primary"
+                className="flex items-center gap-2"
+              >
+                <Star size={16} />
+                Rate recipe
+              </Button>
+            }
+            className="w-fit p-3"
+          >
+            <div
+              className="flex"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  onMouseEnter={() => setHoverStar(n)}
+                  onMouseLeave={() => setHoverStar(null)}
+                  onClick={() => rateRecipe({ recipeId, rating: n })}
+                  className="cursor-pointer"
+                >
+                  <Star
+                    size={28}
+                    className={cn(
+                      "text-primary-300 px-0.5 transition-colors",
+                      (hoverStar ?? 0) >= n && "fill-primary-300",
+                    )}
+                  />
+                </button>
+              ))}
+            </div>
+          </Popdown>
+        ) : null}
       </div>
     </Container>
   ) : (

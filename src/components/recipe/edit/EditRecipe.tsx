@@ -170,10 +170,20 @@ const EditRecipe = ({ recipeId }: Props) => {
   const { mutate: publishRecipe } = api.recipe.updateStatus.useMutation({
     onMutate(variables) {
       utils.recipe.get.setData({ id: recipeId }, (prev) =>
-        prev ? { ...prev, puclicityStatus: variables.puclicityStatus } : prev,
+        prev
+          ? {
+              ...prev,
+              publishedAt: variables.puclicityStatus ? new Date() : null,
+            }
+          : prev,
       );
       utils.recipe.getPreview.setData({ id: recipeId }, (prev) =>
-        prev ? { ...prev, puclicityStatus: variables.puclicityStatus } : prev,
+        prev
+          ? {
+              ...prev,
+              publishedAt: variables.puclicityStatus ? new Date() : null,
+            }
+          : prev,
       );
       intentionalNav.current = true;
       router.push(`/recipe/${recipeId}`);
@@ -1284,15 +1294,18 @@ const EditRecipe = ({ recipeId }: Props) => {
         >
           <h1 className="text-xl">Publish &quot;{localRecipe?.title}&quot;?</h1>
           {publishErrors.length > 0 ? (
-            <ul className="flex flex-col gap-1 text-sm text-red-500">
+            <ul className="flex flex-col gap-1 text-sm text-red-400">
               {publishErrors.map((e, i) => (
                 <li key={i}>{e}</li>
               ))}
             </ul>
           ) : (
             <span className="text-text-500">
-              This will make your recipe visible to others. You will not be able
-              to edit your recipe after this.
+              This will make your recipe visible to others.
+              <br />
+              <span className="font-bold text-red-400">
+                You will not be able to edit your recipe after this.
+              </span>
             </span>
           )}
           <div className="flex gap-2">
