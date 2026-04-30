@@ -26,7 +26,7 @@ A personal recipe manager where you can create, organize, and share recipes. Sig
 ### 1. Clone & install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/SharpieGod/recipe-app
 cd food-diary-better
 pnpm install
 ```
